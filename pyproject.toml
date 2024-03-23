@@ -1,0 +1,42 @@
+[project]
+description = "The code behind https://voterbowl.org/"
+name = "voterbowl"
+version = "0.0.1"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "Dave Peck", email = "dave@frontseat.org" }]
+license = { text = "MIT" }
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+]
+
+[tool.mypy]
+exclude = [".venv"]
+ignore_missing_imports = true
+disallow_untyped_defs = false
+show_error_codes = true
+
+[tool.ruff]
+exclude = [".venv"]
+
+[tool.ruff.lint]
+extend-select = [
+  "E", # style errors
+  "D", # pydocstyle
+  "C", # flake8-comprehensions
+  "B", # flake8-bugbear
+]
+extend-ignore = [
+  "D100", # Allow missing docstring in public module
+  "D203", # Instead, use D211 (zero blank lines before class docstring)
+  "D212", # Instead, use D213 (start multi-line summaries on the second line)
+  "D413", # Allow missing blank line after last section of docstring (who cares?)
+]
+
+[project.urls]
+Homepage = "https://github.com/front-seat/voterbowl"
+Changelog = "https://github.com/front-seat/voterbowl/releases"
+Issues = "https://github.com/front-seat/voterbowl/issues"
+CI = "https://github.com/front-seat/voterbowl/actions"

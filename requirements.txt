@@ -1,0 +1,8 @@
+django>=5,<6
+django-htmx>=1,<2
+psycopg[binary]>=3,<4
+whitenoise>=6,<7
+ruff>=0.3.4
+mypy>=1.9.0
+gunicorn>=21,<22
+uvicorn[standard]>=0.29.0

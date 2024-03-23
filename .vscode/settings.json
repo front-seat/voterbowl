@@ -1,0 +1,15 @@
+{
+  "python.testing.unittestEnabled": true,
+  "testing.autoRun.delay": 250,
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "explicit"
+    },
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "[html][django-html]": {
+    "editor.defaultFormatter": "monosans.djlint"
+  }
+}

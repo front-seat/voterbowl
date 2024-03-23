@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "batisteo.vscode-django",
+    "charliermarsh.ruff",
+    "editorconfig.editorconfig",
+    "monosans.djlint",
+    "ms-python.python",
+    "ms-python.vscode-pylance"
+  ]
+}
