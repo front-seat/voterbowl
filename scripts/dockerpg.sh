@@ -12,10 +12,12 @@ migrate() {
 
 createsuperuser() {
     if [ -z "$DJANGO_SUPERUSER_EMAIL" ]; then
-      echo "DJANGO_SUPERUSER_EMAIL is not set. Will not create a superuser."
-    else
-      python manage.py createsuperuser --noinput
+      # SUPER TOP SECRET (okay, not really)
+      export DJANGO_SUPERUSER_USERNAME="dev@frontseat.org"
+      export DJANGO_SUPERUSER_EMAIL="dev@frontseat.org"
+      export DJANGO_SUPERUSER_PASSWORD="dev123!"
     fi
+    python manage.py createsuperuser --noinput
 }
 
 start() {

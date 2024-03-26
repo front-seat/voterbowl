@@ -17,11 +17,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.contrib import admin
 from django.urls import include, path
+
+from .admin import admin_site
 
 urlpatterns = [
     path("__reload__/", include("django_browser_reload.urls")),
-    path("admin/", admin.site.urls),
+    path("admin/", admin_site.urls),
     path("", include("server.vb.urls")),
 ]

@@ -54,6 +54,15 @@ MIDDLEWARE = [
     "django_htmx.middleware.HtmxMiddleware",
 ]
 
+if not DEBUG:
+    MIDDLEWARE = (
+        MIDDLEWARE[:1]
+        + [
+            "whitenoise.middleware.WhiteNoiseMiddleware",
+        ]
+        + MIDDLEWARE[1:]
+    )
+
 ROOT_URLCONF = "server.urls"
 
 TEMPLATES = [
@@ -122,6 +131,14 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "server" / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+if not DEBUG:
+    STORAGES = {
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        }
+    }
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
