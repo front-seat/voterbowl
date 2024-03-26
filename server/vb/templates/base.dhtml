@@ -1,0 +1,37 @@
+{% load django_htmx %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="description" content="VoterBowl: online voting competitions.">
+    <meta name="keywords" content="voting, competition, online">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+      {% block title %}
+        VoterBowl
+      {% endblock title %}
+    </title>
+    <script src="{% static 'js/htmx.min.js' %}" defer></script>
+    <script src="{% static 'js/css-scope-inline.js' %}" defer></script>
+    <script src="{% static 'js/surreal.js' %}" defer></script>
+    {% django_htmx_script %}
+    <link rel="stylesheet" href="{% static 'css/modern-normalize.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  </head>
+  <body>
+    {% block body %}
+      VoterBowl, coming soon.
+      <div>
+        <style>
+          me { 
+            background: blue;
+            color: white;
+          }
+        </style>
+        PREPARE TO VOTE, DAWG!
+      </div>
+    {% endblock body %}
+  </body>
+</html>
