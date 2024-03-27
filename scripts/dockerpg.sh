@@ -7,6 +7,7 @@
 
 migrate() {
     # Run the wrapper script around django's migrate + superuser creation
+    export DATABASE_URL=postgres://${USER}:password@localhost:5432/postgres
     python manage.py migrate
 }
 
@@ -17,6 +18,8 @@ createsuperuser() {
       export DJANGO_SUPERUSER_EMAIL="dev@frontseat.org"
       export DJANGO_SUPERUSER_PASSWORD="dev123!"
     fi
+    echo "Creating superuser: ${DJANGO_SUPERUSER_USERNAME}:"
+    export DATABASE_URL=postgres://${USER}:password@localhost:5432/postgres
     python manage.py createsuperuser --noinput
 }
 
@@ -32,21 +35,13 @@ start() {
 stop() {
     # Spin down the database and delete the docker instance
     docker stop pg-voterbowl
-    docker rm pg-voterbowl
+    docker rm -v pg-voterbowl
 }
 
-restart() {
+reset() {
     # Spin down the database, delete the docker instance, then spin up a new one
     stop
     start
-}
-
-resetdb() {
-    # Drop the current database and clean it again
-    PGPASSWORD=password dropdb --host=localhost --port=5432 --username=${USER} --no-password postgres
-    PGPASSWORD=password createdb --host=localhost --port=5432 --username=${USER} --no-password postgres
-    migrate
-    createsuperuser
 }
 
 logs() {
@@ -67,11 +62,8 @@ case "$1" in
     'stop')
         stop
         ;;
-    'restart')
-        restart
-        ;;
-    'resetdb')
-        resetdb
+    'reset')
+        reset
         ;;
     'logs')
         logs
