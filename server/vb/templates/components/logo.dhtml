@@ -1,0 +1,8 @@
+{% with width=width|default:"32px" height=height|default:"32px" %}
+  <div class="logo"
+       style="width: {{ width }};
+              height: {{ height }};
+              background-color: {{ logo.bg_color }}">
+    <img src="{{ logo.url }}" alt="TODO alt" />
+  </div>
+{% endwith %}

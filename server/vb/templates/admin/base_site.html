@@ -1,0 +1,7 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% block extrahead %}
+  {{ block.super }}
+  <script src="{% static 'js/css-scope-inline.js' %}" defer></script>
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+{% endblock extrahead %}

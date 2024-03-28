@@ -3,11 +3,12 @@ from typing import Any
 from django import forms
 from django.contrib import admin
 from django.core.files.uploadedfile import UploadedFile
-from django.utils.html import format_html
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 
 from server.admin import admin_site
 
-from .models import School, Student
+from .models import Logo, School, Student
 
 
 def validate_file_is_image(file: UploadedFile) -> None:
@@ -23,19 +24,28 @@ class SchoolForm(forms.ModelForm):
 
     # ImageField doesn't accept SVGs, apparently
     logo_image = forms.FileField(validators=[validate_file_is_image], required=False)
+    logo_bg_color = forms.CharField(
+        required=False, help_text="Bubble bg color (default: transparent)"
+    )
 
     class Meta:
         """Meta options."""
 
         model = School
-        exclude = ["logo_mime", "logo"]
+        exclude = ["logo_json"]
 
     def save(self, *args: Any, **kwargs: Any) -> Any:
         """Set the `logo` and `logo_mime` fields."""
         logo_image = self.cleaned_data.get("logo_image")
+        bg_color = self.cleaned_data.get("logo_bg_color") or "transparent"
         if logo_image:
-            self.instance.logo = logo_image.read()
-            self.instance.logo_mime = logo_image.content_type
+            self.instance.logo = Logo.from_bytes(
+                bytes_=logo_image.read(),
+                mime=logo_image.content_type,
+                bg_color=bg_color,
+            )
+        elif bg_color != "transparent":
+            self.instance.logo = self.instance.logo.replace(bg_color=bg_color)
         return super().save(*args, **kwargs)
 
 
@@ -53,14 +63,17 @@ class SchoolAdmin(admin.ModelAdmin):
         "mail_domains",
     )
     search_fields = ("name", "short_name", "slug")
-    readonly_fields = ("logo_data_url", "logo_mime")
+    readonly_fields = ("logo_json",)
 
-    def logo_display(self, obj):
-        """Return the logo as an image."""
-        return format_html(
-            '<img src="{}" width="100" height="100" />',
-            obj.logo_data_url(),
-        )
+    def logo_display(self, obj: School):
+        """Return the logo as an bubble image."""
+        context = {
+            "logo": obj.logo,
+            "width": "48px",
+            "height": "48px",
+        }
+
+        return mark_safe(render_to_string("components/logo.dhtml", context))
 
     logo_display.short_description = "Logo"
 

@@ -33,7 +33,6 @@ ALLOWED_HOSTS: list[str] = []
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -42,6 +41,7 @@ INSTALLED_APPS = [
     "django_browser_reload",
     "django_htmx",
     "server.vb",
+    "django.contrib.admin",
 ]
 
 MIDDLEWARE = [

@@ -3,10 +3,27 @@
   --font-sans: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
   --font-serif: Iowan Old Style, Apple Garamond, Baskerville, Times New Roman, Droid Serif, Times, Source Serif Pro, serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
   --font-mono: Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+
+  --lime: #CDFF64;
+  --white-70: rgba(255, 255, 255, 0.7);
 }
 
 html {
   font-size: 16px;
   font-family: var(--font-sans);
   line-height: 1.5;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  border-radius: 100%;
+  overflow: hidden;
+}
+
+.logo>img {
+  display: block;
+  margin: 0 auto;
+  max-width: 80%;
+  max-height: 80%;
 }
