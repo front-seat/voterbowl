@@ -32,3 +32,10 @@ html {
   font-display: swap;
   font-style: normal;
 }
+
+
+/** Django admin */
+
+.tabular.inline-related td.original p {
+  visibility: hidden
+}

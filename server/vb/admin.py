@@ -1,4 +1,4 @@
-from typing import Any
+import typing as t
 
 from django import forms
 from django.contrib import admin
@@ -8,51 +8,72 @@ from django.utils.safestring import mark_safe
 
 from server.admin import admin_site
 
-from .models import Logo, School, Student
+from .models import ImageMimeType, Logo, School, Student
 
 
 def validate_file_is_image(file: UploadedFile) -> None:
     """Validate that the file is an image."""
     if file.content_type is None:
         raise forms.ValidationError("File has no content type.")
-    if not file.content_type.startswith("image/"):
+    if file.content_type not in ImageMimeType.values:
         raise forms.ValidationError("File is not an image.")
 
 
-class SchoolForm(forms.ModelForm):
-    """School form."""
-
-    # ImageField doesn't accept SVGs, apparently
-    logo_image = forms.FileField(validators=[validate_file_is_image], required=False)
-    logo_bg_color = forms.CharField(
-        required=False, help_text="Bubble bg color (default: transparent)"
-    )
+class LogoForm(forms.ModelForm):
+    """Logo form."""
 
     class Meta:
-        """Meta options."""
+        """Meta class."""
 
-        model = School
-        exclude = ["logo_json"]
+        model = Logo
+        fields = ("choose_image", "bg_color", "action_color")
 
-    def save(self, *args: Any, **kwargs: Any) -> Any:
-        """Set the `logo` and `logo_mime` fields."""
-        logo_image = self.cleaned_data.get("logo_image")
-        bg_color = self.cleaned_data.get("logo_bg_color") or "transparent"
-        if logo_image:
-            self.instance.logo = Logo.from_bytes(
-                bytes_=logo_image.read(),
-                mime=logo_image.content_type,
-                bg_color=bg_color,
-            )
-        elif bg_color != "transparent":
-            self.instance.logo = self.instance.logo.replace(bg_color=bg_color)
+    choose_image = forms.FileField(validators=[validate_file_is_image], required=False)
+
+    def save(self, *args: t.Any, **kwargs: t.Any):
+        """Save the form."""
+        choose_image = self.cleaned_data.pop("choose_image", None)
+        if choose_image is not None:
+            self.instance.data = choose_image.read()
+            self.instance.content_type = choose_image.content_type
         return super().save(*args, **kwargs)
 
 
-class SchoolAdmin(admin.ModelAdmin):
-    """School admin."""
+class RenderLogoSpecimenMixin:
+    """Logo display mixin."""
 
-    form = SchoolForm
+    def render_logo_specimen(self, obj: Logo):
+        """Return the logo as an image."""
+        if obj is None:
+            return None
+
+        context = {
+            "logo": obj,
+            "width": "48px",
+            "height": "48px",
+        }
+        return mark_safe(render_to_string("components/logo_specimen.dhtml", context))
+
+
+class LogoAdmin(admin.TabularInline, RenderLogoSpecimenMixin):
+    """Logo admin."""
+
+    model = Logo
+    form = LogoForm
+    fields = ("logo_display", "choose_image", "bg_color", "action_color")
+    readonly_fields = ("logo_display",)
+    extra = 0
+
+    @admin.display(description="Logo")
+    def logo_display(self, obj: Logo):
+        """Return the logo as an bubble image."""
+        if not obj.data:
+            return None
+        return self.render_logo_specimen(obj)
+
+
+class SchoolAdmin(admin.ModelAdmin, RenderLogoSpecimenMixin):
+    """School admin."""
 
     list_display = (
         "name",
@@ -63,18 +84,16 @@ class SchoolAdmin(admin.ModelAdmin):
         "mail_domains",
     )
     search_fields = ("name", "short_name", "slug")
-    readonly_fields = ("logo_json",)
+    inlines = [LogoAdmin]
 
     @admin.display(description="Logo")
     def logo_display(self, obj: School):
         """Return the logo as an bubble image."""
-        context = {
-            "logo": obj.logo,
-            "width": "48px",
-            "height": "48px",
-        }
-
-        return mark_safe(render_to_string("components/logo.dhtml", context))
+        try:
+            logo = obj.logo
+        except Logo.DoesNotExist:
+            return None
+        return self.render_logo_specimen(logo)
 
 
 class StudentAdmin(admin.ModelAdmin):

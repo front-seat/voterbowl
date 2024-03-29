@@ -7,9 +7,8 @@
 {% block body %}
   <div>
     <style>
-      me {
-        font-size: 1.5em;
-
+      me h1 {
+        font-weight: 200;
       }
     </style>
     <h1>Voter Bowl</h1>
