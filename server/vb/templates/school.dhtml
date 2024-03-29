@@ -6,19 +6,6 @@
 
 {% block body %}
   <div>
-    {# djlint:off #}
-    <style>
-      .background {
-        background-color: {{ school.logo.bg_color }};
-        color: {{ school.logo.bg_text_color }};
-      }
-
-      .action {
-        background-color: {{ school.logo.action_color }};
-        color: {{ school.logo.action_text_color }};
-      }
-</style>
-    {# djlint:on #}
     <style>
       self {
         width: 100%;
@@ -29,13 +16,51 @@
 
       self .cta {
         width: 100%;
+        text-align: center;
+      }
+
+      self .cta img {
+        height: 150px;
+        margin: 1.5rem 0;
+      }
+
+      self .cta p {
+        font-weight: 378;
+        font-size: 20px;
+        line-height: 130%;
+      }
+
+      self .cta h2 {
+        font-weight: 500;
+        font-size: 36px;
+        line-height: 120%;
+        text-transform: uppercase;
       }
 
       self .faq {
+        width: 100%;
         color: white;
       }
+
+      self .giveaway {
+        height: 10rem;
+      }
     </style>
-    <div class="cta background">Hello friends.</div>
-    <div class="faq">Hello</div>
+    <div class="cta"
+         style="background-color: {{ school.logo.bg_color }};
+                color: {{ school.logo.bg_text_color }}">
+      <div class="container">
+        <div class="giveaway"></div>
+        <img src="{{ school.logo.url }}"
+             alt="{{ school.short_name }} {{ school.mascot }} logo" />
+        <h2>Welcome to the Voter Bowl</h2>
+        <p>
+          {{ school.short_name }} students: check your voter registration status for a 1 in 10 chance to win a $25 Amazon gift card.
+        </p>
+      </div>
+    </div>
+    <div class="faq">
+      <div class="container">{% include "includes/faq.dhtml" %}</div>
+    </div>
   </div>
 {% endblock body %}

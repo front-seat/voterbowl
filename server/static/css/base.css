@@ -34,14 +34,21 @@ html {
   font-style: normal;
 }
 
+/** Further reset; why doesn't modern-normalize do this? */
 
-
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+}
 
 /* All containers behave this way. */
 .container {
-  width: 100%;
-  margin-left: 0.25em;
-  margin-right: 0.25em;
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 
 

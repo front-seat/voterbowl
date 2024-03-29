@@ -1,0 +1,56 @@
+<div>
+  <style>
+    self {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding-top: 2.5rem;
+      padding-bottom: 2.5rem;
+    }
+
+    self .qa {
+      display: flex;
+      flex-direction: column;
+    }
+
+    self h2 {
+      font-size: 36px;
+      font-weight: 440;
+      line-height: 130%;
+      margin-bottom: 1rem;
+    }
+
+    self h3 {
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 28px;
+    }
+
+    self p {
+      font-weight: 378;
+      font-size: 18px;
+      line-height: 28px;
+      opacity: 0.7;
+    }
+  </style>
+  <h2>F.A.Q.</h2>
+  <div class="qa">
+    <h3>Who organized the Voter Bowl?</h3>
+    <p>
+      The Voter Bowl is a non-profit project of Front Seat.
+      Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+      Lorem Ipsum has been the industry's standard dummy text ever since the
+      1500s, when an unknown printer took a galley of type and scrambled it to
+      make a type specimen book.
+    </p>
+  </div>
+  <div class="qa">
+    <h3>Lorem ipsum lorem ipsum?</h3>
+    <p>
+      Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+      Lorem Ipsum has been the industry's standard dummy text ever since the
+      1500s, when an unknown printer took a galley of type and scrambled it to
+      make a type specimen book.
+    </p>
+  </div>
+</div>
