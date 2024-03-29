@@ -29,6 +29,7 @@
       }
 
       self .action {
+        cursor: pointer;
         display: flex;
         font-weight: 600;
         align-items: center;

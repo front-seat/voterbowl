@@ -14,23 +14,24 @@
         align-items: center;
       }
 
-      self .cta {
+      self main {
         width: 100%;
         text-align: center;
+        padding: 2rem 0;
       }
 
-      self .cta img {
+      self main img {
         height: 150px;
         margin: 1.5rem 0;
       }
 
-      self .cta p {
+      self main p {
         font-weight: 378;
         font-size: 20px;
         line-height: 130%;
       }
 
-      self .cta h2 {
+      self main h2 {
         font-weight: 500;
         font-size: 36px;
         line-height: 120%;
@@ -40,25 +41,29 @@
       self .faq {
         width: 100%;
         color: white;
+        padding: 2rem 0;
       }
 
-      self .giveaway {
-        height: 10rem;
+      self .button-holder {
+        display: flex;
+        justify-content: center;
+        margin: 1.5rem 0;
       }
     </style>
-    <div class="cta"
-         style="background-color: {{ school.logo.bg_color }};
-                color: {{ school.logo.bg_text_color }}">
+    <main style="background-color: {{ school.logo.bg_color }};
+                 color: {{ school.logo.bg_text_color }}">
       <div class="container">
-        <div class="giveaway"></div>
         <img src="{{ school.logo.url }}"
              alt="{{ school.short_name }} {{ school.mascot }} logo" />
         <h2>Welcome to the Voter Bowl</h2>
         <p>
           {{ school.short_name }} students: check your voter registration status for a 1 in 10 chance to win a $25 Amazon gift card.
         </p>
+        <div class="button-holder">
+          {% include "components/button.dhtml" with text="Check my voter status" bg_color=school.logo.action_color color=school.logo.action_text_color %}
+        </div>
       </div>
-    </div>
+    </main>
     <div class="faq">
       <div class="container">{% include "includes/faq.dhtml" %}</div>
     </div>

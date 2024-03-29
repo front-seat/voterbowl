@@ -1,0 +1,22 @@
+<button style="background-color: {{ bg_color }}; color: {{ color }};">
+  <style>
+    self {
+      cursor: pointer;
+      transition: opacity 0.2s ease-in-out;
+      text-transform: uppercase;
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 100%;
+      border: none;
+      text-align: center;
+      letter-spacing: 0.05em;
+      padding: 20px 24px;
+    }
+
+    self:hover {
+      opacity: 0.7;
+      transition: opacity 0.2s ease-in-out;
+    }
+  </style>
+  {{ text }}
+</button>

@@ -47,8 +47,8 @@ h6 {
 
 /* All containers behave this way. */
 .container {
-  margin-left: 1rem;
-  margin-right: 1rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 
@@ -58,10 +58,4 @@ h6 {
     max-width: 640px;
     margin: 0 auto;
   }
-}
-
-
-/** Django admin */
-.tabular.inline-related td.original p {
-  visibility: hidden
 }
