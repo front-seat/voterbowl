@@ -1,7 +1,5 @@
 :root {
-  /* define a sans-serif font variable */
-  --font-sans: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
-  --font-serif: Iowan Old Style, Apple Garamond, Baskerville, Times New Roman, Droid Serif, Times, Source Serif Pro, serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+  --font-sans: 'Nippo', sans-serif;
   --font-mono: Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
 
   --lime: #CDFF64;
@@ -11,19 +9,26 @@
 html {
   font-size: 16px;
   font-family: var(--font-sans);
-  line-height: 1.5;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  border-radius: 100%;
-  overflow: hidden;
-}
 
-.logo>img {
-  display: block;
-  margin: 0 auto;
-  max-width: 80%;
-  max-height: 80%;
+/**
+* This is a variable font
+* You can controll variable axes as shown below:
+* font-variation-settings: 'wght' 700.0;
+*
+* available axes:
+
+* 'wght' (range from 200.0 to 700.0)
+
+*/
+
+@font-face {
+  font-family: 'Nippo';
+  src: url('../fonts/Nippo-Variable.woff2') format('woff2'),
+    url('../fonts/Nippo-Variable.woff') format('woff'),
+    url('../fonts/Nippo-Variable.ttf') format('truetype');
+  font-weight: 200 700;
+  font-display: swap;
+  font-style: normal;
 }

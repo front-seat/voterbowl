@@ -13,10 +13,14 @@ classifiers = [
 ]
 
 [tool.mypy]
-exclude = [".venv"]
+exclude = [".venv", "migrations"]
 ignore_missing_imports = true
 disallow_untyped_defs = false
 show_error_codes = true
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "server.settings"
 
 [tool.ruff]
 exclude = [".venv", "**/migrations/**"]
@@ -35,6 +39,16 @@ extend-ignore = [
   "D212", # Instead, use D213 (start multi-line summaries on the second line)
   "D413", # Allow missing blank line after last section of docstring (who cares?)
 ]
+
+[tool.djlint]
+blank_line_before_tag = "block"
+blank_line_after_tag = "endblock"
+use_gitignore = true
+profile = "django"
+format_css = true
+
+[tool.djlint.css]
+indent_size = 2
 
 [project.urls]
 Homepage = "https://github.com/front-seat/voterbowl"

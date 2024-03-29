@@ -1,6 +1,8 @@
 from django.urls import path
-from django.views.generic import TemplateView
+
+from .views import home, school
 
 urlpatterns = [
-    path("", TemplateView.as_view(template_name="base.dhtml")),
+    path("<slug:slug>/", school, name="school"),
+    path("", home),
 ]

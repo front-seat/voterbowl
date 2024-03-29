@@ -1,0 +1,17 @@
+{% extends "base.dhtml" %}
+
+{% block title %}
+  Voter Bowl
+{% endblock title %}
+
+{% block body %}
+  <div>
+    <style>
+      me {
+        font-size: 1.5em;
+
+      }
+    </style>
+    <h1>Voter Bowl</h1>
+  </div>
+{% endblock body %}

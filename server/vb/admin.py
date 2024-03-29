@@ -65,6 +65,7 @@ class SchoolAdmin(admin.ModelAdmin):
     search_fields = ("name", "short_name", "slug")
     readonly_fields = ("logo_json",)
 
+    @admin.display(description="Logo")
     def logo_display(self, obj: School):
         """Return the logo as an bubble image."""
         context = {
@@ -74,8 +75,6 @@ class SchoolAdmin(admin.ModelAdmin):
         }
 
         return mark_safe(render_to_string("components/logo.dhtml", context))
-
-    logo_display.short_description = "Logo"
 
 
 class StudentAdmin(admin.ModelAdmin):

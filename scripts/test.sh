@@ -2,9 +2,11 @@
 
 set -eu -o pipefail
 
+export DATABASE_URL=sqlite://:memory:
+
 BLUE="\e[34m"
 NC="\e[0m"
-\
+
 # Run Python formatter (ruff) -- but let Django migrations get a pass.
 printf "${BLUE}Running ruff format...${NC}\n"
 ruff format --check server
