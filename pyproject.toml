@@ -45,7 +45,7 @@ blank_line_before_tag = "block"
 blank_line_after_tag = "endblock"
 use_gitignore = true
 profile = "django"
-# format_css = true
+format_css = true
 
 [tool.djlint.css]
 indent_size = 2
