@@ -44,8 +44,9 @@ extend-ignore = [
 blank_line_before_tag = "block"
 blank_line_after_tag = "endblock"
 use_gitignore = true
+format_css = false
 profile = "django"
-format_css = true
+indent = 2
 
 [tool.djlint.css]
 indent_size = 2

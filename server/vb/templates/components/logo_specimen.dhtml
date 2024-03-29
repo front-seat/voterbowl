@@ -1,25 +1,25 @@
 {% with width=width|default:"32px" height=height|default:"32px" %}
   <div>
     <style>
-      me {
+      self {
         display: flex;
         gap: 0.5rem;
       }
 
-      me .bubble {
+      self .bubble {
         display: flex;
         align-items: center;
         overflow: hidden;
       }
 
-      me .bubble img {
+      self .bubble img {
         display: block;
         margin: 0 auto;
         max-width: 80%;
         max-height: 80%;
       }
 
-      me .bg {
+      self .bg {
         display: flex;
         font-weight: 600;
         align-items: center;
@@ -28,7 +28,7 @@
         padding-right: 0.5rem;
       }
 
-      me .action {
+      self .action {
         display: flex;
         font-weight: 600;
         align-items: center;
@@ -38,7 +38,7 @@
         transition: opacity 0.2s;
       }
 
-      me .action:hover {
+      self .action:hover {
         opacity: 0.7;
         transition: opacity 0.2s ease-in-out;
       }

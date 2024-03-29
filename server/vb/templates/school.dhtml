@@ -1,0 +1,41 @@
+{% extends "base.dhtml" %}
+
+{% block title %}
+  Voter Bowl
+{% endblock title %}
+
+{% block body %}
+  <div>
+    {# djlint:off #}
+    <style>
+      .background {
+        background-color: {{ school.logo.bg_color }};
+        color: {{ school.logo.bg_text_color }};
+      }
+
+      .action {
+        background-color: {{ school.logo.action_color }};
+        color: {{ school.logo.action_text_color }};
+      }
+</style>
+    {# djlint:on #}
+    <style>
+      self {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      self .cta {
+        width: 100%;
+      }
+
+      self .faq {
+        color: white;
+      }
+    </style>
+    <div class="cta background">Hello friends.</div>
+    <div class="faq">Hello</div>
+  </div>
+{% endblock body %}

@@ -1,0 +1,7 @@
+<div>
+    {# djlint:off #}
+    <style>
+</style>
+    {# djlint:on #}
+    <p>Hello, world!</p>
+</div>

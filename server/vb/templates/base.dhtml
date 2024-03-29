@@ -28,7 +28,7 @@
       VoterBowl, coming soon.
       <div>
         <style>
-          me {
+          self {
             background: blue;
             color: white;
           }

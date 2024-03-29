@@ -1,7 +1,7 @@
 {% with width=width|default:"32px" height=height|default:"32px" %}
   <div>
     <style>
-    me {
+    self {
       display: flex;
       align-items: center;
       border-radius: 100%;
@@ -10,7 +10,7 @@
       height: {{ height }};
       background-color: {{ logo.bg_color }};
     }
-    me img {
+    self img {
       display: block;
       margin: 0 auto;
       max-width: 80%;
