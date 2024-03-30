@@ -29,3 +29,4 @@ jobs:
         run: python manage.py test
         env:
           CELERY_ALWAYS_EAGER: "true"
+          SECRET_KEY: "test"
