@@ -4,4 +4,6 @@ from uvicorn.workers import UvicornWorker
 
 
 class NoLifespanUvicornWorker(UvicornWorker):
+    """Worker that disables the lifespan protocol."""
+
     CONFIG_KWARGS = {**UvicornWorker.CONFIG_KWARGS, "lifespan": "off"}
