@@ -25,6 +25,8 @@ jobs:
         run: ruff check server
       - name: Check types
         run: mypy server
+        env:
+          SECRET_KEY: "test"
       - name: Run tests
         run: python manage.py test
         env:
