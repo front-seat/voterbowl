@@ -107,8 +107,9 @@ class Contest(models.Model):
 
     objects = ContestManager()
 
-    name = models.CharField(max_length=255, blank=False)
-    slug = models.SlugField(max_length=255, blank=False, unique=True)
+    name = models.CharField(
+        max_length=255, blank=False, help_text="Like '$25 Amazon Gift Card Giveaway'"
+    )
     start_at = models.DateTimeField(blank=False)
     end_at = models.DateTimeField(blank=False)
     template = models.TextField(

@@ -53,6 +53,9 @@
     <main style="background-color: {{ school.logo.bg_color }};
                  color: {{ school.logo.bg_text_color }}">
       <div class="container">
+        {% if current_contest %}
+          {% include "components/countdown.dhtml" with contest=current_contest %}
+        {% endif %}
         <img src="{{ school.logo.url }}"
              alt="{{ school.short_name }} {{ school.mascot }} logo" />
         <h2>Welcome to the Voter Bowl</h2>

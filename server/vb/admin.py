@@ -72,6 +72,13 @@ class LogoAdmin(admin.TabularInline, RenderLogoSpecimenMixin):
         return self.render_logo_specimen(obj)
 
 
+class InlineContestAdmin(admin.TabularInline):
+    """Inline contest admin."""
+
+    model = Contest
+    extra = 0
+
+
 class SchoolAdmin(admin.ModelAdmin, RenderLogoSpecimenMixin):
     """School admin."""
 
@@ -84,7 +91,7 @@ class SchoolAdmin(admin.ModelAdmin, RenderLogoSpecimenMixin):
         "mail_domains",
     )
     search_fields = ("name", "short_name", "slug")
-    inlines = [LogoAdmin]
+    inlines = [LogoAdmin, InlineContestAdmin]
 
     @admin.display(description="Logo")
     def logo_display(self, obj: School):
@@ -111,8 +118,8 @@ class StudentAdmin(admin.ModelAdmin):
 class ContestAdmin(admin.ModelAdmin):
     """Contest admin."""
 
-    list_display = ("name", "slug", "school", "start_at", "end_at")
-    search_fields = ("name", "slug", "school__name")
+    list_display = ("id", "name", "school", "start_at", "end_at")
+    search_fields = ("name", "school__name")
 
 
 class ActionAdmin(admin.ModelAdmin):
