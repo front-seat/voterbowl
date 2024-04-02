@@ -138,16 +138,6 @@ class Contest(models.Model):
         when = when or django_now()
         return self.end_at <= when
 
-    def seconds_until_start(self, when: datetime.datetime | None = None) -> float:
-        """Return the number of seconds until the contest starts."""
-        when = when or django_now()
-        return (self.start_at - when).total_seconds()
-
-    def seconds_until_end(self, when: datetime.datetime | None = None) -> float:
-        """Return the number of seconds until the contest ends."""
-        when = when or django_now()
-        return (self.end_at - when).total_seconds()
-
     def description(self):
         """Render the contest template."""
         context = {"school": self.school, "contest": self}
