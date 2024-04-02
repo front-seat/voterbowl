@@ -3,6 +3,7 @@ import datetime
 import typing as t
 
 from django.db import models
+from django.template import Context, Template
 from django.utils.timezone import now as django_now
 
 from server.utils.contrast import HEX_COLOR_VALIDATOR, get_text_color
@@ -110,10 +111,10 @@ class Contest(models.Model):
     slug = models.SlugField(max_length=255, blank=False, unique=True)
     start_at = models.DateTimeField(blank=False)
     end_at = models.DateTimeField(blank=False)
-    description = models.TextField(
+    template = models.TextField(
         blank=False,
         help_text="A description of the contest. Can use {{ school.name }} to insert the school's name, etc.",  # noqa
-        default="{{ school.short_name }} students: check your voter registration for a 1 in 10 chance to win a $25 Amazon gift card.",
+        default="{{ school.short_name }} students: check your voter registration for a 1 in 10 chance to win a $25 Amazon gift card.",  # noqa
     )
 
     # For now, we assume that each contest is associated with a single school.
@@ -145,6 +146,11 @@ class Contest(models.Model):
         """Return the number of seconds until the contest ends."""
         when = when or django_now()
         return (self.end_at - when).total_seconds()
+
+    def description(self):
+        """Render the contest template."""
+        context = {"school": self.school, "contest": self}
+        return Template(self.template).render(Context(context))
 
     def __str__(self):
         """Return the contest model's string representation."""

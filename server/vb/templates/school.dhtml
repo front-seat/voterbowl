@@ -56,9 +56,11 @@
         <img src="{{ school.logo.url }}"
              alt="{{ school.short_name }} {{ school.mascot }} logo" />
         <h2>Welcome to the Voter Bowl</h2>
-        <p>
-          {{ school.short_name }} students: check your voter registration status for a 1 in 10 chance to win a $25 Amazon gift card.
-        </p>
+        {% if current_contest %}
+          <p>{{ current_contest.description }}</p>
+        {% else %}
+          <p>There is no contest at this time. TODO: show something useful in this state?</p>
+        {% endif %}
         <div class="button-holder">
           {% include "components/button.dhtml" with text="Check my voter status" bg_color=school.logo.action_color color=school.logo.action_text_color %}
         </div>
