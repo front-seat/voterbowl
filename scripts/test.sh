@@ -2,8 +2,6 @@
 
 set -eu -o pipefail
 
-export DATABASE_URL=sqlite://:memory:
-
 BLUE="\e[34m"
 NC="\e[0m"
 

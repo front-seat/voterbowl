@@ -27,12 +27,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 # SECURITY WARNING: keep the secret key used in production secret!
-if DEBUG:
-    SECRET_KEY = os.getenv("SECRET_KEY", "top-secret")
-else:
-    SECRET_KEY = os.environ["SECRET_KEY"]
+BASE_URL = os.environ["BASE_URL"]  # Of the form "https://www.voterbowl.org"
+if not DEBUG and not BASE_URL.startswith("https://"):
+    raise ValueError("BASE_URL must be HTTPS in production")
+if BASE_URL.endswith("/"):
+    BASE_URL = BASE_URL[:-1]
+SECRET_KEY = os.environ["SECRET_KEY"]
+SECURE_SSL_REDIRECT = not DEBUG
 
-ALLOWED_HOSTS: list[str] = ["www.voterbowl.org"]
+
+if DEBUG:
+    ALLOWED_HOSTS: list[str] = []
+else:
+    ALLOWED_HOSTS: list[str] = [BASE_URL.split("://")[1].split(":", 1)[0]]
 
 
 # Application definition

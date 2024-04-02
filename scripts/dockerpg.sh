@@ -7,20 +7,16 @@
 
 migrate() {
     # Run the wrapper script around django's migrate + superuser creation
-    export DATABASE_URL=postgres://${USER}:password@localhost:5432/postgres
     python manage.py migrate
 }
 
 createsuperuser() {
     if [ -z "$DJANGO_SUPERUSER_EMAIL" ]; then
-      # SUPER TOP SECRET (okay, not really)
-      export DJANGO_SUPERUSER_USERNAME="dev@frontseat.org"
-      export DJANGO_SUPERUSER_EMAIL="dev@frontseat.org"
-      export DJANGO_SUPERUSER_PASSWORD="dev123!"
+      echo "No superuser created. Set DJANGO_SUPERUSER_EMAIL to create one."
+    else
+      echo "Creating superuser: ${DJANGO_SUPERUSER_USERNAME}:"
+      python manage.py createsuperuser --noinput
     fi
-    echo "Creating superuser: ${DJANGO_SUPERUSER_USERNAME}:"
-    export DATABASE_URL=postgres://${USER}:password@localhost:5432/postgres
-    python manage.py createsuperuser --noinput
 }
 
 start() {
