@@ -87,6 +87,7 @@ class SchoolAdmin(admin.ModelAdmin, RenderLogoSpecimenMixin):
         "short_name",
         "logo_display",
         "slug_display",
+        "active_contest",
         "mascot",
         "mail_domains",
     )
@@ -106,6 +107,12 @@ class SchoolAdmin(admin.ModelAdmin, RenderLogoSpecimenMixin):
     def slug_display(self, obj: School):
         """Return the school's landing page."""
         return mark_safe(f'<a href="/{obj.slug}/" target="_blank">/{obj.slug}/</a>')
+
+    @admin.display(description="active contest")
+    def active_contest(self, obj: School):
+        """Return whether the school has an active contest."""
+        current = obj.contests.current()
+        return "" if current is None else current.name
 
 
 class StudentAdmin(admin.ModelAdmin):
