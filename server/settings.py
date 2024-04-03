@@ -36,10 +36,9 @@ SECRET_KEY = os.environ["SECRET_KEY"]
 SECURE_SSL_REDIRECT = not DEBUG
 
 
-if DEBUG:
-    ALLOWED_HOSTS: list[str] = []
-else:
-    ALLOWED_HOSTS: list[str] = [BASE_URL.split("://")[1].split(":", 1)[0]]
+ALLOWED_HOSTS: list[str] = []
+if not DEBUG:
+    ALLOWED_HOSTS = [BASE_URL.split("://")[1].split(":", 1)[0]]
 
 
 # Application definition
