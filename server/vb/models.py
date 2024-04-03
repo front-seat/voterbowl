@@ -178,7 +178,7 @@ class Action(models.Model):
     """A single action in the competition."""
 
     taken_at = models.DateTimeField(auto_now_add=True)
-    kind = models.CharField(choices=ActionKinds.choices, blank=False)
+    kind = models.CharField(max_length=32, choices=ActionKinds.choices, blank=False)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     contest = models.ForeignKey(
         Contest, on_delete=models.CASCADE, null=True, default=None
