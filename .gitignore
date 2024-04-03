@@ -161,3 +161,6 @@ cython_debug/
 
 # Django stuff:
 staticfiles/
+
+# macOS stuff:
+.DS_Store
