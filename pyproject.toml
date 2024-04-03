@@ -44,7 +44,8 @@ extend-ignore = [
 blank_line_before_tag = "block"
 blank_line_after_tag = "endblock"
 use_gitignore = true
-format_css = false
+format_css = true
+format_js = true
 profile = "django"
 indent = 2
 

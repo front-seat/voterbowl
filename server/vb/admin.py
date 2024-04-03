@@ -8,7 +8,7 @@ from django.utils.safestring import mark_safe
 
 from server.admin import admin_site
 
-from .models import ImageMimeType, Logo, School, Student
+from .models import Action, Contest, ImageMimeType, Logo, School, Student
 
 
 def validate_file_is_image(file: UploadedFile) -> None:
@@ -72,6 +72,13 @@ class LogoAdmin(admin.TabularInline, RenderLogoSpecimenMixin):
         return self.render_logo_specimen(obj)
 
 
+class InlineContestAdmin(admin.TabularInline):
+    """Inline contest admin."""
+
+    model = Contest
+    extra = 0
+
+
 class SchoolAdmin(admin.ModelAdmin, RenderLogoSpecimenMixin):
     """School admin."""
 
@@ -79,12 +86,12 @@ class SchoolAdmin(admin.ModelAdmin, RenderLogoSpecimenMixin):
         "name",
         "short_name",
         "logo_display",
-        "slug",
+        "slug_display",
         "mascot",
         "mail_domains",
     )
     search_fields = ("name", "short_name", "slug")
-    inlines = [LogoAdmin]
+    inlines = [LogoAdmin, InlineContestAdmin]
 
     @admin.display(description="Logo")
     def logo_display(self, obj: School):
@@ -95,6 +102,11 @@ class SchoolAdmin(admin.ModelAdmin, RenderLogoSpecimenMixin):
             return None
         return self.render_logo_specimen(logo)
 
+    @admin.display(description="Landing Page")
+    def slug_display(self, obj: School):
+        """Return the school's landing page."""
+        return mark_safe(f'<a href="/{obj.slug}/" target="_blank">/{obj.slug}/</a>')
+
 
 class StudentAdmin(admin.ModelAdmin):
     """Student admin."""
@@ -103,5 +115,26 @@ class StudentAdmin(admin.ModelAdmin):
     search_fields = ("school__name", "email", "first_name", "last_name")
 
 
+class ContestAdmin(admin.ModelAdmin):
+    """Contest admin."""
+
+    list_display = ("id", "name", "school", "start_at", "end_at")
+    search_fields = ("name", "school__name")
+
+
+class ActionAdmin(admin.ModelAdmin):
+    """Action admin."""
+
+    list_display = ("taken_at", "kind", "student", "contest")
+    search_fields = (
+        "student__email",
+        "student__first_name",
+        "student__last_name",
+        "contest__name",
+    )
+
+
 admin_site.register(School, SchoolAdmin)
 admin_site.register(Student, StudentAdmin)
+admin_site.register(Contest, ContestAdmin)
+admin_site.register(Action, ActionAdmin)

@@ -15,4 +15,7 @@ def home(request: HttpRequest) -> HttpResponse:
 def school(request: HttpRequest, slug: str) -> HttpResponse:
     """Render a school page."""
     school = get_object_or_404(School, slug=slug)
-    return render(request, "school.dhtml", {"school": school})
+    current_contest = school.contests.current()
+    return render(
+        request, "school.dhtml", {"school": school, "current_contest": current_contest}
+    )
