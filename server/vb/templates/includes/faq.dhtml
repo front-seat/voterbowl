@@ -33,31 +33,52 @@
   </style>
   <h2>F.A.Q.</h2>
   <div class="qa">
-    <h3>Who organized the Voter Bowl?</h3>
+    <h3>What is the Voter Bowl?</h3>
     <p>
-      The Voter Bowl is a non-profit project of Front Seat.
-      Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-      Lorem Ipsum has been the industry's standard dummy text ever since the
-      1500s, when an unknown printer took a galley of type and scrambled it to
-      make a type specimen book.
+      The Voter Bowl is a series of contests where college students win prizes 
+      by making sure they’re ready to vote.
+    </p>
+    <p>
+      The Voter Bowl is a non-profit project of 
+      <a href="https://www.voteamerica.com/" target="_blank">VoteAmerica</a>, a 
+      leader in voter registration and participation.
     </p>
   </div>
   <div class="qa">
-    <h3>Lorem ipsum lorem ipsum?</h3>
+    <h3>How do I claim my prize?</h3>
     <p>
-      Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-      Lorem Ipsum has been the industry's standard dummy text ever since the
-      1500s, when an unknown printer took a galley of type and scrambled it to
-      make a type specimen book.
+      When you check your voter registration status by clicking the “Check My 
+      Voter Status” while a contest is running, you are automatically entered to 
+      win. If you win, we will notify you via your school email address.
+    </p>
+    <p>
+      <a href="#">Read the full contest rules here</a>.
     </p>
   </div>
   <div class="qa">
-    <h3>Lorem ipsum lorem ipsum?</h3>
+    <h3>What is the goal of the Voter Bowl?</h3>
     <p>
-      Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-      Lorem Ipsum has been the industry's standard dummy text ever since the
-      1500s, when an unknown printer took a galley of type and scrambled it to
-      make a type specimen book.
+      In the 2020 election, 33% of college students didn’t vote. We believe a 
+      healthy democracy depends on young people participating.
+    </p>
+  </div>
+  <div class="qa">
+    <h3>Who is paying for the Voter Bowl?</h3>
+    <p>
+      <a href="https://www.voteamerica.com/" target="_blank">VoteAmerica</a> is 
+      funding the Voter Bowl through the generous support of donors who are 
+      passionate about building a thriving democracy. 
+    </p>
+     <p>
+      <a href="https://donorbox.org/voteamerica-website?utm_medium=website
+      &utm_source=voterbowl&utm_campaign=voterbowl&source=voterbowl" target="_blank">
+      Donate to VoteAmerica</a> to support projects like this. 
+    </p>
+  </div>
+ <div class="qa">
+    <h3>I have another question.</h3>
+    <p>
+      <a href="#">Contact us</a> and we'd be happy to answer it.
     </p>
   </div>
 </div>
