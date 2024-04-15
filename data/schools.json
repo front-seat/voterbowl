@@ -7,7 +7,9 @@
       "slug": "mga",
       "short_name": "MGA",
       "mascot": "Knights",
-      "mail_domains": ["mga.edu"]
+      "mail_domains": ["mga.edu"],
+      "mail_tag": "+",
+      "mail_dots": true
     }
   },
   {
@@ -18,7 +20,9 @@
       "slug": "ufl",
       "short_name": "University of Florida",
       "mascot": "Gators",
-      "mail_domains": ["ufl.edu"]
+      "mail_domains": ["ufl.edu"],
+      "mail_tag": "+",
+      "mail_dots": true
     }
   },
   {
@@ -29,7 +33,9 @@
       "slug": "asu",
       "short_name": "ASU",
       "mascot": "Sun Devils",
-      "mail_domains": ["asu.edu"]
+      "mail_domains": ["asu.edu"],
+      "mail_tag": "+",
+      "mail_dots": true
     }
   },
   {
@@ -40,7 +46,9 @@
       "slug": "upenn",
       "short_name": "UPenn",
       "mascot": "Quakers",
-      "mail_domains": ["upenn.edu"]
+      "mail_domains": ["upenn.edu"],
+      "mail_tag": "+",
+      "mail_dots": true
     }
   },
   {
@@ -51,7 +59,9 @@
       "slug": "fsu",
       "short_name": "FSU",
       "mascot": "Seminoles",
-      "mail_domains": ["fsu.edu"]
+      "mail_domains": ["fsu.edu"],
+      "mail_tag": "+",
+      "mail_dots": true
     }
   },
   {
@@ -62,7 +72,9 @@
       "slug": "gsu",
       "short_name": "GSU",
       "mascot": "Panthers",
-      "mail_domains": ["gsu.edu"]
+      "mail_domains": ["gsu.edu"],
+      "mail_tag": "+",
+      "mail_dots": true
     }
   },
   {
@@ -73,7 +85,9 @@
       "slug": "pitt",
       "short_name": "PItt",
       "mascot": "Panthers",
-      "mail_domains": ["pitt.edu"]
+      "mail_domains": ["pitt.edu"],
+      "mail_tag": "+",
+      "mail_dots": true
     }
   },
   {
@@ -84,7 +98,9 @@
       "slug": "psu",
       "short_name": "Penn State",
       "mascot": "Nittany Lions",
-      "mail_domains": ["psu.edu"]
+      "mail_domains": ["psu.edu"],
+      "mail_tag": "+",
+      "mail_dots": true
     }
   },
   {
@@ -95,7 +111,9 @@
       "slug": "arizona",
       "short_name": "Arizona",
       "mascot": "Wildcats",
-      "mail_domains": ["arizona.edu"]
+      "mail_domains": ["arizona.edu"],
+      "mail_tag": "+",
+      "mail_dots": true
     }
   },
   {
@@ -106,7 +124,9 @@
       "slug": "unlv",
       "short_name": "UNLV",
       "mascot": "Rebels",
-      "mail_domains": ["unlv.edu"]
+      "mail_domains": ["unlv.edu"],
+      "mail_tag": "+",
+      "mail_dots": true
     }
   },
   {
@@ -117,7 +137,9 @@
       "slug": "wisc",
       "short_name": "UW",
       "mascot": "Badgers",
-      "mail_domains": ["wisc.edu"]
+      "mail_domains": ["wisc.edu"],
+      "mail_tag": "+",
+      "mail_dots": true
     }
   },
   {
@@ -128,7 +150,9 @@
       "slug": "umich",
       "short_name": "UMich",
       "mascot": "Wolverines",
-      "mail_domains": ["umich.edu"]
+      "mail_domains": ["umich.edu"],
+      "mail_tag": "+",
+      "mail_dots": true
     }
   },
   {
@@ -139,7 +163,9 @@
       "slug": "msu",
       "short_name": "MSU",
       "mascot": "Spartans",
-      "mail_domains": ["msu.edu"]
+      "mail_domains": ["msu.edu"],
+      "mail_tag": "+",
+      "mail_dots": true
     }
   },
   {

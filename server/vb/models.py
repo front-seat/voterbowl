@@ -1,12 +1,15 @@
 import base64
 import datetime
+import hashlib
 import typing as t
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.template import Context, Template
 from django.utils.timezone import now as django_now
 
 from server.utils.contrast import HEX_COLOR_VALIDATOR, get_text_color
+from server.utils.email import Domains, normalize_email
 
 
 class ImageMimeType(models.TextChoices):
@@ -27,10 +30,47 @@ class School(models.Model):
     short_name = models.CharField(max_length=255, blank=True)
     mascot = models.CharField(max_length=255, blank=True)
     mail_domains = models.JSONField(default=list, blank=True)
+    mail_tag = models.CharField(
+        max_length=1,
+        blank=True,
+        default="+",
+        help_text="The tag separator used in school emails, if any.",
+    )
+    mail_dots = models.BooleanField(
+        default=True,
+        help_text="Whether to remove dots from the local part of school emails.",
+    )  # noqa
 
     logo: "Logo"
 
     contests: "ContestManager"
+
+    def normalize_email(self, address: str) -> str:
+        """Normalize an email address for this school."""
+        domains = Domains(self.mail_domains[0], tuple(self.mail_domains[1:]))
+        return normalize_email(
+            address,
+            tag=self.mail_tag if self.mail_tag else None,
+            dots=self.mail_dots,
+            domains=domains,
+        )
+
+    def hash_email(self, address: str) -> str:
+        """Hash an email address for this school."""
+        normalized = self.normalize_email(address)
+        return hashlib.sha256(normalized.encode("ascii")).hexdigest()
+
+    def is_valid_email(self, address: str) -> bool:
+        """Validate an email address for this school."""
+        normalized = self.normalize_email(address)
+        _, domain = normalized.split("@", maxsplit=1)
+        return domain == self.mail_domains[0]
+
+    def validate_email(self, address: str) -> None:
+        """Validate an email address for this school, raising an error if invalid."""
+        if self.is_valid_email(address):
+            return
+        raise ValidationError(f"Email address is not valid for {self.name}.")
 
     def __str__(self):
         """Return the school model's string representation."""
@@ -154,8 +194,17 @@ class Student(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    hash = models.CharField(
+        blank=False,
+        max_length=64,
+        unique=True,
+        help_text="A deduped, hashed version of the student's email address.",
+    )
+
     school = models.ForeignKey(School, on_delete=models.CASCADE)
-    email = models.EmailField(blank=False)
+    email = models.EmailField(
+        blank=False, help_text="The student's primary email address."
+    )
     phone = models.CharField(max_length=255, blank=True)
     first_name = models.CharField(max_length=255, blank=False)
     last_name = models.CharField(max_length=255, blank=False)
@@ -164,26 +213,3 @@ class Student(models.Model):
     def name(self) -> str:
         """Return the student's full name."""
         return f"{self.first_name} {self.last_name}"
-
-
-class ActionKinds(models.TextChoices):
-    """Kinds of actions in the competition."""
-
-    FIRST_VISIT = "first_visit"
-    CHECK_REGISTRATION = "check_registration"
-    REGISTER = "register"
-
-
-class Action(models.Model):
-    """A single action in the competition."""
-
-    taken_at = models.DateTimeField(auto_now_add=True)
-    kind = models.CharField(max_length=32, choices=ActionKinds.choices, blank=False)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    contest = models.ForeignKey(
-        Contest, on_delete=models.CASCADE, null=True, default=None
-    )
-
-    def __str__(self):
-        """Return the action model's string representation."""
-        return f"Action: {self.kind} by {self.student.name} at {self.taken_at}"

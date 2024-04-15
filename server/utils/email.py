@@ -1,5 +1,4 @@
 import dataclasses
-import hashlib
 
 
 @dataclasses.dataclass(frozen=True)
@@ -43,14 +42,3 @@ def normalize_email(
     local = local.encode("ascii", "ignore").decode("ascii")
     domain = domain.encode("ascii", "ignore").decode("ascii")
     return f"{local}@{domain}"
-
-
-def hash_email(
-    address: str,
-    tag: str | None = "+",
-    dots: bool = True,
-    domains: Domains | None = None,
-) -> str:
-    """Normalize and hash an email address."""
-    unhashed = normalize_email(address, tag, dots, domains)
-    return hashlib.sha256(unhashed.encode("ascii")).hexdigest()

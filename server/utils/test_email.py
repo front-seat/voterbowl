@@ -77,19 +77,3 @@ class NormalizeEmailTestCase(unittest.TestCase):
         expected = "tst@xample.com"
         result = e.normalize_email(email)
         self.assertEqual(result, expected)
-
-
-class HashEmailTestCase(unittest.TestCase):
-    """Test the hash_email function."""
-
-    def test_equivalent(self):
-        """Test several equivalent email addresses."""
-        emails = [
-            "test@example.com",
-            "test+tag@example.com",
-            "te.st@example.com",
-            "te.st+tag@alias.example.com",
-        ]
-        domains = e.Domains("example.com", ("alias.example.com",))
-        hashes = [e.hash_email(email, domains=domains) for email in emails]
-        self.assertEqual(len(set(hashes)), 1)
