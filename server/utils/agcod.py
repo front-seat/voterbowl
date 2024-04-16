@@ -41,8 +41,14 @@ def _httpx_invoker(
 ) -> dict:
     """Invoke an HTTP request."""
     response = httpx.request(method, url, content=body, headers=headers)
+    # TODO: for now, we just blow up in a generic way if the response is bad.
+    # AGCOD has a specific error format that we should parse and raise to provide
+    # detail.
     response.raise_for_status()
-    return response.json()  # assumes dict-like JSON response
+    maybe_response = response.json()
+    if not isinstance(maybe_response, dict):
+        raise ValueError(f"Unexpected AGCOD response type: {type(maybe_response)}")
+    return maybe_response
 
 
 class AmazonClient:

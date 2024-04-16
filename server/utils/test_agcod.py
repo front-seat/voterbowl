@@ -52,14 +52,17 @@ class AGCODTextMixin:
 class CreateGiftCardTestCase(AGCODTextMixin, unittest.TestCase):
     """Test the create_gift_card function."""
 
+    # TODO: flesh out the the architecture and tests if I have time
+
     def test_create_gift_card(self):
         """Test creating a gift card."""
-        invoker = self.create_gift_card_invoker()
-        client = AGCODTestClient(invoker)
         amount = 50
-        client.create_gift_card(amount)
+        invoker = self.create_gift_card_invoker(amount)
+        client = AGCODTestClient(invoker)
+        response = client.create_gift_card(amount)
         call_args = invoker.call_args[0]
         self.assertEqual(invoker.call_count, 1)
         self.assertEqual(call_args[0], "POST")
         self.assertTrue("/CreateGiftCard" in call_args[1])
         self.assertTrue("test_partner_id-" in call_args[2].decode())
+        self.assertEqual(response.card_info.value.amount, amount)
