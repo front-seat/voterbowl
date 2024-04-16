@@ -32,6 +32,19 @@ def dt_from_timestamp(timestamp: str) -> datetime.datetime:
     return datetime.datetime.strptime(timestamp, "%Y%m%dT%H%M%S%z")
 
 
+Method: t.TypeAlias = t.Literal["GET", "POST", "PUT", "DELETE", "PATCH"]
+Invoker: t.TypeAlias = t.Callable[[Method, str, bytes | None, dict | None], dict]
+
+
+def _httpx_invoker(
+    method: Method, url: str, body: bytes | None, headers: dict | None
+) -> dict:
+    """Invoke an HTTP request."""
+    response = httpx.request(method, url, content=body, headers=headers)
+    response.raise_for_status()
+    return response.json()  # assumes dict-like JSON response
+
+
 class AmazonClient:
     """Client for interacting with the an Amazon Signature V4 style API."""
 
@@ -40,18 +53,23 @@ class AmazonClient:
     aws_region: str
     aws_service: str
 
+    _invoker: Invoker
+
     def __init__(
         self,
         aws_access_key_id: str,
         aws_secret_access_key: str,
         aws_region: str,
         aws_service: str,
+        *,
+        _invoker: Invoker = _httpx_invoker,
     ):
         """Initialize the client."""
         self.aws_access_key_id = aws_access_key_id
         self.aws_secret_access_key = aws_secret_access_key
         self.aws_region = aws_region
         self.aws_service = aws_service
+        self._invoker = _invoker
 
     def _credentials(self) -> Credentials:
         """Return botocore credentials."""
@@ -110,14 +128,11 @@ class AmazonClient:
         """POST a JSON request and receive a JSON reply."""
         aws_request = self._prepared_json_request("POST", url, data, headers=headers)
         logger.debug("AWSClient Request: %s", aws_request)
-        response = httpx.post(
-            url=aws_request.url,
-            headers=aws_request.headers,
-            data=aws_request.body,
+        response = self._invoker(
+            "POST", aws_request.url, aws_request.body, aws_request.headers
         )
-        response.raise_for_status()
         logger.debug("AWSClient Response: %s", response)
-        return response.json()
+        return response
 
 
 class AmazonJSONRPCClient(AmazonClient):
@@ -134,6 +149,8 @@ class AmazonJSONRPCClient(AmazonClient):
         aws_service: str,
         aws_endpoint_host: str,
         aws_target_prefix: str,
+        *,
+        _invoker: Invoker = _httpx_invoker,
     ):
         """Initialize the client."""
         self.aws_endpoint_host = aws_endpoint_host
@@ -143,6 +160,7 @@ class AmazonJSONRPCClient(AmazonClient):
             aws_secret_access_key=aws_secret_access_key,
             aws_region=aws_region,
             aws_service=aws_service,
+            _invoker=_invoker,
         )
 
     def _amz_date_now(self) -> str:
@@ -165,6 +183,12 @@ class AmazonJSONRPCClient(AmazonClient):
         return self.post_json(url, data, headers=headers)
 
 
+# I would use `type StatusCode = ...` except mypy still has an open issue
+# for supporting PEP 695. Ugh; all the other type checkers support it!
+StatusCode: t.TypeAlias = t.Literal["SUCCESS", "FAILURE", "RESEND"]
+CardStatus: t.TypeAlias = t.Literal["Fulfilled", "RefundedToPurchaser", "Expired"]
+
+
 class BaseCamelModel(p.BaseModel):
     """A base class for models that use camelCase."""
 
@@ -181,9 +205,16 @@ class MonetaryValue(BaseCamelModel):
 class CardInfo(BaseCamelModel):
     """Information about a gift card returned by the AGCOD API."""
 
+    @p.field_validator("expiration_date", mode="before")
+    def validate_dt_or_none(cls, value: str | None) -> datetime.datetime | None:
+        """Validate the expiration date."""
+        if value is None:
+            return None
+        return dt_from_timestamp(value)
+
     card_number: str | None
-    card_status: t.Literal["Fulfilled", "RefundedToPurchaser", "Expired"]
-    expiration_date: str | None
+    card_status: CardStatus
+    expiration_date: datetime.datetime | None
     value: MonetaryValue
 
 
@@ -202,7 +233,7 @@ class CreateGiftCardResponse(BaseCamelModel):
     gc_claim_code: str
     gc_expiration_date: datetime.datetime | None
     gc_id: str
-    status: t.Literal["SUCCESS", "FAILURE"]
+    status: StatusCode
 
 
 class GetAvailableFundsResponse(BaseCamelModel):
@@ -214,7 +245,7 @@ class GetAvailableFundsResponse(BaseCamelModel):
         return dt_from_timestamp(value)
 
     available_funds: MonetaryValue
-    status: t.Literal["SUCCESS", "FAILURE"]
+    status: StatusCode
     timestamp: datetime.datetime
 
 
@@ -233,6 +264,8 @@ class AGCODClient(AmazonJSONRPCClient):
         aws_region: str,
         aws_endpoint_host: str,
         partner_id: str,
+        *,
+        _invoker: Invoker = _httpx_invoker,
     ):
         """Initialize the AGCOD client."""
         self.partner_id = partner_id
@@ -243,6 +276,7 @@ class AGCODClient(AmazonJSONRPCClient):
             aws_service="AGCODService",
             aws_endpoint_host=aws_endpoint_host,
             aws_target_prefix="com.amazonaws.agcod",
+            _invoker=_invoker,
         )
 
     @classmethod

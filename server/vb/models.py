@@ -205,7 +205,7 @@ class Student(models.Model):
     email = models.EmailField(
         blank=False, help_text="The student's primary email address."
     )
-    phone = models.CharField(max_length=255, blank=True)
+    phone = models.CharField(max_length=255, blank=True, default="")
     first_name = models.CharField(max_length=255, blank=False)
     last_name = models.CharField(max_length=255, blank=False)
 
