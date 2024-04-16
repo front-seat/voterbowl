@@ -10,6 +10,7 @@ httpx>=0.20.0
 mypy>=1.9.0
 pillow>=10.2.0
 psycopg[binary]>=3,<4
+pydantic>=2.7.0
 ruff>=0.3.4
 uvicorn[standard]>=0.29.0
 whitenoise>=6,<7
