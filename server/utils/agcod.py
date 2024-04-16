@@ -12,7 +12,9 @@ from botocore.auth import SigV4Auth
 from botocore.awsrequest import AWSPreparedRequest, AWSRequest
 from botocore.credentials import Credentials
 from django.conf import settings
-from pydantic.alias_generators import to_snake
+from pydantic.alias_generators import to_camel
+
+from .tokens import make_token
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +25,11 @@ def hostname_from_url(url: str) -> str:
     if hostname is None:
         raise ValueError(f"URL {url} has no hostname")
     return hostname
+
+
+def dt_from_timestamp(timestamp: str) -> datetime.datetime:
+    """Convert an AGCOD timestamp to a datetime."""
+    return datetime.datetime.strptime(timestamp, "%Y%m%dT%H%M%S%z")
 
 
 class AmazonClient:
@@ -161,11 +168,11 @@ class AmazonJSONRPCClient(AmazonClient):
 class BaseCamelModel(p.BaseModel):
     """A base class for models that use camelCase."""
 
-    model_config = p.ConfigDict(alias_generator=to_snake)
+    model_config = p.ConfigDict(alias_generator=to_camel)
 
 
-class CardValue(BaseCamelModel):
-    """The value of a gift card."""
+class MonetaryValue(BaseCamelModel):
+    """A monetary value with a currency code."""
 
     amount: int
     currency_code: str
@@ -177,18 +184,38 @@ class CardInfo(BaseCamelModel):
     card_number: str | None
     card_status: t.Literal["Fulfilled", "RefundedToPurchaser", "Expired"]
     expiration_date: str | None
-    value: CardValue
+    value: MonetaryValue
 
 
 class CreateGiftCardResponse(BaseCamelModel):
     """Response from the CreateGiftCard API."""
 
+    @p.field_validator("gc_expiration_date", mode="before")
+    def validate_dt_or_none(cls, value: str | None) -> datetime.datetime | None:
+        """Validate the expiration date."""
+        if value is None:
+            return None
+        return dt_from_timestamp(value)
+
     card_info: CardInfo
     creation_request_id: str
     gc_claim_code: str
-    gc_expiration_date: str | None
+    gc_expiration_date: datetime.datetime | None
     gc_id: str
     status: t.Literal["SUCCESS", "FAILURE"]
+
+
+class GetAvailableFundsResponse(BaseCamelModel):
+    """Response from the GetAvailableFunds API."""
+
+    @p.field_validator("timestamp", mode="before")
+    def validate_dt(cls, value: str) -> datetime.datetime:
+        """Validate the timestamp."""
+        return dt_from_timestamp(value)
+
+    available_funds: MonetaryValue
+    status: t.Literal["SUCCESS", "FAILURE"]
+    timestamp: datetime.datetime
 
 
 class AGCODClient(AmazonJSONRPCClient):
@@ -219,12 +246,12 @@ class AGCODClient(AmazonJSONRPCClient):
         )
 
     @classmethod
-    def from_settings(cls):
+    def from_settings(cls) -> t.Self:
         """Create a client from Django settings."""
         aws_access_key_id = t.cast(str | None, settings.AWS_ACCESS_KEY_ID)
         aws_secret_access_key = t.cast(str | None, settings.AWS_SECRET_ACCESS_KEY)
         aws_region = t.cast(str | None, settings.AWS_REGION)
-        endpoint_host = t.cast(str | None, settings.ACGOD_ENDPOINT_URL)
+        endpoint_host = t.cast(str | None, settings.ACGOD_ENDPOINT_HOST)
         parter_id = t.cast(str | None, settings.ACGOD_PARTNER_ID)
 
         if aws_access_key_id is None:
@@ -266,25 +293,64 @@ class AGCODClient(AmazonJSONRPCClient):
             partner_id=parter_id,
         )
 
+    def make_request_id(self, token: str | None) -> str:
+        """Generate a creation request ID."""
+        if token is None:
+            token = make_token(32)
+        return f"{self.partner_id}-{token}"
+
     def create_gift_card(
         self,
-        request_id_suffix: str,
         amount: int,
-        currency: str = "USD",
+        *,
+        creation_request_id: str | None = None,
+        currency_code: str = "USD",
     ) -> CreateGiftCardResponse:
         """
-        Create a gift card.
+        Create a gift card, or check the status of an existing gift card.
 
-        The request_id_suffix is a unique identifier for the request and
-        must be stored by the caller.
+        If creation_request_id is not provided, a random ID will be generated.
+
+        AGCOD's CreateGiftCard request is idempotent, so re-use of the same
+        (creation_request_id, amount, currency_code) tuple will return the
+        same gift card information rather than funding a new one. Amazon's
+        documentation strongly recommends never storing the returned
+        gc_claim_code in a local database; instead, store the creation
+        details and re-check the status of the gift card as needed.
         """
+        creation_request_id = creation_request_id or self.make_request_id(None)
         data = {
-            "creationRequestId": f"{self.partner_id}-{request_id_suffix}",
+            "creationRequestId": creation_request_id,
             "partnerId": self.partner_id,
             "value": {
-                "currencyCode": currency,
+                "currencyCode": currency_code,
                 "amount": amount,
             },
         }
         response_data = self.post_json_rpc("CreateGiftCard", data)
         return CreateGiftCardResponse.model_validate(response_data)
+
+    def check_gift_card(
+        self,
+        amount: int,
+        creation_request_id: str,
+        *,
+        currency_code: str = "USD",
+    ) -> CreateGiftCardResponse:
+        """Check the status of an existing gift card."""
+        # You should only call this with pre-existing values, otherwise
+        # a gift card will be created. It's all a little awkwardly expressed
+        # here, but so be it.
+        return self.create_gift_card(
+            amount=amount,
+            creation_request_id=creation_request_id,
+            currency_code=currency_code,
+        )
+
+    def get_available_funds(self) -> GetAvailableFundsResponse:
+        """Get the available funds for the partner."""
+        data = {
+            "partnerId": self.partner_id,
+        }
+        response_data = self.post_json_rpc("GetAvailableFunds", data)
+        return GetAvailableFundsResponse.model_validate(response_data)
