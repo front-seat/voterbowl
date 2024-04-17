@@ -1,7 +1,7 @@
 {% extends "base.dhtml" %}
 
 {% block title %}
-  Voter Bowl
+  Voter Bowl x {{ school.short_name }}
 {% endblock title %}
 
 {% block body %}

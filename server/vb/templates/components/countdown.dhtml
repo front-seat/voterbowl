@@ -72,14 +72,6 @@
                 self.style.setProperty('--number-bg-color', self.dataset.numberBgColor);
                 self.style.setProperty('--colon-color', self.dataset.colonColor);
 
-                // get the number elements
-                const h0 = self.querySelector('[data-number=h0]');
-                const h1 = self.querySelector('[data-number=h1]');
-                const m0 = self.querySelector('[data-number=m0]');
-                const m1 = self.querySelector('[data-number=m1]');
-                const s0 = self.querySelector('[data-number=s0]');
-                const s1 = self.querySelector('[data-number=s1]');
-                const numbers = [h0, h1, m0, m1, s0, s1];
 
                 /** Update the countdown. */
                 function updateCountdown() {
@@ -89,6 +81,19 @@
                     if (diff <= 0) {
                         clearInterval(interval);
                         numbers.forEach(number => number.textContent = '0');
+                        return;
+                    }
+
+                    // get the number elements
+                    const h0 = self.querySelector('[data-number=h0]');
+                    const h1 = self.querySelector('[data-number=h1]');
+                    const m0 = self.querySelector('[data-number=m0]');
+                    const m1 = self.querySelector('[data-number=m1]');
+                    const s0 = self.querySelector('[data-number=s0]');
+                    const s1 = self.querySelector('[data-number=s1]');
+                    const numbers = [h0, h1, m0, m1, s0, s1];
+
+                    if (numbers.some(number => !number)) {
                         return;
                     }
 

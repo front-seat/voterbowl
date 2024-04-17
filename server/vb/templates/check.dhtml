@@ -1,10 +1,21 @@
 {% extends "base.dhtml" %}
+{% load static %}
 
 {% block title %}
-  Voter Bowl
+  Voter Bowl x {{ school.short_name }}
 {% endblock title %}
 
+{% block head_extras %}
+  <script src="{% static 'js/fireworks.js' %}"></script>
+  <script src="https://cdn.voteamerica.com/embed/tools.js" async></script>
+{% endblock head_extras %}
+
 {% block body %}
+  <style>
+    me {
+      background-color: white;
+    }
+  </style>
   <div>
     <style>
       me {
@@ -49,6 +60,12 @@
         justify-content: center;
         margin: 1.5rem 0;
       }
+
+      me .form {
+        width: 100%;
+        background-color: white;
+        padding: 2rem 0;
+      }
     </style>
     <main data-bg-color="{{ school.logo.bg_color }}"
           data-color="{{ school.logo.bg_text_color }}">
@@ -56,8 +73,22 @@
         me {
           --main-color: transparent;
           --main-bg-color: transparent;
+          position: relative;
           color: var(--main-color);
           background-color: var(--main-bg-color);
+        }
+
+        me .urgency {
+          display: flex;
+        }
+
+        me .fireworks {
+          position: absolute;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          right: 0;
+          overflow: hidden;
         }
       </style>
       <script>
@@ -68,26 +99,46 @@
                   self.style.setProperty('--main-bg-color', self.dataset.bgColor);
               });
           })();
+
+          (function() {
+              const self = me();
+              window.addEventListener('VoteAmericaEvent', (event) => {
+                  const {
+                      data
+                  } = event.detail;
+                  if (data?.tool === "verify" && data?.event === "action-finish") {
+                      setTimeout(() => {
+                          // scroll entire window back to top, smoothly
+                          window.scrollTo({
+                              top: 0,
+                              behavior: 'smooth'
+                          });
+                          const fireworks = new Fireworks.default(self.querySelector('.fireworks'));
+                          fireworks.start();
+                      }, 500);
+                  }
+              });
+          })();
       </script>
       <div class="container">
-        {% if current_contest %}
-          {% include "components/countdown.dhtml" with contest=current_contest %}
-        {% endif %}
-        <img src="{{ school.logo.url }}"
-             alt="{{ school.short_name }} {{ school.mascot }} logo" />
-        <h2>Welcome to the Voter Bowl</h2>
-        {% if current_contest %}
-          <p>{{ current_contest.description }}</p>
-        {% else %}
-          <p>There is no contest at this time. TODO: show something useful in this state?</p>
-        {% endif %}
-        <div class="button-holder">
-          {% include "components/button.dhtml" with text="Check my voter status" href="./check/" bg_color=school.logo.action_color color=school.logo.action_text_color %}
+        <div class="urgency">
+          <img src="{{ school.logo.url }}"
+               alt="{{ school.short_name }} {{ school.mascot }} logo" />
+          {% if current_contest %}
+            {% include "components/countdown.dhtml" with contest=current_contest %}
+          {% endif %}
         </div>
       </div>
+      <div class="fireworks"></div>
     </main>
-    <div class="faq">
-      <div class="container">{% include "includes/faq.dhtml" %}</div>
+    <div class="form">
+      <div class="container">
+        <!-- TODO replace data-subscriber -->
+        <div class="voteamerica-embed"
+             data-subscriber="countmore"
+             data-tool="verify"
+             data-edition="college"></div>
+      </div>
     </div>
   </div>
 {% endblock body %}

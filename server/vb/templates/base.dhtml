@@ -22,6 +22,10 @@
     <script src="{% static 'js/css-scope-inline.js' %}"></script>
     <script src="{% static 'js/surreal.js' %}"></script>
     {% django_htmx_script %}
+
+    {% block head_extras %}
+    {% endblock head_extras %}
+
   </head>
   <body>
 
