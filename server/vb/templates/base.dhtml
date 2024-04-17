@@ -21,6 +21,7 @@
     <script src="{% static 'js/htmx.min.js' %}" defer></script>
     <script src="{% static 'js/css-scope-inline.js' %}" defer></script>
     <script src="{% static 'js/surreal.js' %}" defer></script>
+    <script src="{% static 'js/utils.js' %}" defer></script>
     {% django_htmx_script %}
   </head>
   <body>

@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "CommonJS",
+    "checkJs": true,
+    "allowJs": true,
+    "noEmit": true
+  },
+  "include": ["server/static/js/utils.js", "*.dhtml"]
+}

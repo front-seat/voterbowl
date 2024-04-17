@@ -46,14 +46,6 @@
 </style>
   {# djlint:on #}
   <script>
-      function runWhenReady(f) {
-          if (document.readyState === 'loading') {
-              document.addEventListener('DOMContentLoaded', f);
-          } else {
-              f();
-          }
-      }
-
       function countdown() {
           const deadline = new Date("{{ contest.end_at|date:'c' }}").getTime();
           const h0 = document.querySelector('.number[data-number=h0]');
@@ -63,8 +55,6 @@
           const s0 = document.querySelector('.number[data-number=s0]');
           const s1 = document.querySelector('.number[data-number=s1]');
           const numbers = [h0, h1, m0, m1, s0, s1];
-
-          console.log(numbers);
 
           function updateCountdown() {
               const now = new Date().getTime();
@@ -99,7 +89,7 @@
           const interval = setInterval(updateCountdown, 1000);
       }
 
-      runWhenReady(countdown);
+      $vb.onReady(countdown);
   </script>
   <p>{{ contest.name }} ends in</p>
   <div class="countdown">

@@ -15,5 +15,8 @@
     "editor.codeActionsOnSave": {
       "source.fixAll": "explicit"
     }
+  },
+  "emmet.includeLanguages": {
+    "django-html": "html"
   }
 }
