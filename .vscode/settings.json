@@ -9,14 +9,13 @@
       "source.organizeImports.ruff": "explicit"
     }
   },
-  "[html][django-html]": {
-    "editor.defaultFormatter": "monosans.djlint",
+  "[html]": {
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.fixAll": "explicit"
     }
   },
-  "emmet.includeLanguages": {
-    "django-html": "html"
+  "files.associations": {
+    "*.dhtml": "html"
   }
 }

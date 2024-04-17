@@ -18,10 +18,9 @@
     </title>
     <link rel="stylesheet" href="{% static 'css/modern-normalize.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <script src="{% static 'js/htmx.min.js' %}" defer></script>
-    <script src="{% static 'js/css-scope-inline.js' %}" defer></script>
-    <script src="{% static 'js/surreal.js' %}" defer></script>
-    <script src="{% static 'js/utils.js' %}" defer></script>
+    <script src="{% static 'js/htmx.min.js' %}"></script>
+    <script src="{% static 'js/css-scope-inline.js' %}"></script>
+    <script src="{% static 'js/surreal.js' %}"></script>
     {% django_htmx_script %}
   </head>
   <body>
@@ -30,7 +29,7 @@
       VoterBowl, coming soon.
       <div>
         <style>
-          self {
+          me {
             background: blue;
             color: white;
           }
