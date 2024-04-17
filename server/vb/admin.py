@@ -8,7 +8,7 @@ from django.utils.safestring import mark_safe
 
 from server.admin import admin_site
 
-from .models import Action, Contest, ImageMimeType, Logo, School, Student
+from .models import Contest, GiftCard, ImageMimeType, Logo, School, Student
 
 
 def validate_file_is_image(file: UploadedFile) -> None:
@@ -85,8 +85,8 @@ class SchoolAdmin(admin.ModelAdmin, RenderLogoSpecimenMixin):
     list_display = (
         "name",
         "short_name",
-        "logo_display",
         "slug_display",
+        "logo_display",
         "active_contest",
         "mascot",
         "mail_domains",
@@ -125,23 +125,24 @@ class StudentAdmin(admin.ModelAdmin):
 class ContestAdmin(admin.ModelAdmin):
     """Contest admin."""
 
-    list_display = ("id", "name", "school", "start_at", "end_at")
-    search_fields = ("name", "school__name")
-
-
-class ActionAdmin(admin.ModelAdmin):
-    """Action admin."""
-
-    list_display = ("taken_at", "kind", "student", "contest")
-    search_fields = (
-        "student__email",
-        "student__first_name",
-        "student__last_name",
-        "contest__name",
+    list_display = (
+        "id",
+        "name",
+        "school",
+        "start_at",
+        "end_at",
     )
+    search_fields = ("school__name", "school__short_name", "school__slug")
+
+
+class GiftCardAdmin(admin.ModelAdmin):
+    """Gift card admin."""
+
+    list_display = ("id", "created_at")
+    search_fields = ("id", "created_at")
 
 
 admin_site.register(School, SchoolAdmin)
 admin_site.register(Student, StudentAdmin)
 admin_site.register(Contest, ContestAdmin)
-admin_site.register(Action, ActionAdmin)
+admin_site.register(GiftCard, GiftCardAdmin)

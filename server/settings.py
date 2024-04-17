@@ -154,3 +154,14 @@ if not DEBUG:
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Amazon Gift Card On Demand (AGCOD) settings
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_REGION = os.getenv("AWS_REGION")
+ACGOD_ENDPOINT_HOST = os.getenv("ACGOD_ENDPOINT_HOST")
+ACGOD_PARTNER_ID = os.getenv("ACGOD_PARTNER_ID")
+
+# Sandbox endpoint: agcod-v2-gamma.amazon.com us-east-1
+# Production endpoint: agcod-v2.amazon.com us-east-1
