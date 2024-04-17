@@ -50,8 +50,25 @@
         margin: 1.5rem 0;
       }
     </style>
-    <main style="background-color: {{ school.logo.bg_color }};
-                 color: {{ school.logo.bg_text_color }}">
+    <main data-bg-color="{{ school.logo.bg_color }}"
+          data-color="{{ school.logo.bg_text_color }}">
+      <style>
+        me {
+          --main-color: transparent;
+          --main-bg-color: transparent;
+          color: var(--main-color);
+          background-color: var(--main-bg-color);
+        }
+      </style>
+      <script>
+          (function() {
+              const self = me();
+              onloadAdd(() => {
+                  self.style.setProperty('--main-color', self.dataset.color);
+                  self.style.setProperty('--main-bg-color', self.dataset.bgColor);
+              });
+          })();
+      </script>
       <div class="container">
         {% if current_contest %}
           {% include "components/countdown.dhtml" with contest=current_contest %}
