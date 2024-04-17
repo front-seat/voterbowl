@@ -10,6 +10,12 @@ from .models import Contest, GiftCard, Student
 logger = logging.getLogger(__name__)
 
 
+class GiftCardPreconditionError(Exception):
+    """Raised when a gift card cannot be issued due to a precondition."""
+
+    pass
+
+
 def _issue_gift_card(student: Student, contest: Contest) -> tuple[GiftCard, str]:
     """
     Low level routine to issue a new gift card.
@@ -45,34 +51,39 @@ def get_or_issue_gift_card(
     If the student has already received a gift card for the contest,
     return the existing gift card.
 
-    If the student is not eligible, or issuing a gift card fails, an
-    exception is raised.
+    If the student is not eligible for the contest at this time,
+    raise a GiftCardPreconditionError. If another error occurs, raise
+    an arbitrary exception.
 
     Returns a tuple of the gift card and, if the gift card was issued,
     the claim code.
     """
     # Precondition: student must have a validated email address.
     if not student.is_validated:
-        raise ValueError(f"Student {student.email} is not validated")
+        raise GiftCardPreconditionError(f"Student {student.email} is not validated")
 
     # Precondition: student must go to the same school as the contest.
     if student.school != contest.school:
-        raise ValueError(
+        raise GiftCardPreconditionError(
             f"Student {student.email} is not eligible for contest '{contest.name}'"
         )
-
-    # Precondition: the contest must be ongoing.
-    if not contest.is_ongoing(when):
-        raise ValueError(f"Contest '{contest.name}' is not ongoing")
 
     # In a transaction, check if the student has already received a gift card
     # for the contest. If not, issue a new gift card.
     with transaction.atomic():
         try:
             gift_card = GiftCard.objects.get(student=student, contest=contest)
-            return gift_card, None
         except GiftCard.DoesNotExist:
-            return _issue_gift_card(student, contest)
+            gift_card = None
+
+        if gift_card is not None:
+            return gift_card, None
+
+        # Precondition: the contest must be ongoing to truly issue a gift card.
+        if not contest.is_ongoing(when):
+            raise GiftCardPreconditionError(f"Contest '{contest.name}' is not ongoing")
+
+        return _issue_gift_card(student, contest)
 
 
 def get_claim_code(gift_card: GiftCard) -> str:
