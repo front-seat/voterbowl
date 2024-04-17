@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from django.db import transaction
@@ -36,7 +37,7 @@ def _issue_gift_card(student: Student, contest: Contest) -> tuple[GiftCard, str]
 
 
 def get_or_issue_gift_card(
-    student: Student, contest: Contest
+    student: Student, contest: Contest, when: datetime.datetime | None = None
 ) -> tuple[GiftCard, str | None]:
     """
     Issue a gift card to a student for a contest.
@@ -53,11 +54,16 @@ def get_or_issue_gift_card(
     # Precondition: student must have a validated email address.
     if not student.is_validated:
         raise ValueError(f"Student {student.email} is not validated")
+
     # Precondition: student must go to the same school as the contest.
     if student.school != contest.school:
         raise ValueError(
             f"Student {student.email} is not eligible for contest '{contest.name}'"
         )
+
+    # Precondition: the contest must be ongoing.
+    if not contest.is_ongoing(when):
+        raise ValueError(f"Contest '{contest.name}' is not ongoing")
 
     # In a transaction, check if the student has already received a gift card
     # for the contest. If not, issue a new gift card.
