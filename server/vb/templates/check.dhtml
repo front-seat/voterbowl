@@ -1,0 +1,76 @@
+{% extends "base.dhtml" %}
+
+{% block title %}
+  Voter Bowl
+{% endblock title %}
+
+{% block body %}
+  <div>
+    <style>
+      me {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      me main {
+        width: 100%;
+        text-align: center;
+        padding: 2rem 0;
+      }
+
+      me main img {
+        height: 150px;
+        margin: 1.5rem 0;
+      }
+
+      me main p {
+        font-weight: 378;
+        font-size: 20px;
+        line-height: 130%;
+      }
+
+      me main h2 {
+        font-weight: 500;
+        font-size: 36px;
+        line-height: 120%;
+        text-transform: uppercase;
+      }
+
+      me .faq {
+        width: 100%;
+        color: white;
+        padding: 2rem 0;
+      }
+
+      me .button-holder {
+        display: flex;
+        justify-content: center;
+        margin: 1.5rem 0;
+      }
+    </style>
+    <main style="background-color: {{ school.logo.bg_color }};
+                 color: {{ school.logo.bg_text_color }}">
+      <div class="container">
+        {% if current_contest %}
+          {% include "components/countdown.dhtml" with contest=current_contest %}
+        {% endif %}
+        <img src="{{ school.logo.url }}"
+             alt="{{ school.short_name }} {{ school.mascot }} logo" />
+        <h2>Welcome to the Voter Bowl</h2>
+        {% if current_contest %}
+          <p>{{ current_contest.description }}</p>
+        {% else %}
+          <p>There is no contest at this time. TODO: show something useful in this state?</p>
+        {% endif %}
+        <div class="button-holder">
+          {% include "components/button.dhtml" with text="Check my voter status" href="./check/" bg_color=school.logo.action_color color=school.logo.action_text_color %}
+        </div>
+      </div>
+    </main>
+    <div class="faq">
+      <div class="container">{% include "includes/faq.dhtml" %}</div>
+    </div>
+  </div>
+{% endblock body %}

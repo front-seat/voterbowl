@@ -9,13 +9,16 @@
       "source.organizeImports.ruff": "explicit"
     }
   },
-  "[html]": {
+  "[html][django-html]": {
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.fixAll": "explicit"
     }
   },
+  "emmet.includeLanguages": {
+    "django-html": "html"
+  },
   "files.associations": {
-    "*.dhtml": "html"
+    "*.dhtml": "django-html"
   }
 }

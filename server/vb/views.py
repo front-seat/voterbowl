@@ -19,3 +19,13 @@ def school(request: HttpRequest, slug: str) -> HttpResponse:
     return render(
         request, "school.dhtml", {"school": school, "current_contest": current_contest}
     )
+
+
+@require_GET
+def check(request: HttpRequest, slug: str) -> HttpResponse:
+    """Render a school-specific check registration page."""
+    school = get_object_or_404(School, slug=slug)
+    current_contest = school.contests.current()
+    return render(
+        request, "check.dhtml", {"school": school, "current_contest": current_contest}
+    )

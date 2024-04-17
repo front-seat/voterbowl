@@ -1,9 +1,12 @@
-<button style="background-color: {{ bg_color }}; color: {{ color }};">
+<a style="background-color: {{ bg_color }};
+          color: {{ color }}"
+   href="{{ href }}">
   <style>
-    self {
+    me {
       cursor: pointer;
       transition: opacity 0.2s ease-in-out;
       text-transform: uppercase;
+      text-decoration: none;
       font-weight: 600;
       font-size: 18px;
       line-height: 100%;
@@ -13,10 +16,10 @@
       padding: 20px 24px;
     }
 
-    self:hover {
+    me:hover {
       opacity: 0.7;
       transition: opacity 0.2s ease-in-out;
     }
   </style>
   {{ text }}
-</button>
+</a>
