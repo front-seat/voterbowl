@@ -4,10 +4,10 @@ from server.utils.agcod import AGCODClient
 
 
 class Command(BaseCommand):
-    """Get available funds remaining for generating gift codes using the ACGOD API."""
+    """Get available funds remaining for generating gift codes using the AGCOD API."""
 
     help = (
-        "Get available funds remaining for generating gift codes using the ACGOD API."
+        "Get available funds remaining for generating gift codes using the AGCOD API."
     )
 
     def handle(self, **options):
