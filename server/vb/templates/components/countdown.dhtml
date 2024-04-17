@@ -9,25 +9,6 @@
       padding-top: 1em;
     }
 
-    me .countdown {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 24px;
-      font-weight: 500;
-      font-family: var(--font-mono);
-      gap: 4px;
-      height: 34px !important;
-    }
-
-    me .countdown span {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100%;
-      width: 27px;
-    }
-
     me p {
       text-transform: uppercase;
     }
@@ -41,6 +22,22 @@
         --number-color: transparent;
         --number-bg-color: transparent;
         --colon-color: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        font-weight: 500;
+        font-family: var(--font-mono);
+        gap: 4px;
+        height: 34px !important;
+      }
+
+      me span {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 27px;
       }
 
       me span.number {
