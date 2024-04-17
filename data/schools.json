@@ -169,17 +169,6 @@
     }
   },
   {
-    "model": "vb.contest",
-    "pk": 1,
-    "fields": {
-      "name": "$25 Amazon Gift Card Giveaway",
-      "start_at": "2024-04-02T23:17:11Z",
-      "end_at": "2024-04-06T23:17:24Z",
-      "template": "{{ school.short_name }} students: check your voter registration for a 1 in 10 chance to win a $25 Amazon gift card.",
-      "school": 1
-    }
-  },
-  {
     "model": "vb.logo",
     "pk": 1,
     "fields": {
