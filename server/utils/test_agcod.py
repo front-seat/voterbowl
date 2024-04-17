@@ -52,7 +52,8 @@ class AGCODTextMixin:
 class CreateGiftCardTestCase(AGCODTextMixin, unittest.TestCase):
     """Test the create_gift_card function."""
 
-    # TODO: flesh out the the architecture and tests if I have time
+    # TODO: this is a temporary mess. Sort out the the architecture and
+    # tests if I have time before we launch.
 
     def test_create_gift_card(self):
         """Test creating a gift card."""

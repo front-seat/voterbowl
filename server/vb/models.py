@@ -29,6 +29,10 @@ class School(models.Model):
 
     short_name = models.CharField(max_length=255, blank=True)
     mascot = models.CharField(max_length=255, blank=True)
+
+    # Fields that define how the school handles email addresses.
+    # This allows us both to validate that a school-matching email address is
+    # used, and to normalize email addresses for deduplication.
     mail_domains = models.JSONField(default=list, blank=True)
     mail_tag = models.CharField(
         max_length=1,
@@ -42,8 +46,8 @@ class School(models.Model):
     )  # noqa
 
     logo: "Logo"
-
     contests: "ContestManager"
+    students: "StudentManager"
 
     def normalize_email(self, address: str) -> str:
         """Normalize an email address for this school."""
@@ -147,21 +151,51 @@ class Contest(models.Model):
 
     objects = ContestManager()
 
-    name = models.CharField(
-        max_length=255, blank=False, help_text="Like '$25 Amazon Gift Card Giveaway'"
-    )
-    start_at = models.DateTimeField(blank=False)
-    end_at = models.DateTimeField(blank=False)
-    template = models.TextField(
-        blank=False,
-        help_text="A description of the contest. Can use {{ school.name }} to insert the school's name, etc.",  # noqa
-        default="{{ school.short_name }} students: check your voter registration for a 1 in 10 chance to win a $25 Amazon gift card.",  # noqa
-    )
-
     # For now, we assume that each contest is associated with a single school.
     school = models.ForeignKey(
         School, on_delete=models.CASCADE, related_name="contests"
     )
+
+    # Contests have strictly defined start and end times.
+    start_at = models.DateTimeField(blank=False)
+    end_at = models.DateTimeField(blank=False)
+
+    # For now, we assume:
+    #
+    # 1. Anyone who checks their voter registration during the contest period
+    #    is a winner.
+    # 2. All winners receive the same Amazon gift card amount as a prize.
+    amount = models.IntegerField(
+        blank=False, help_text="The USD amount of the gift card.", default=5
+    )
+
+    # The contest name and description can be templated.
+    name_template = models.TextField(
+        blank=False,
+        max_length=255,
+        help_text="The name of the contest. Can use template variables like {{ school.name }} and {{ contest.amount }}.",  # noqa
+        default="${{ contest.amount }} Amazon Gift Card Giveaway",
+    )
+
+    gift_cards: "GiftCardManager"
+
+    @property
+    def name(self) -> str:
+        """Render the contest name template."""
+        context = {"school": self.school, "contest": self}
+        return Template(self.name_template).render(Context(context))
+
+    description_template = models.TextField(
+        blank=False,
+        help_text="A description of the contest. Can use template variables like {{ school.name }} and {{ contest.amount }}.",  # noqa
+        default="{{ school.short_name }} students: check your voter registration to win a ${{ contest.amount }} Amazon gift card.",  # noqa
+    )
+
+    @property
+    def description(self) -> str:
+        """Render the contest description template."""
+        context = {"school": self.school, "contest": self}
+        return Template(self.description_template).render(Context(context))
 
     def is_upcoming(self, when: datetime.datetime | None = None) -> bool:
         """Return whether the contest is upcoming."""
@@ -178,38 +212,125 @@ class Contest(models.Model):
         when = when or django_now()
         return self.end_at <= when
 
-    def description(self):
-        """Render the contest template."""
-        context = {"school": self.school, "contest": self}
-        return Template(self.template).render(Context(context))
-
     def __str__(self):
         """Return the contest model's string representation."""
         return f"Contest: {self.name} for {self.school.name}"
 
 
+class StudentManager(models.Manager):
+    """A custom manager for the student model."""
+
+    def validated(self):
+        """Return all students with validated email addresses."""
+        return self.filter(email_validated_at__isnull=False)
+
+    def not_validated(self):
+        """Return all students without validated email addresses."""
+        return self.filter(email_validated_at__isnull=True)
+
+
 class Student(models.Model):
-    """A single student in the competition."""
+    """
+    A student that visited our website and checked their voter registration.
+
+    Unless an email address is validated, we should not generate a gift card.
+    """
+
+    objects = StudentManager()
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE, related_name="students"
+    )
+
+    # Email management is a little complex for us.
+    email = models.EmailField(
+        blank=False,
+        help_text="The first email address we ever saw for this user.",
+        unique=True,
+    )
     hash = models.CharField(
         blank=False,
         max_length=64,
         unique=True,
-        help_text="A deduped, hashed version of the student's email address.",
+        help_text="A unique ID for the student derived from their email address.",
+    )
+    other_emails = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="The second (and beyond) emails for this user.",
+    )
+    email_validated_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        default=None,
+        help_text="The time the email was validated.",
     )
 
-    school = models.ForeignKey(School, on_delete=models.CASCADE)
-    email = models.EmailField(
-        blank=False, help_text="The student's primary email address."
-    )
-    phone = models.CharField(max_length=255, blank=True, default="")
+    # Other identifying information
     first_name = models.CharField(max_length=255, blank=False)
     last_name = models.CharField(max_length=255, blank=False)
+    phone = models.CharField(max_length=255, blank=True, default="")
+
+    gift_cards: "GiftCardManager"
+
+    @property
+    def is_validated(self) -> bool:
+        """Return whether the student's email address is validated."""
+        return self.email_validated_at is not None
 
     @property
     def name(self) -> str:
         """Return the student's full name."""
         return f"{self.first_name} {self.last_name}"
+
+
+class GiftCardManager(models.Manager):
+    """A custom manager for the gift card model."""
+
+    pass
+
+
+class GiftCard(models.Model):
+    """A gift card issued to a single student for a single contest."""
+
+    objects = GiftCardManager()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    student = models.ForeignKey(
+        Student, on_delete=models.CASCADE, related_name="gift_cards"
+    )
+    contest = models.ForeignKey(
+        Contest, on_delete=models.CASCADE, related_name="gift_cards"
+    )
+
+    amount = models.IntegerField(
+        blank=False, help_text="The USD amount of the gift card."
+    )
+    creation_request_id = models.CharField(
+        blank=False,
+        max_length=255,
+        unique=True,
+        help_text="The creation code for the gift card.",
+    )
+
+    email_sent_at = models.DateTimeField(blank=True, null=True, default=None)
+
+    class Meta:
+        """Define the gift card model's meta options."""
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["student", "contest"],
+                name="unique_student_contest_gift_card",
+            )
+        ]
+
+    def __str__(self):
+        """Return the gift card model's string representation."""
+        return (
+            f"Gift Card: ${self.amount} for {self.student.name} in {self.contest.name}"
+        )
