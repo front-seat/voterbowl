@@ -1,0 +1,3 @@
+<img src="{{ school.logo.url }}"
+     alt="{{ school.short_name }} {{ school.mascot }} logo" />
+<p>CONGRATS! Check your email {{ first_name }} AND {{ last_name }}, because some dope shizz is on its way.</p>

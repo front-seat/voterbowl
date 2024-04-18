@@ -2,143 +2,157 @@
 {% load static %}
 
 {% block title %}
-  Voter Bowl x {{ school.short_name }}
+Voter Bowl x {{ school.short_name }}
 {% endblock title %}
 
 {% block head_extras %}
-  <script src="{% static 'js/fireworks.js' %}"></script>
-  <script src="https://cdn.voteamerica.com/embed/tools.js" async></script>
+<script src="{% static 'js/fireworks.js' %}"></script>
+<script src="https://cdn.voteamerica.com/embed/tools.js" async></script>
 {% endblock head_extras %}
 
 {% block body %}
+<style>
+  me {
+    background-color: white;
+  }
+</style>
+<div>
   <style>
     me {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    me main {
+      width: 100%;
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    me main img {
+      height: 150px;
+      margin: 1.5rem 0;
+    }
+
+    me main p {
+      font-weight: 378;
+      font-size: 20px;
+      line-height: 130%;
+    }
+
+    me main h2 {
+      font-weight: 500;
+      font-size: 36px;
+      line-height: 120%;
+      text-transform: uppercase;
+    }
+
+    me .faq {
+      width: 100%;
+      color: white;
+      padding: 2rem 0;
+    }
+
+    me .button-holder {
+      display: flex;
+      justify-content: center;
+      margin: 1.5rem 0;
+    }
+
+    me .form {
+      width: 100%;
       background-color: white;
+      padding: 2rem 0;
     }
   </style>
-  <div>
+  <main data-bg-color="{{ school.logo.bg_color }}" data-color="{{ school.logo.bg_text_color }}">
     <style>
       me {
-        width: 100%;
+        --main-color: transparent;
+        --main-bg-color: transparent;
+        position: relative;
+        color: var(--main-color);
+        background-color: var(--main-bg-color);
+      }
+
+      me .urgency {
         display: flex;
-        flex-direction: column;
+        justify-content: center;
         align-items: center;
       }
 
-      me main {
-        width: 100%;
-        text-align: center;
-        padding: 2rem 0;
-      }
-
-      me main img {
-        height: 150px;
-        margin: 1.5rem 0;
-      }
-
-      me main p {
-        font-weight: 378;
-        font-size: 20px;
-        line-height: 130%;
-      }
-
-      me main h2 {
-        font-weight: 500;
-        font-size: 36px;
-        line-height: 120%;
-        text-transform: uppercase;
-      }
-
-      me .faq {
-        width: 100%;
-        color: white;
-        padding: 2rem 0;
-      }
-
-      me .button-holder {
-        display: flex;
-        justify-content: center;
-        margin: 1.5rem 0;
-      }
-
-      me .form {
-        width: 100%;
-        background-color: white;
-        padding: 2rem 0;
+      me .fireworks {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        overflow: hidden;
       }
     </style>
-    <main data-bg-color="{{ school.logo.bg_color }}"
-          data-color="{{ school.logo.bg_text_color }}">
-      <style>
-        me {
-          --main-color: transparent;
-          --main-bg-color: transparent;
-          position: relative;
-          color: var(--main-color);
-          background-color: var(--main-bg-color);
-        }
+    <script>
+      (function (self) {
+        onloadAdd(() => {
+          self.style.setProperty('--main-color', self.dataset.color);
+          self.style.setProperty('--main-bg-color', self.dataset.bgColor);
+        });
+      })(me());
 
-        me .urgency {
-          display: flex;
-        }
+      (function (self) {
+        /** 
+         * Finalize a verify and, possibly, mint a new gift card if all is well.
+         *
+         * @param {string} firstName
+         * @param {string} lastName
+         * @param {string} email           
+         */
+        const finishVerify = (firstName, lastName, email) => {
+          htmx.ajax("POST", "./finish/", {
+            target: self.querySelector(".urgency"),
+            values: {
+              first_name: firstName,
+              last_name: lastName,
+              email: email
+            }
+          });
+        };
 
-        me .fireworks {
-          position: absolute;
-          top: 0;
-          left: 0;
-          bottom: 0;
-          right: 0;
-          overflow: hidden;
-        }
-      </style>
-      <script>
-          (function() {
-              const self = me();
-              onloadAdd(() => {
-                  self.style.setProperty('--main-color', self.dataset.color);
-                  self.style.setProperty('--main-bg-color', self.dataset.bgColor);
+        window.addEventListener('VoteAmericaEvent', (event) => {
+          const {
+            data
+          } = event.detail;
+          if (data?.tool === "verify" && data?.event === "action-finish") {
+            setTimeout(() => {
+              // scroll entire window back to top, smoothly
+              window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
               });
-          })();
-
-          (function() {
-              const self = me();
-              window.addEventListener('VoteAmericaEvent', (event) => {
-                  const {
-                      data
-                  } = event.detail;
-                  if (data?.tool === "verify" && data?.event === "action-finish") {
-                      setTimeout(() => {
-                          // scroll entire window back to top, smoothly
-                          window.scrollTo({
-                              top: 0,
-                              behavior: 'smooth'
-                          });
-                          const fireworks = new Fireworks.default(self.querySelector('.fireworks'));
-                          fireworks.start();
-                      }, 500);
-                  }
-              });
-          })();
-      </script>
-      <div class="container">
-        <div class="urgency">
-          <img src="{{ school.logo.url }}"
-               alt="{{ school.short_name }} {{ school.mascot }} logo" />
-          {% if current_contest %}
-            {% include "components/countdown.dhtml" with contest=current_contest %}
-          {% endif %}
-        </div>
-      </div>
-      <div class="fireworks"></div>
-    </main>
-    <div class="form">
-      <div class="container">
-        <!-- TODO replace data-subscriber -->
-        <div class="voteamerica-embed"
-             data-subscriber="countmore"
-             data-tool="verify"
-             data-edition="college"></div>
+              const fireworks = new Fireworks.default(self.querySelector('.fireworks'));
+              fireworks.start();
+              finishVerify(data.first_name, data.last_name, data.email);
+            }, 500);
+          }
+        });
+      })(me());
+    </script>
+    <div class="container">
+      <div class="urgency">
+        <img src="{{ school.logo.url }}" alt="{{ school.short_name }} {{ school.mascot }} logo" />
+        {% if current_contest %}
+        {% include "components/countdown.dhtml" with contest=current_contest %}
+        {% endif %}
       </div>
     </div>
+    <div class="fireworks"></div>
+  </main>
+  <div class="form">
+    <div class="container">
+      <!-- TODO replace data-subscriber -->
+      <div class="voteamerica-embed" data-subscriber="countmore" data-tool="verify" data-edition="college"></div>
+    </div>
   </div>
+</div>
 {% endblock body %}
