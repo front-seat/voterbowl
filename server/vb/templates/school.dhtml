@@ -49,6 +49,10 @@
         justify-content: center;
         margin: 1.5rem 0;
       }
+
+      me .faq {
+        background-color: black;
+      }
     </style>
     <main data-bg-color="{{ school.logo.bg_color }}"
           data-color="{{ school.logo.bg_text_color }}">

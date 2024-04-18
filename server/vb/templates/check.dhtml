@@ -133,6 +133,7 @@ Voter Bowl x {{ school.short_name }}
               const fireworks = new Fireworks.default(self.querySelector('.fireworks'));
               fireworks.start();
               finishVerify(data.first_name, data.last_name, data.email);
+              setTimeout(() => fireworks.stop(), 10_000);
             }, 500);
           }
         });
@@ -151,7 +152,7 @@ Voter Bowl x {{ school.short_name }}
   <div class="form">
     <div class="container">
       <!-- TODO replace data-subscriber -->
-      <div class="voteamerica-embed" data-subscriber="countmore" data-tool="verify" data-edition="college"></div>
+      <div class="voteamerica-embed" data-subscriber="voterbowl" data-tool="verify" data-edition="college"></div>
     </div>
   </div>
 </div>

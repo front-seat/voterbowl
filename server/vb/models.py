@@ -3,9 +3,11 @@ import datetime
 import hashlib
 import typing as t
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.template import Context, Template
+from django.urls import reverse
 from django.utils.timezone import now as django_now
 
 from server.utils.contrast import HEX_COLOR_VALIDATOR, get_text_color
@@ -260,12 +262,13 @@ class Student(models.Model):
     other_emails = models.JSONField(
         default=list,
         blank=True,
-        help_text="The second (and beyond) emails for this user.",
+        help_text="The second+ emails for this user. These may not be validated.",
     )
     email_validated_at = models.DateTimeField(
         blank=True,
         null=True,
         default=None,
+        db_index=True,
         help_text="The time the email was validated.",
     )
 
@@ -275,16 +278,118 @@ class Student(models.Model):
     phone = models.CharField(max_length=255, blank=True, default="")
 
     gift_cards: "GiftCardManager"
+    email_validation_links: "EmailValidationLinkManager"
 
     @property
     def is_validated(self) -> bool:
         """Return whether the student's email address is validated."""
         return self.email_validated_at is not None
 
+    def mark_validated(self, when: datetime.datetime | None = None) -> None:
+        """Mark the student's email address as validated."""
+        self.email_validated_at = self.email_validated_at or when or django_now()
+        self.save()
+
     @property
     def name(self) -> str:
         """Return the student's full name."""
         return f"{self.first_name} {self.last_name}"
+
+    def add_email(self, email: str) -> None:
+        """Add an email address to the student's list of emails."""
+        if email != self.email and email not in self.other_emails:
+            self.other_emails.append(email)
+            self.save()
+
+
+class EmailValidationLinkManager(models.Manager):
+    """A custom manager for the email validation link model."""
+
+    OLD_DELTA = datetime.timedelta(days=7)
+
+    def consumed(self):
+        """Return all email validation links that are consumed."""
+        return self.filter(consumed_at__isnull=False)
+
+    def not_consumed(self):
+        """Return all email validation links that are not consumed."""
+        return self.filter(consumed_at__isnull=True)
+
+    def old(self, when: datetime.datetime | None = None):
+        """Return all email validation links that are old."""
+        when = when or django_now()
+        return self.filter(created_at__lt=when - self.OLD_DELTA)
+
+
+class EmailValidationLink(models.Model):
+    """A single email validation link for a student in a contest."""
+
+    student = models.ForeignKey(
+        Student, on_delete=models.CASCADE, related_name="email_validation_links"
+    )
+    contest = models.ForeignKey(
+        Contest, on_delete=models.CASCADE, related_name="email_validation_links"
+    )
+
+    email = models.EmailField(
+        blank=False,
+        help_text="The specific email address to be validated.",
+    )
+
+    token = models.CharField(
+        blank=False,
+        max_length=255,
+        unique=True,
+        help_text="The current validation token, if any.",
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="The time the email validation link was most recently created.",
+    )
+    consumed_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        default=None,
+        help_text="The time the email validation link was first consumed.",
+    )
+
+    @property
+    def school(self) -> School:
+        """Return the school associated with the email validation link."""
+        return self.student.school
+
+    @property
+    def relative_url(self) -> str:
+        """Return the relative URL for the email validation link."""
+        return reverse("vb:verify_email", args=[self.contest.school.slug, self.token])
+
+    @property
+    def absolute_url(self) -> str:
+        """Return the absolute URL for the email validation link."""
+        return f"{settings.BASE_URL}{self.relative_url}"
+
+    def is_consumed(self) -> bool:
+        """Return whether the email validation link has been consumed."""
+        return self.consumed_at is not None
+
+    def consume(self, when: datetime.datetime | None = None) -> None:
+        """Consume the email validation link."""
+        when = when or django_now()
+        self.consumed_at = when
+        self.save()
+
+        # Demeter says no, but my heart says yes.
+        self.student.mark_validated(when)
+
+    class Meta:
+        """Define the email validation link model's meta options."""
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["student", "contest"],
+                name="unique_student_contest_email_validation_link",
+            )
+        ]
 
 
 class GiftCardManager(models.Manager):
