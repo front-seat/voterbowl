@@ -103,7 +103,21 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
         raise ValueError("No active contest TODO")
     form = FinishCheckForm(request.POST, school=school)
     if not form.is_valid():
-        raise PermissionDenied("Invalid form")
+        # Check if `email` is the only field that failed.
+        if "email" in form.errors and len(form.errors) == 1:
+            return render(
+                request,
+                "fail_check.dhtml",
+                {
+                    "school": school,
+                    "first_name": form.cleaned_data["first_name"],
+                    "last_name": form.cleaned_data["last_name"],
+                    "current_contest": current_contest,
+                },
+            )
+
+        # Nope, it wasn't just the email field. Fail hard for now.
+        raise PermissionDenied("Invalid")
     email = form.cleaned_data["email"]
 
     # Create a new student if necessary.
