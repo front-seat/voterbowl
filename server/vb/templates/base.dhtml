@@ -26,6 +26,13 @@
     {% block head_extras %}
     {% endblock head_extras %}
 
+    {% if school %}
+      {# djlint:off #}
+  <style>
+    body { background-color: {{school.logo.bg_color}}; }
+</style>
+      {# djlint:on #}
+    {% endif %}
   </head>
   <body>
 

@@ -11,11 +11,6 @@
 {% endblock head_extras %}
 
 {% block body %}
-  <style>
-    me {
-      background-color: white;
-    }
-  </style>
   <div>
     <style>
       me {
@@ -80,6 +75,7 @@
 
         me .urgency {
           display: flex;
+          flex-direction: column;
           justify-content: center;
           align-items: center;
         }
@@ -95,6 +91,20 @@
 
         me .separate {
           padding-left: 1rem;
+        }
+
+        me img {
+          display: none;
+        }
+
+        @media screen and (min-width: 768px) {
+          me img {
+            display: block;
+          }
+
+          me .urgency {
+            flex-direction: row;
+          }
         }
       </style>
       <script>

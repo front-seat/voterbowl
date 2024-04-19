@@ -13,7 +13,7 @@
       text-transform: uppercase;
     }
   </style>
-  <p>{{ contest.name }} ends in</p>
+  <p>{{ contest.name }}</p>
   <div class="countdown"
        data-end-at="{{ contest.end_at|date:'c' }}"
        data-number-color="{{ school.logo.action_text_color }}"
