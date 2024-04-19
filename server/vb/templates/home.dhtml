@@ -7,7 +7,7 @@
 {% block body %}
   <div>
     <style>
-      self h1 {
+      me h1 {
         font-weight: 200;
       }
     </style>

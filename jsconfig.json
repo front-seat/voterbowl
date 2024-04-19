@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "CommonJS",
+    "checkJs": true,
+    "allowJs": true,
+    "noEmit": true
+  },
+  "include": [
+    "server/static/js/surreal.js",
+    "server/static/js/css-scope-inline.js"
+  ]
+}

@@ -1,0 +1,16 @@
+{% extends "email/base/body.dhtml" %}
+
+{% block message %}
+  {% include "email/base/p.html" %}
+  Hi {{ student.first_name }},
+  {% include "email/base/p_close.html" %}
+  {% include "email/base/p.html" %}
+  Your ${{ gift_card.amount }} Amazon gift code is: <strong>{{ gift_card.code }}</strong>
+  {% include "email/base/p_close.html" %}
+  {% include "email/base/p.html" %}
+  Copy and paste it into Amazon's gift card redemption page to claim your gift.
+  {% include "email/base/p_close.html" %}
+  {% include "email/base/p.html" %}
+  And: be sure to tell your friends at {{ school.short_name }} to visit VoterBowl, too!
+  {% include "email/base/p_close.html" %}
+{% endblock message %}

@@ -1,57 +1,78 @@
 {% extends "base.dhtml" %}
 
 {% block title %}
-  Voter Bowl
+  Voter Bowl x {{ school.short_name }}
 {% endblock title %}
 
 {% block body %}
   <div>
     <style>
-      self {
+      me {
         width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
       }
 
-      self main {
+      me main {
         width: 100%;
         text-align: center;
         padding: 2rem 0;
       }
 
-      self main img {
+      me main img {
         height: 150px;
         margin: 1.5rem 0;
       }
 
-      self main p {
+      me main p {
         font-weight: 378;
         font-size: 20px;
         line-height: 130%;
       }
 
-      self main h2 {
+      me main h2 {
         font-weight: 500;
         font-size: 36px;
         line-height: 120%;
         text-transform: uppercase;
       }
 
-      self .faq {
+      me .faq {
         width: 100%;
         color: white;
         padding: 2rem 0;
       }
 
-      self .button-holder {
+      me .button-holder {
         display: flex;
         justify-content: center;
         margin: 1.5rem 0;
       }
+
+      me .faq {
+        background-color: black;
+      }
     </style>
-    <main style="background-color: {{ school.logo.bg_color }};
-                 color: {{ school.logo.bg_text_color }}">
+    <main data-bg-color="{{ school.logo.bg_color }}"
+          data-color="{{ school.logo.bg_text_color }}">
+      <style>
+        me {
+          --main-color: transparent;
+          --main-bg-color: transparent;
+          color: var(--main-color);
+          background-color: var(--main-bg-color);
+        }
+      </style>
+      <script>
+          (function() {
+              const self = me();
+              onloadAdd(() => {
+                  self.style.setProperty('--main-color', self.dataset.color);
+                  self.style.setProperty('--main-bg-color', self.dataset.bgColor);
+              });
+          })();
+      </script>
       <div class="container">
         {% if current_contest %}
           {% include "components/countdown.dhtml" with contest=current_contest %}
@@ -61,11 +82,15 @@
         <h2>Welcome to the Voter Bowl</h2>
         {% if current_contest %}
           <p>{{ current_contest.description }}</p>
+        {% elif past_contest %}
+          <p>{{ school.short_name }} students: the ${{ past_contest.amount }} giveaway has ended.</p>
+          <p>But: it's always a good time to make sure you're ready to vote.</p>
         {% else %}
-          <p>There is no contest at this time. TODO: show something useful in this state?</p>
+          <p>{{ school.short_name }} students: there's no giveaway right now.</p>
+          <p>But: it's always a good time to make sure you're ready to vote.</p>
         {% endif %}
         <div class="button-holder">
-          {% include "components/button.dhtml" with text="Check my voter status" bg_color=school.logo.action_color color=school.logo.action_text_color %}
+          {% include "components/button.dhtml" with text="Check my voter status" href="./check/" bg_color=school.logo.action_color color=school.logo.action_text_color %}
         </div>
       </div>
     </main>

@@ -291,8 +291,8 @@ class AGCODClient(AmazonJSONRPCClient):
         aws_access_key_id = t.cast(str | None, settings.AWS_ACCESS_KEY_ID)
         aws_secret_access_key = t.cast(str | None, settings.AWS_SECRET_ACCESS_KEY)
         aws_region = t.cast(str | None, settings.AWS_REGION)
-        endpoint_host = t.cast(str | None, settings.ACGOD_ENDPOINT_HOST)
-        parter_id = t.cast(str | None, settings.ACGOD_PARTNER_ID)
+        endpoint_host = t.cast(str | None, settings.AGCOD_ENDPOINT_HOST)
+        parter_id = t.cast(str | None, settings.AGCOD_PARTNER_ID)
 
         if aws_access_key_id is None:
             logger.warning("Missing AWS_ACCESS_KEY_ID")
@@ -304,10 +304,10 @@ class AGCODClient(AmazonJSONRPCClient):
             logger.warning("Missing AWS_REGION")
 
         if endpoint_host is None:
-            logger.warning("Missing ACGOD_ENDPOINT_HOST")
+            logger.warning("Missing AGCOD_ENDPOINT_HOST")
 
         if parter_id is None:
-            logger.warning("Missing ACGOD_PARTNER_ID")
+            logger.warning("Missing AGCOD_PARTNER_ID")
 
         if None in (
             aws_access_key_id,

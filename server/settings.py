@@ -160,8 +160,37 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = os.getenv("AWS_REGION")
-ACGOD_ENDPOINT_HOST = os.getenv("ACGOD_ENDPOINT_HOST")
-ACGOD_PARTNER_ID = os.getenv("ACGOD_PARTNER_ID")
+AGCOD_ENDPOINT_HOST = os.getenv("AGCOD_ENDPOINT_HOST")
+AGCOD_PARTNER_ID = os.getenv("AGCOD_PARTNER_ID")
 
 # Sandbox endpoint: agcod-v2-gamma.amazon.com us-east-1
 # Production endpoint: agcod-v2.amazon.com us-east-1
+
+
+# ----------------------------------------------------------------------------
+# Email Settings
+# ----------------------------------------------------------------------------
+
+# The email address that emails are sent from unless explicitly overridden
+# when invoking Django's `send_mail` function
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "hello@voterbowl.org")
+
+# The *sending* email address used when Django emails admins about errors.
+# For now, we make this the same as DEFAULT_FROM_EMAIL
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# The email addresses of our administrators.
+ADMINS = [("Frontseat Developers", "dev@frontseat.org")]
+
+# How to send email. We default to console-based email, which simply prints
+# emails to the console. This is useful for local development. In production,
+# we'll configure SMTP.
+EMAIL_BACKEND = os.getenv(
+    "EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"
+)
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", None)
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", None)
+EMAIL_HOST = os.getenv("EMAIL_HOST", None)
+EMAIL_PORT = os.getenv("EMAIL_PORT", None)
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "false").lower() == "true"
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "false").lower() == "true"

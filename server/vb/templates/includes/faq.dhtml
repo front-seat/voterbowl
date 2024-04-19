@@ -1,55 +1,67 @@
 <div>
   <style>
-    self {
+    me {
       display: flex;
       flex-direction: column;
       gap: 1rem;
     }
 
-    self .qa {
+    me .qa {
       display: flex;
       flex-direction: column;
     }
 
-    self h2 {
+    me h2 {
       font-size: 36px;
       font-weight: 440;
       line-height: 130%;
       margin-bottom: 1rem;
     }
 
-    self h3 {
+    me h3 {
       font-weight: 600;
       font-size: 18px;
       line-height: 28px;
     }
 
-    self p {
+    me p {
       font-weight: 378;
       font-size: 18px;
       line-height: 28px;
       opacity: 0.7;
+    }
+
+    me a {
+      color: white;
+      cursor: pointer;
+      text-decoration: underline;
+      transition: opacity 0.2s;
+    }
+
+    me a:hover {
+      opacity: 0.7;
+      transition: opacity 0.2s;
     }
   </style>
   <h2>F.A.Q.</h2>
   <div class="qa">
     <h3>What is the Voter Bowl?</h3>
     <p>
-      The Voter Bowl is a series of contests where college students win prizes 
+      The Voter Bowl is a series of contests where college students win prizes
       by making sure they’re ready to vote.
     </p>
     <p>
-      The Voter Bowl is a non-profit project of 
-      <a href="https://www.voteamerica.com/" target="_blank">VoteAmerica</a>, a 
+      The Voter Bowl is a non-profit project of
+      <a href="https://www.voteamerica.com/" target="_blank">VoteAmerica</a>, a
       leader in voter registration and participation.
     </p>
   </div>
   <div class="qa">
-    <h3>How do I claim my prize?</h3>
+    <h3>How do I claim my gift card?</h3>
     <p>
-      When you check your voter registration status by clicking the “Check My 
-      Voter Status” while a contest is running, you are automatically entered to 
-      win. If you win, we will notify you via your school email address.
+      When you check your voter registration status by clicking the “Check My
+      Voter Status” while a contest is running, we will send you an email
+      link. Click that link to claim your gift card.
     </p>
     <p>
       <a href="#">Read the full contest rules here</a>.
@@ -58,27 +70,26 @@
   <div class="qa">
     <h3>What is the goal of the Voter Bowl?</h3>
     <p>
-      In the 2020 election, 33% of college students didn’t vote. We believe a 
-      healthy democracy depends on young people participating.
+      In the 2020 election, 33% of college students didn’t vote. We believe a
+      healthy democracy depends on everyone participating.
     </p>
   </div>
   <div class="qa">
     <h3>Who is paying for the Voter Bowl?</h3>
     <p>
-      <a href="https://www.voteamerica.com/" target="_blank">VoteAmerica</a> is 
-      funding the Voter Bowl through the generous support of donors who are 
-      passionate about building a thriving democracy. 
+      <a href="https://www.voteamerica.com/" target="_blank">VoteAmerica</a> is
+      funding the Voter Bowl through the generous support of donors who are
+      passionate about building a thriving democracy.
     </p>
-     <p>
-      <a href="https://donorbox.org/voteamerica-website?utm_medium=website
-      &utm_source=voterbowl&utm_campaign=voterbowl&source=voterbowl" target="_blank">
-      Donate to VoteAmerica</a> to support projects like this. 
+    <p>
+      <a href="https://donorbox.org/voteamerica-website?utm_medium=website &utm_source=voterbowl&utm_campaign=voterbowl&source=voterbowl"
+         target="_blank">Donate to VoteAmerica</a> to support projects like this.
     </p>
   </div>
- <div class="qa">
+  <div class="qa">
     <h3>I have another question.</h3>
     <p>
-      <a href="#">Contact us</a> and we'd be happy to answer it.
+      <a href="mailto:hello@voterbowl.org">Contact us</a> and we'd be happy to answer it.
     </p>
   </div>
 </div>

@@ -1,0 +1,9 @@
+{% autoescape off %}
+{% block message %}{% endblock %}
+{% block links %}{% endblock %}
+{% block footer %}
+---
+The VoterBowl Team
+hello@voterbowl.org
+{% endblock %}
+{% endautoescape %}
