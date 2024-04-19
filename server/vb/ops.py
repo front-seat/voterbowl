@@ -61,7 +61,7 @@ def _get_claim_code(gift_card: GiftCard) -> str:
 
 def get_or_issue_gift_card(
     student: Student, contest: Contest, when: datetime.datetime | None = None
-) -> tuple[GiftCard, str]:
+) -> tuple[GiftCard, str, bool]:
     """
     Issue a gift card to a student for a contest.
 
@@ -72,8 +72,8 @@ def get_or_issue_gift_card(
     raise a GiftCardPreconditionError. If another error occurs, raise
     an arbitrary exception.
 
-    Returns a tuple of the gift card and, if the gift card was issued,
-    the claim code.
+    Returns a tuple of the gift card, gift code, and True if the gift card
+    was newly issued.
     """
     # Precondition: student must have a validated email address.
     if not student.is_validated:
@@ -95,13 +95,14 @@ def get_or_issue_gift_card(
 
         if gift_card is not None:
             claim_code = _get_claim_code(gift_card)
-            return gift_card, claim_code
+            return gift_card, claim_code, False
 
         # Precondition: the contest must be ongoing to truly issue a gift card.
         if not contest.is_ongoing(when):
             raise GiftCardPreconditionError(f"Contest '{contest.name}' is not ongoing")
 
-        return _issue_gift_card(student, contest)
+        gift_card, claim_code = _issue_gift_card(student, contest)
+        return gift_card, claim_code, True
 
 
 def get_or_create_student(
@@ -136,9 +137,29 @@ def send_validation_link_email(
             "contest": contest,
             "email": email,
             "link": link,
-            "title": f"Get my ${contest.amount} gift card",
+            "button_text": f"Get my ${contest.amount} gift card",
         },
     )
     if not success:
         logger.error(f"Failed to send email validation link to {email}")
     return link
+
+
+def send_gift_card_email(
+    student: Student,
+    gift_card: GiftCard,
+    claim_code: str,
+    email: str,
+) -> None:
+    """Send a gift card email to a student."""
+    success = send_template_email(
+        to=email,
+        template_base="email/code",
+        context={
+            "student": student,
+            "gift_card": gift_card,
+            "claim_code": claim_code,
+        },
+    )
+    if not success:
+        logger.error(f"Failed to send gift card email to {email}")

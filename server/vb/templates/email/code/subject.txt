@@ -1,0 +1,1 @@
+Your ${{ gift_card.amount }} Amazon gift card

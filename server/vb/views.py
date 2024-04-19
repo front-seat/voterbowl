@@ -10,6 +10,7 @@ from .models import EmailValidationLink, School
 from .ops import (
     get_or_create_student,
     get_or_issue_gift_card,
+    send_gift_card_email,
     send_validation_link_email,
 )
 
@@ -22,7 +23,17 @@ def home(request: HttpRequest) -> HttpResponse:
 
 @require_GET
 def school(request: HttpRequest, slug: str) -> HttpResponse:
-    """Render a school page."""
+    """
+    Render a school landing page.
+
+    Show details about the current contest, if there is one.
+
+    If not, show details about the most recently completed contest,
+    if there is one.
+
+    Otherwise, show generic text encouraging the visitor to check their
+    voter registration anyway.
+    """
     school = get_object_or_404(School, slug=slug)
     current_contest = school.contests.current()
     return render(
@@ -32,7 +43,11 @@ def school(request: HttpRequest, slug: str) -> HttpResponse:
 
 @require_GET
 def check(request: HttpRequest, slug: str) -> HttpResponse:
-    """Render a school-specific check registration page."""
+    """
+    Render a school-specific 'check voter registration' form page.
+
+    This does something useful whether or not the school has a current contest.
+    """
     school = get_object_or_404(School, slug=slug)
     current_contest = school.contests.current()
     return render(
@@ -74,7 +89,14 @@ class FinishCheckForm(forms.Form):
 @require_POST
 @csrf_exempt  # CONSIDER: maybe use Django's CSRF protection even here?
 def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
-    """Handle a check registration form submission."""
+    """
+    View that is POSTed to when a student has completed a registration check.
+
+    There may or may not be a current contest associated with the check.
+
+    In addition, while we know the student's email ends with *.edu, we do not
+    yet know if it is a valid email address for the school.
+    """
     school = get_object_or_404(School, slug=slug)
     current_contest = school.contests.current()
     if not current_contest:
@@ -111,7 +133,14 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
 
 @require_GET
 def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
-    """Handle a student email validation link."""
+    """
+    View visited when a user clicks on a validation link in their email.
+
+    There may or may not be a current contest associated with the validation.
+
+    If the student reaches this point, we know they have a valid email that
+    matches the school in question.
+    """
     link = get_object_or_404(EmailValidationLink, token=token)
     school = get_object_or_404(School, slug=slug)
     if link.school != school:
@@ -119,7 +148,9 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
 
     # It's money time!
     link.consume()
-    gift_card, claim_code = get_or_issue_gift_card(link.student, link.contest)
+    gift_card, claim_code, created = get_or_issue_gift_card(link.student, link.contest)
+    if created:
+        send_gift_card_email(link.student, gift_card, claim_code, link.email)
 
     return render(
         request,
