@@ -1,1 +1,1 @@
-Your VoterBowl gift card awaits
+{% if contest %}Your VoterBowl gift card awaits{% else %}Verify your email address{% endif %}

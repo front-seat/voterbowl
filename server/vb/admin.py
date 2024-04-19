@@ -123,11 +123,11 @@ class SchoolAdmin(admin.ModelAdmin, RenderLogoSpecimenMixin):
     @admin.display(description="active contest")
     def active_contest(self, obj: School):
         """Return whether the school has an active contest."""
-        current = obj.contests.current()
-        if current is None:
+        current_contest = obj.contests.current()
+        if current_contest is None:
             return ""
-        url = reverse("admin:vb_contest_change", args=[current.pk])
-        return mark_safe(f'<a href="{url}">{current.name}</a>')
+        url = reverse("admin:vb_contest_change", args=[current_contest.pk])
+        return mark_safe(f'<a href="{url}">{current_contest.name}</a>')
 
     @admin.display(description="Students")
     def student_count(self, obj: School):

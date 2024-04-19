@@ -50,6 +50,7 @@ class School(models.Model):
     logo: "Logo"
     contests: "ContestManager"
     students: "StudentManager"
+    email_validation_links: "EmailValidationLinkManager"
 
     def normalize_email(self, address: str) -> str:
         """Normalize an email address for this school."""
@@ -143,6 +144,12 @@ class ContestManager(models.Manager):
         when = when or django_now()
         return self.get_queryset().filter(end_at__lte=when)
 
+    def most_recent_past(
+        self, when: datetime.datetime | None = None
+    ) -> "Contest | None":
+        """Return the single most recent past contest, if any."""
+        return self.past(when).order_by("-end_at").first()
+
     def current(self, when: datetime.datetime | None = None) -> "Contest | None":
         """Return the single current contest."""
         return self.ongoing(when).first()
@@ -171,33 +178,21 @@ class Contest(models.Model):
         blank=False, help_text="The USD amount of the gift card.", default=5
     )
 
-    # The contest name and description can be templated.
-    name_template = models.TextField(
-        blank=False,
-        max_length=255,
-        help_text="The name of the contest. Can use template variables like {{ school.name }} and {{ contest.amount }}.",  # noqa
-        default="${{ contest.amount }} Amazon Gift Card Giveaway",
-    )
-
     gift_cards: "GiftCardManager"
 
     @property
     def name(self) -> str:
         """Render the contest name template."""
+        template_str = "${{ contest.amount }} Amazon Gift Card Giveaway"
         context = {"school": self.school, "contest": self}
-        return Template(self.name_template).render(Context(context))
-
-    description_template = models.TextField(
-        blank=False,
-        help_text="A description of the contest. Can use template variables like {{ school.name }} and {{ contest.amount }}.",  # noqa
-        default="{{ school.short_name }} students: check your voter registration to win a ${{ contest.amount }} Amazon gift card.",  # noqa
-    )
+        return Template(template_str).render(Context(context))
 
     @property
     def description(self) -> str:
         """Render the contest description template."""
+        template_str = "{{ school.short_name }} students: check your voter registration to win a ${{ contest.amount }} Amazon gift card."  # noqa
         context = {"school": self.school, "contest": self}
-        return Template(self.description_template).render(Context(context))
+        return Template(template_str).render(Context(context))
 
     def is_upcoming(self, when: datetime.datetime | None = None) -> bool:
         """Return whether the contest is upcoming."""
@@ -327,8 +322,18 @@ class EmailValidationLink(models.Model):
     student = models.ForeignKey(
         Student, on_delete=models.CASCADE, related_name="email_validation_links"
     )
+    school = models.ForeignKey(
+        School,
+        on_delete=models.CASCADE,
+        related_name="email_validation_links",
+    )
     contest = models.ForeignKey(
-        Contest, on_delete=models.CASCADE, related_name="email_validation_links"
+        Contest,
+        on_delete=models.CASCADE,
+        related_name="email_validation_links",
+        null=True,
+        # A user may still check registration outside of a contest.
+        # CONSTRAINT: contest.school must == student.school
     )
 
     email = models.EmailField(
@@ -354,14 +359,9 @@ class EmailValidationLink(models.Model):
     )
 
     @property
-    def school(self) -> School:
-        """Return the school associated with the email validation link."""
-        return self.student.school
-
-    @property
     def relative_url(self) -> str:
         """Return the relative URL for the email validation link."""
-        return reverse("vb:validate_email", args=[self.contest.school.slug, self.token])
+        return reverse("vb:validate_email", args=[self.school.slug, self.token])
 
     @property
     def absolute_url(self) -> str:
@@ -380,16 +380,6 @@ class EmailValidationLink(models.Model):
 
         # Demeter says no, but my heart says yes.
         self.student.mark_validated(when)
-
-    class Meta:
-        """Define the email validation link model's meta options."""
-
-        constraints = [
-            models.UniqueConstraint(
-                fields=["student", "contest"],
-                name="unique_student_contest_email_validation_link",
-            )
-        ]
 
 
 class GiftCardManager(models.Manager):

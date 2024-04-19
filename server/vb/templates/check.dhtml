@@ -143,6 +143,8 @@
                alt="{{ school.short_name }} {{ school.mascot }} logo" />
           {% if current_contest %}
             {% include "components/countdown.dhtml" with contest=current_contest %}
+          {% else %}
+            <p>Check your voter registration status below.</p>
           {% endif %}
         </div>
       </div>

@@ -123,12 +123,20 @@ def get_or_create_student(
 
 
 def send_validation_link_email(
-    student: Student, contest: Contest, email: str
+    student: Student, school: School, contest: Contest | None, email: str
 ) -> EmailValidationLink:
     """Generate a validation link to a student for a contest."""
     link = EmailValidationLink.objects.create(
-        student=student, contest=contest, email=email, token=make_token(12)
+        student=student,
+        school=school,
+        contest=contest,
+        email=email,
+        token=make_token(12),
     )
+    if contest:
+        button_text = f"Get my ${contest.amount} gift card"
+    else:
+        button_text = "Validate my email"
     success = send_template_email(
         to=email,
         template_base="email/validate",
@@ -137,7 +145,7 @@ def send_validation_link_email(
             "contest": contest,
             "email": email,
             "link": link,
-            "button_text": f"Get my ${contest.amount} gift card",
+            "button_text": button_text,
         },
     )
     if not success:

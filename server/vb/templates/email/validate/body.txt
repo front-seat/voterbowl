@@ -4,7 +4,7 @@
 
 Thanks for checking your voter registration status! You're almost done.
 
-Click this link to get your ${{ contest.amount }} Amazon gift card:
+{% if contest %}Click this link to get your ${{ contest.amount }} Amazon gift card:{% else %}Click this link to validate your email address:{% endif %}
 
 {{ link.absolute_url }}
 {% endblock message %}

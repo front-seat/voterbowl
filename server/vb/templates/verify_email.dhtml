@@ -127,15 +127,19 @@
       <div class="container">
         <img src="{{ school.logo.url }}"
              alt="{{ school.short_name }} {{ school.mascot }} logo" />
-        <p>Congrats! You've got a ${{ gift_card.amount }} Amazon gift card!</p>
-        <h2>
-          <span class="code">{{ claim_code }}</span>
-          <span class="clipboard" title="Copy to clipboard">{% include "clipboard.svg" %}</span>
-          <span class="copied hidden" title="Copied!">{% include "clipboard_check.svg" %}</span>
-        </h2>
-        <p>
-          To use your gift card, copy the code above and paste it into <a href="https://www.amazon.com/gc/redeem" target="_blank">Amazon.com's redemption page</a>. That's all there is to it.
-        </p>
+        {% if gift_card and claim_code %}
+          <p>Congrats! You've got a ${{ gift_card.amount }} Amazon gift card!</p>
+          <h2>
+            <span class="code">{{ claim_code }}</span>
+            <span class="clipboard" title="Copy to clipboard">{% include "clipboard.svg" %}</span>
+            <span class="copied hidden" title="Copied!">{% include "clipboard_check.svg" %}</span>
+          </h2>
+          <p>
+            To use your gift card, copy the code above and paste it into <a href="https://www.amazon.com/gc/redeem" target="_blank">Amazon.com's redemption page</a>. That's all there is to it.
+          </p>
+        {% else %}
+          <p>Thanks for verifying your email address, and for checking your registration status. Happy voting in 2024!</p>
+        {% endif %}
       </div>
     </main>
     <div class="faq">

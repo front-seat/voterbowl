@@ -36,8 +36,15 @@ def school(request: HttpRequest, slug: str) -> HttpResponse:
     """
     school = get_object_or_404(School, slug=slug)
     current_contest = school.contests.current()
+    past_contest = school.contests.most_recent_past()
     return render(
-        request, "school.dhtml", {"school": school, "current_contest": current_contest}
+        request,
+        "school.dhtml",
+        {
+            "school": school,
+            "current_contest": current_contest,
+            "past_contest": past_contest,
+        },
     )
 
 
@@ -85,6 +92,10 @@ class FinishCheckForm(forms.Form):
         self.cleaned_data["hash"] = self._school.hash_email(email)
         return email
 
+    def has_only_email_error(self):
+        """Check if the only error is in the email field."""
+        return "email" in self.errors and len(self.errors) == 1
+
 
 @require_POST
 @csrf_exempt  # CONSIDER: maybe use Django's CSRF protection even here?
@@ -99,25 +110,20 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
     """
     school = get_object_or_404(School, slug=slug)
     current_contest = school.contests.current()
-    if not current_contest:
-        raise ValueError("No active contest TODO")
     form = FinishCheckForm(request.POST, school=school)
     if not form.is_valid():
-        # Check if `email` is the only field that failed.
-        if "email" in form.errors and len(form.errors) == 1:
-            return render(
-                request,
-                "fail_check.dhtml",
-                {
-                    "school": school,
-                    "first_name": form.cleaned_data["first_name"],
-                    "last_name": form.cleaned_data["last_name"],
-                    "current_contest": current_contest,
-                },
-            )
-
-        # Nope, it wasn't just the email field. Fail hard for now.
-        raise PermissionDenied("Invalid")
+        if not form.has_only_email_error():
+            raise PermissionDenied("Invalid")
+        return render(
+            request,
+            "fail_check.dhtml",
+            {
+                "school": school,
+                "first_name": form.cleaned_data["first_name"],
+                "last_name": form.cleaned_data["last_name"],
+                "current_contest": current_contest,
+            },
+        )
     email = form.cleaned_data["email"]
 
     # Create a new student if necessary.
@@ -132,7 +138,7 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
     # Always send a validation link EVEN if the student is validated.
     # This ensures we never show a gift code until we know the visitor
     # has access to the email address.
-    send_validation_link_email(student, current_contest, email)
+    send_validation_link_email(student, school, current_contest, email)
 
     return render(
         request,
@@ -160,11 +166,18 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
     if link.school != school:
         raise PermissionDenied("Invalid email validation link URL")
 
-    # It's money time!
+    # The student is validated now!
     link.consume()
-    gift_card, claim_code, created = get_or_issue_gift_card(link.student, link.contest)
-    if created:
-        send_gift_card_email(link.student, gift_card, claim_code, link.email)
+
+    # If there's a contest associated with the validation, get a gift card.
+    gift_card = None
+    claim_code = None
+    if link.contest is not None:
+        gift_card, claim_code, created = get_or_issue_gift_card(
+            link.student, link.contest
+        )
+        if created:
+            send_gift_card_email(link.student, gift_card, claim_code, link.email)
 
     return render(
         request,
