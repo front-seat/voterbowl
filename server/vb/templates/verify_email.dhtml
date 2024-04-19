@@ -142,6 +142,13 @@
           <p>
             To use your gift card, copy the code above and paste it into <a href="https://www.amazon.com/gc/redeem" target="_blank">Amazon.com's redemption page</a>. That's all there is to it.
           </p>
+        {% elif error %}
+          <p>
+            Sorry, <b>there was an error</b>. Please try again later.
+          </p>
+          <p>
+            If you continue to have issues, please contact us at <a href="mailto:hello@voterbowl.org">hello@voterbowl.org</a>.
+          </p>
         {% else %}
           <p>Thanks for making sure you're ready to vote.</p>
           <p>Happy voting in 2024!</p>

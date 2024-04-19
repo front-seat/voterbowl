@@ -1,3 +1,5 @@
+import logging
+
 from django import forms
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -13,6 +15,8 @@ from .ops import (
     send_gift_card_email,
     send_validation_link_email,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @require_GET
@@ -170,14 +174,21 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
     link.consume()
 
     # If there's a contest associated with the validation, get a gift card.
-    gift_card = None
-    claim_code = None
+    gift_card, claim_code, error = None, None, False
     if link.contest is not None:
-        gift_card, claim_code, created = get_or_issue_gift_card(
-            link.student, link.contest
-        )
-        if created:
-            send_gift_card_email(link.student, gift_card, claim_code, link.email)
+        try:
+            gift_card, claim_code, created = get_or_issue_gift_card(
+                link.student, link.contest
+            )
+            if created:
+                send_gift_card_email(link.student, gift_card, claim_code, link.email)
+        except Exception:
+            # If we fail to issue or re-obtain a gift card,
+            # log the error and report to the student.
+            logger.exception(
+                "Failed to obtain gift card student: {link.student} token: {token}"
+            )
+            gift_card, claim_code, error = None, None, True
 
     return render(
         request,
@@ -187,5 +198,6 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
             "student": link.student,
             "gift_card": gift_card,
             "claim_code": claim_code,
+            "error": error,
         },
     )
