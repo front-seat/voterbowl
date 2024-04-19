@@ -83,13 +83,11 @@
         {% if current_contest %}
           <p>{{ current_contest.description }}</p>
         {% elif past_contest %}
-          <p>
-            {{ school.short_name }} students: the ${{ past_contest.amount }} giveaway ended {{ past_contest.ended_at | timesince }}, but it's always a good time to make sure you're ready to vote.
-          </p>
+          <p>{{ school.short_name }} students: the ${{ past_contest.amount }} giveaway has ended.</p>
+          <p>But: it's always a good time to make sure you're ready to vote.</p>
         {% else %}
-          <p>
-            {{ school.short_name }} students: there's no giveaway right now, but it's always a good time to make sure you're ready to vote.
-          </p>
+          <p>{{ school.short_name }} students: there's no giveaway right now.</p>
+          <p>But: it's always a good time to make sure you're ready to vote.</p>
         {% endif %}
         <div class="button-holder">
           {% include "components/button.dhtml" with text="Check my voter status" href="./check/" bg_color=school.logo.action_color color=school.logo.action_text_color %}

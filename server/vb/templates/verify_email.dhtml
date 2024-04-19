@@ -6,6 +6,11 @@
 {% endblock title %}
 
 {% block body %}
+  <style>
+    me {
+      background-color: black;
+    }
+  </style>
   <div>
     <style>
       me {
@@ -138,7 +143,8 @@
             To use your gift card, copy the code above and paste it into <a href="https://www.amazon.com/gc/redeem" target="_blank">Amazon.com's redemption page</a>. That's all there is to it.
           </p>
         {% else %}
-          <p>Thanks for verifying your email address, and for checking your registration status. Happy voting in 2024!</p>
+          <p>Thanks for making sure you're ready to vote.</p>
+          <p>Happy voting in 2024!</p>
         {% endif %}
       </div>
     </main>
