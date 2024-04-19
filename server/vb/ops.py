@@ -4,6 +4,7 @@ import logging
 from django.db import transaction
 
 from server.utils.agcod import AGCODClient
+from server.utils.email import send_template_email
 from server.utils.tokens import make_token
 
 from .models import Contest, EmailValidationLink, GiftCard, School, Student
@@ -124,9 +125,20 @@ def send_validation_link_email(
     student: Student, contest: Contest, email: str
 ) -> EmailValidationLink:
     """Generate a validation link to a student for a contest."""
-    # TODO dave
     link = EmailValidationLink.objects.create(
         student=student, contest=contest, email=email, token=make_token(12)
     )
-    print("TODO SENDING A VALIDATION LINK: ", link.absolute_url)
+    success = send_template_email(
+        to=email,
+        template_base="email/validate",
+        context={
+            "student": student,
+            "contest": contest,
+            "email": email,
+            "link": link,
+            "title": f"Get my ${contest.amount} gift card",
+        },
+    )
+    if not success:
+        logger.error(f"Failed to send email validation link to {email}")
     return link

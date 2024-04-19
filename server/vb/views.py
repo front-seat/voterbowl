@@ -110,7 +110,7 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
 
 
 @require_GET
-def verify_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
+def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
     """Handle a student email validation link."""
     link = get_object_or_404(EmailValidationLink, token=token)
     school = get_object_or_404(School, slug=slug)

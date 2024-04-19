@@ -361,7 +361,7 @@ class EmailValidationLink(models.Model):
     @property
     def relative_url(self) -> str:
         """Return the relative URL for the email validation link."""
-        return reverse("vb:verify_email", args=[self.contest.school.slug, self.token])
+        return reverse("vb:validate_email", args=[self.contest.school.slug, self.token])
 
     @property
     def absolute_url(self) -> str:

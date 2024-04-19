@@ -1,0 +1,11 @@
+{% extends "email/base/body.dhtml" %}
+
+{% block message %}
+  {% include "email/base/p.html" %}
+  Hi {{ student.first_name }},
+  {% include "email/base/p_close.html" %}
+  {% include "email/base/p.html" %}
+  Thanks for checking your voter registration status! Click this button to get your gift card.
+  {% include "email/base/p_close.html" %}
+  {% include "email/base/button.html" with url=link.relative_url title=title %}
+{% endblock message %}

@@ -1,0 +1,10 @@
+{% extends "email/base/body.txt" %}
+
+{% block message %}Hi {{ student.first_name }},
+
+Thanks for checking your voter registration status! You're almost done.
+
+Click this link to get your ${{ contest.amount }} Amazon gift card:
+
+{{ link.absolute_url }}
+{% endblock message %}
