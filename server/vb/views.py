@@ -1,7 +1,6 @@
 import logging
 
 from django import forms
-from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -83,15 +82,6 @@ class FinishCheckForm(forms.Form):
     def clean_email(self):
         """Ensure the email address is not already in use."""
         email = self.cleaned_data["email"]
-
-        # DEBUG-mode email address bypass.
-        if (
-            settings.DEBUG
-            and email.endswith("@example.edu")
-            or email.endswith(".example.edu")
-        ):
-            self.cleaned_data["hash"] = "dbg-" + email
-            return email
         self._school.validate_email(email)
         self.cleaned_data["hash"] = self._school.hash_email(email)
         return email

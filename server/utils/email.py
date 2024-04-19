@@ -106,6 +106,12 @@ def create_message(
     text = render_to_string(f"{template_base}/body.txt", context)
     html = render_to_string(f"{template_base}/body.dhtml", context)
 
+    if settings.DEBUG_SEND_ALL_EMAIL_TO:
+        logger.info(
+            f"DEBUG_SEND_ALL_EMAIL_TO rerouting email to {to} with subject: {subject}"
+        )
+        to = [settings.DEBUG_SEND_ALL_EMAIL_TO]
+
     message = EmailMultiAlternatives(
         from_email=from_email, to=to, subject=subject, body=text
     )
