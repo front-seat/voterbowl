@@ -89,6 +89,8 @@ def send_template_email(
     except Exception:
         logger.exception(f"failed to send email to {to}")
         return False
+    else:
+        logger.info(f"successfully sent email to {to}")
 
 
 def create_message(
