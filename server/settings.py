@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import logging.config
 import os
 from pathlib import Path
 
@@ -194,3 +195,28 @@ EMAIL_HOST = os.getenv("EMAIL_HOST", None)
 EMAIL_PORT = os.getenv("EMAIL_PORT", None)
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "false").lower() == "true"
 EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "false").lower() == "true"
+
+# Special debug tool: instead of sending email to the actual recipient, send
+# it to this email address. This is useful for testing email functionality
+# without spamming real users.
+DEBUG_SEND_ALL_EMAIL_TO = os.getenv("DEBUG_SEND_ALL_EMAIL_TO", None)
+
+
+# ----------------------------------------------------------------------------
+# Logging settings
+# ----------------------------------------------------------------------------
+
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+logging.config.dictConfig(
+    {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "console": {
+                "level": LOG_LEVEL,
+                "class": "logging.StreamHandler",
+            }
+        },
+        "loggers": {"server": {"handlers": ["console"], "level": LOG_LEVEL}},
+    }
+)

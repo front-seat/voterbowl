@@ -89,6 +89,8 @@ def send_template_email(
     except Exception:
         logger.exception(f"failed to send email to {to}")
         return False
+    else:
+        logger.info(f"successfully sent email to {to}")
 
 
 def create_message(
@@ -105,6 +107,12 @@ def create_message(
     subject = render_to_string(f"{template_base}/subject.txt", context).strip()
     text = render_to_string(f"{template_base}/body.txt", context)
     html = render_to_string(f"{template_base}/body.dhtml", context)
+
+    if settings.DEBUG_SEND_ALL_EMAIL_TO:
+        logger.info(
+            f"DEBUG_SEND_ALL_EMAIL_TO rerouting email {to} to {settings.DEBUG_SEND_ALL_EMAIL_TO} with subject: {subject}"  # noqa
+        )
+        to = [settings.DEBUG_SEND_ALL_EMAIL_TO]
 
     message = EmailMultiAlternatives(
         from_email=from_email, to=to, subject=subject, body=text

@@ -1,7 +1,7 @@
 {% extends "email/base/body.txt" %}
 
 {% block message %}Hi {{ student.first_name }},
-Your ${{ gift_card.amount }} Amazon gift code is: {{ gift_card.code }}
+Your ${{ gift_card.amount }} Amazon gift code is: {{ claim_code }}
 
 Copy and paste it into Amazon's gift card redemption page to claim your gift.
 

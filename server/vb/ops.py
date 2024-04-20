@@ -165,6 +165,7 @@ def send_gift_card_email(
         template_base="email/code",
         context={
             "student": student,
+            "school": student.school,
             "gift_card": gift_card,
             "claim_code": claim_code,
         },
