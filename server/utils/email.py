@@ -110,7 +110,7 @@ def create_message(
 
     if settings.DEBUG_SEND_ALL_EMAIL_TO:
         logger.info(
-            f"DEBUG_SEND_ALL_EMAIL_TO rerouting email to {to} with subject: {subject}"
+            f"DEBUG_SEND_ALL_EMAIL_TO rerouting email {to} to {settings.DEBUG_SEND_ALL_EMAIL_TO} with subject: {subject}"  # noqa
         )
         to = [settings.DEBUG_SEND_ALL_EMAIL_TO]
 
