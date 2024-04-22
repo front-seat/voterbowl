@@ -1,6 +1,7 @@
 import logging
 
 from django import forms
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -184,6 +185,7 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
         request,
         "verify_email.dhtml",
         {
+            "BASE_URL": settings.BASE_URL,
             "school": school,
             "student": link.student,
             "gift_card": gift_card,
