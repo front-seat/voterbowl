@@ -112,7 +112,10 @@ def create_message(
         logger.info(
             f"DEBUG_SEND_ALL_EMAIL_TO rerouting email {to} to {settings.DEBUG_SEND_ALL_EMAIL_TO} with subject: {subject}"  # noqa
         )
-        to = [settings.DEBUG_SEND_ALL_EMAIL_TO]
+        if isinstance(settings.DEBUG_SEND_ALL_EMAIL_TO, list):
+            to = settings.DEBUG_SEND_ALL_EMAIL_TO
+        else:
+            to = [settings.DEBUG_SEND_ALL_EMAIL_TO]
 
     message = EmailMultiAlternatives(
         from_email=from_email, to=to, subject=subject, body=text
