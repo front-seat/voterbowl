@@ -151,11 +151,6 @@
                   } = event.detail;
                   if (data?.tool === "verify" && data?.event === "action-finish") {
                       setTimeout(() => {
-                          // scroll entire window back to top, smoothly
-                          window.scrollTo({
-                              top: 0,
-                              behavior: 'smooth'
-                          });
                           finishVerify(data.first_name, data.last_name, data.email);
                       }, 500);
                   }
