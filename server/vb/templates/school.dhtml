@@ -81,7 +81,9 @@
              alt="{{ school.short_name }} {{ school.mascot }} logo" />
         <h2>Welcome to the Voter Bowl</h2>
         {% if current_contest %}
-          <p>{{ current_contest.description }}</p>
+          <p>
+            {{ school.short_name }} students: check your registration status to win a ${{ current_contest.amount }} Amazon gift card.
+          </p>
         {% elif past_contest %}
           <p>{{ school.short_name }} students: the ${{ past_contest.amount }} giveaway has ended.</p>
           <p>But: it's always a good time to make sure you're ready to vote.</p>

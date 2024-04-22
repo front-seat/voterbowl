@@ -13,7 +13,11 @@
       text-transform: uppercase;
     }
   </style>
-  <p>{{ contest.name }}</p>
+  <p>
+    ${{ contest.amount }} Amazon gift card
+    <br />
+    Giveaway ends in:
+  </p>
   <div class="countdown"
        data-end-at="{{ contest.end_at|date:'c' }}"
        data-number-color="{{ school.logo.action_text_color }}"

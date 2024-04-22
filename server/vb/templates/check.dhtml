@@ -23,12 +23,12 @@
       me main {
         width: 100%;
         text-align: center;
-        padding: 2rem 0;
+        padding: 0.5rem 0;
       }
 
       me main img {
         height: 150px;
-        margin: 1.5rem 0;
+        margin-bottom: -1.75rem;
       }
 
       me main p {
@@ -60,6 +60,21 @@
         width: 100%;
         background-color: white;
         padding: 2rem 0;
+      }
+
+      @media screen and (min-width: 768px) {
+        me main {
+          padding: 2rem 0;
+        }
+
+        me main img {
+          height: 150px;
+          margin: 1.5rem 0;
+        }
+
+        me .urgency {
+          flex-direction: row;
+        }
       }
     </style>
     <main data-bg-color="{{ school.logo.bg_color }}"
@@ -94,14 +109,10 @@
         }
 
         me img {
-          display: none;
+          display: block;
         }
 
         @media screen and (min-width: 768px) {
-          me img {
-            display: block;
-          }
-
           me .urgency {
             flex-direction: row;
           }
