@@ -99,5 +99,8 @@
     <div class="faq">
       <div class="container">{% include "includes/faq.dhtml" %}</div>
     </div>
+    <footer>
+      {% include "includes/footer.dhtml" %}
+    </footer>
   </div>
 {% endblock body %}

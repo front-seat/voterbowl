@@ -27,6 +27,12 @@ def home(request: HttpRequest) -> HttpResponse:
 
 
 @require_GET
+def rules(request: HttpRequest) -> HttpResponse:
+    """Render the voterbowl rules page."""
+    return render(request, "rules.dhtml")
+
+
+@require_GET
 def school(request: HttpRequest, slug: str) -> HttpResponse:
     """
     Render a school landing page.
