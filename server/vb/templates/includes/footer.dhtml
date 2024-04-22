@@ -1,0 +1,37 @@
+<footer>
+  <style>
+    me {
+      background-color: black;
+      color: #bbb;
+      padding-top: 4rem;
+      padding-bottom: 2rem;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
+      padding-left: 2em;
+      padding-right: 2em;
+    }
+
+    me div {
+      display: flex;
+      flex-direction: row;
+      gap: 1em;
+    }
+
+    me a {
+      color: #bbb;
+      text-decoration: underline;
+    }
+
+    me a:hover {
+      color: white;
+    }
+  </style>
+  <p>© 2024 VoterBowl & VoteAmerica</p>
+  <div>
+    <a href="/rules/" target="_blank">Rules</a>
+    <a href="https://about.voteamerica.com/privacy" target="_blank">Privacy</a>
+    <a href="https://about.voteamerica.com/terms" target="_blank">Terms</a>
+  </div>
+</footer>
