@@ -44,14 +44,10 @@
     }
   </style>
   <h2>F.A.Q.</h2>
-   <div class="qa">
+  <div class="qa">
     <h3>Why should I check my voter registration status now?</h3>
-    <p>
-      You can avoid last-minute issues by making sure you're ready to vote. 
-    </p>
-    <p>
-      It's more convienent to vote if you register with your school address.
-    </p>
+    <p>You can avoid last-minute issues by making sure you're ready to vote.</p>
+    <p>It's more convienent to vote if you register with your school address.</p>
   </div>
   <div class="qa">
     <h3>What is the Voter Bowl?</h3>
@@ -73,7 +69,7 @@
       with a link to your gift card.
     </p>
     <p>
-      <a href="https://voterbowl.org/rules/" target="_blank">Read the full contest rules here</a>.
+      <a href="{% url 'vb:rules' %}" target="_blank">Read the full contest rules here</a>.
     </p>
   </div>
   <div class="qa">
@@ -87,7 +83,7 @@
     <h3>Who's behind the Voter Bowl?</h3>
     <p>
       <a href="https://www.voteamerica.com/" target="_blank">VoteAmerica</a> runs
-      the Voter Bowl with the generous support of donors who are passionate about 
+      the Voter Bowl with the generous support of donors who are passionate about
       boosting student voter participation.
     </p>
     <p>
