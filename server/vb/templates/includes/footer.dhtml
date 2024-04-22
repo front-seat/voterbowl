@@ -55,7 +55,7 @@
     }
   </style>
   <div class="center">
-    <img src="{% static "img/voter_bowl_logo.svg" %}" alt="VoterBowl Logo">
+    <img src="{% static 'img/voter_bowl_logo.svg' %}" alt="VoterBowl Logo">
   </div>
   <div class="outer">
     <p>© 2024 Voter Bowl</p>
