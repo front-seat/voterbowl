@@ -6,9 +6,16 @@
       color: #aaa;
       padding-top: 4rem;
       padding-bottom: 2rem;
-      padding-left: 2em;
-      padding-right: 2em;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
       width: 100%;
+    }
+
+    @media screen and (min-width: 768px) {
+      me {
+        padding-left: 2em;
+        padding-right: 2rem;
+      }
     }
 
     me div.center {
@@ -38,17 +45,30 @@
     me a:hover {
       color: white;
     }
+
+    me .colophon {
+      text-align: center;
+      color: #888;
+      font-size: 0.8em;
+      padding-top: 1em;
+      padding-bottom: 3em;
+    }
   </style>
   <div class="center">
     <img src="{% static "/img/voter_bowl_logo.svg" %}" alt="VoterBowl Logo">
   </div>
   <div class="outer">
-    <p>© 2024 Vote America</p>
+    <p>© 2024 Voter Bowl</p>
     <div class="inner">
       <a href="{% url "vb:rules" %}" target="_blank">Rules</a>
       <a href="https://about.voteamerica.com/privacy" target="_blank">Privacy</a>
       <a href="https://about.voteamerica.com/terms" targdet="_blank">Terms</a>
       <a href="mailto:info@voterbowl.org">Contact us</a>
     </div>
+  </div>
+  <div class="colophon container">
+    <p>
+      The Voter Bowl is a project of VoteAmerica, a 501(c)3 registered non-profit organization, and does not support or oppose any political candidate or party. Our EIN is 84-3442002. Donations are tax-deductible.
+    </p>
   </div>
 </footer>
