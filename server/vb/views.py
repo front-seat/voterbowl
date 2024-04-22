@@ -4,7 +4,7 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
@@ -22,7 +22,8 @@ logger = logging.getLogger(__name__)
 @require_GET
 def home(request: HttpRequest) -> HttpResponse:
     """Render the voterbowl homepage."""
-    return render(request, "home.dhtml")
+    # return render(request, "home.dhtml")
+    return redirect("/mga/", permanent=False)
 
 
 @require_GET
