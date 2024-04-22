@@ -174,7 +174,7 @@ AGCOD_PARTNER_ID = os.getenv("AGCOD_PARTNER_ID")
 
 # The email address that emails are sent from unless explicitly overridden
 # when invoking Django's `send_mail` function
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "hello@voterbowl.org")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "info@voterbowl.org")
 
 # The *sending* email address used when Django emails admins about errors.
 # For now, we make this the same as DEFAULT_FROM_EMAIL

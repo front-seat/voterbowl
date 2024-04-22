@@ -1,26 +1,37 @@
+{% load static %}
 <footer>
   <style>
     me {
       background-color: black;
-      color: #bbb;
+      color: #aaa;
       padding-top: 4rem;
       padding-bottom: 2rem;
+      padding-left: 2em;
+      padding-right: 2em;
+      width: 100%;
+    }
+
+    me div.center {
+      margin-bottom: 2em;
+      display: flex;
+      justify-content: center;
+    }
+
+    me div.outer {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
-      width: 100%;
-      padding-left: 2em;
-      padding-right: 2em;
+      align-items: baseline;
     }
 
-    me div {
+    me div.inner {
       display: flex;
       flex-direction: row;
       gap: 1em;
     }
 
     me a {
-      color: #bbb;
+      color: #aaa;
       text-decoration: underline;
     }
 
@@ -28,10 +39,16 @@
       color: white;
     }
   </style>
-  <p>© 2024 VoterBowl & VoteAmerica</p>
-  <div>
-    <a href="/rules/" target="_blank">Rules</a>
-    <a href="https://about.voteamerica.com/privacy" target="_blank">Privacy</a>
-    <a href="https://about.voteamerica.com/terms" target="_blank">Terms</a>
+  <div class="center">
+    <img src="{% static "/img/voter_bowl_logo.svg" %}" alt="VoterBowl Logo">
+  </div>
+  <div class="outer">
+    <p>© 2024 Vote America</p>
+    <div class="inner">
+      <a href="{% url "vb:rules" %}" target="_blank">Rules</a>
+      <a href="https://about.voteamerica.com/privacy" target="_blank">Privacy</a>
+      <a href="https://about.voteamerica.com/terms" targdet="_blank">Terms</a>
+      <a href="mailto:info@voterbowl.org">Contact us</a>
+    </div>
   </div>
 </footer>

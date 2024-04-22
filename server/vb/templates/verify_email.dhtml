@@ -170,7 +170,7 @@
             Sorry, <b>there was an error</b>. Please try again later.
           </p>
           <p>
-            If you continue to have issues, please contact us at <a href="mailto:hello@voterbowl.org">hello@voterbowl.org</a>.
+            If you continue to have issues, please contact us at <a href="mailto:info@voterbowl.org">info@voterbowl.org</a>.
           </p>
         {% else %}
           <p>Thanks for making sure you're ready to vote.</p>

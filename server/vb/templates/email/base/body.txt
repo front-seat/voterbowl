@@ -4,6 +4,6 @@
 {% block footer %}
 ---
 The VoterBowl Team
-hello@voterbowl.org
+info@voterbowl.org
 {% endblock %}
 {% endautoescape %}
