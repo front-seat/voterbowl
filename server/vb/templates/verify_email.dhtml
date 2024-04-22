@@ -160,7 +160,10 @@
             <span class="copied hidden" title="Copied!">{% include "clipboard_check.svg" %}</span>
           </h2>
           <p>
-            To use your gift card, copy the code above and paste it into <a href="https://www.amazon.com/gc/redeem" target="_blank">Amazon.com's redemption page</a>. That's all there is to it.
+            To use your gift card, copy the code above and paste it into <a href="https://www.amazon.com/gc/redeem" target="_blank">Amazon.com</a>.
+          </p>
+          <p>
+            Tell three friends right now so they can also win a gift card! Here's the link: <a href="{{ BASE_URL }}/{{ school.slug }}/">{{ BASE_URL }}/{{ school.slug }}/</a>
           </p>
         {% elif error %}
           <p>
@@ -178,5 +181,8 @@
     <div class="faq">
       <div class="container">{% include "includes/faq.dhtml" %}</div>
     </div>
+    <footer>
+      {% include "includes/footer.dhtml" %}
+    </footer>
   </div>
 {% endblock body %}

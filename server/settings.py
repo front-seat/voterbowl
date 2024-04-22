@@ -199,7 +199,14 @@ EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "false").lower() == "true"
 # Special debug tool: instead of sending email to the actual recipient, send
 # it to this email address. This is useful for testing email functionality
 # without spamming real users.
-DEBUG_SEND_ALL_EMAIL_TO = os.getenv("DEBUG_SEND_ALL_EMAIL_TO", None)
+_DEBUG_SEND_ALL_EMAIL_TO = os.getenv("DEBUG_SEND_ALL_EMAIL_TO", None)
+DEBUG_SEND_ALL_EMAIL_TO: list[str] | None
+if _DEBUG_SEND_ALL_EMAIL_TO is not None:
+    DEBUG_SEND_ALL_EMAIL_TO = [
+        email.strip() for email in _DEBUG_SEND_ALL_EMAIL_TO.split(",")
+    ]
+else:
+    DEBUG_SEND_ALL_EMAIL_TO = None
 
 
 # ----------------------------------------------------------------------------

@@ -7,8 +7,19 @@
           fireworks.start();
           setTimeout(() => fireworks.stop(), 10_000);
       })(me());
+      (function(self) {
+          setTimeout(() => {
+              // scroll entire window back to top, smoothly
+              window.scrollTo({
+                  top: 0,
+                  behavior: 'smooth'
+              });
+          }, 100);
+      })(me());
   </script>
-  <b>Please check your email</b>.
+  <b>Please check your school email</b> (and spam folder).
+  <br />
+  <br />
   {% if current_contest %}
     We've sent you a link to claim your ${{ current_contest.amount }} gift card.
   {% else %}

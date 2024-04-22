@@ -11,6 +11,6 @@
   Copy and paste it into Amazon's gift card redemption page to claim your gift.
   {% include "email/base/p_close.html" %}
   {% include "email/base/p.html" %}
-  And: be sure to tell your friends at {{ school.short_name }} to visit VoterBowl, too!
+  Tell three friends right now about VoterBowl.org so they can also win gift cards!
   {% include "email/base/p_close.html" %}
 {% endblock message %}
