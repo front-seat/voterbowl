@@ -26,9 +26,15 @@
 
     me div.outer {
       display: flex;
-      flex-direction: row;
+      flex-direction: column-reverse;
       justify-content: space-between;
-      align-items: baseline;
+      align-items: center;
+    }
+
+    @media screen and (min-width: 768px) {
+      me div.outer {
+        flex-direction: row;
+      }
     }
 
     me div.inner {
@@ -58,7 +64,7 @@
     <img src="{% static 'img/voter_bowl_logo.svg' %}" alt="VoterBowl Logo">
   </div>
   <div class="outer">
-    <p>© 2024 Voter Bowl</p>
+    <p class="copyright">© 2024 The Voter Bowl</p>
     <div class="inner">
       <a href="{% url "vb:rules" %}" target="_blank">Rules</a>
       <a href="https://about.voteamerica.com/privacy" target="_blank">Privacy</a>
