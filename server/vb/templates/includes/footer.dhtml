@@ -68,7 +68,7 @@
     <div class="inner">
       <a href="{% url "vb:rules" %}" target="_blank">Rules</a>
       <a href="https://about.voteamerica.com/privacy" target="_blank">Privacy</a>
-      <a href="https://about.voteamerica.com/terms" targdet="_blank">Terms</a>
+      <a href="https://about.voteamerica.com/terms" target="_blank">Terms</a>
       <a href="mailto:info@voterbowl.org">Contact us</a>
     </div>
   </div>
