@@ -196,17 +196,18 @@ EMAIL_PORT = os.getenv("EMAIL_PORT", None)
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "false").lower() == "true"
 EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "false").lower() == "true"
 
-# Special debug tool: instead of sending email to the actual recipient, send
-# it to this email address. This is useful for testing email functionality
-# without spamming real users.
-_DEBUG_SEND_ALL_EMAIL_TO = os.getenv("DEBUG_SEND_ALL_EMAIL_TO", None)
-DEBUG_SEND_ALL_EMAIL_TO: list[str] | None
-if _DEBUG_SEND_ALL_EMAIL_TO is not None:
-    DEBUG_SEND_ALL_EMAIL_TO = [
-        email.strip() for email in _DEBUG_SEND_ALL_EMAIL_TO.split(",")
-    ]
-else:
-    DEBUG_SEND_ALL_EMAIL_TO = None
+# Special debug tool: emails matching this pattern will be sent to the
+# debug email address instead of the actual recipient. This is useful for
+# testing email functionality without spamming real users.
+#
+# For instance, if DEBUG_EMAIL_STARTSWITH is set to "frontseat@",
+# then any email sent to "frontseat@example.edu" will instead be sent to
+# DEBUG_EMAIL_TO.
+DEBUG_EMAIL_STARTSWITH = os.getenv("DEBUG_EMAIL_STARTSWITH", None)
+DEBUG_EMAIL_TO = os.getenv("DEBUG_EMAIL_TO", None)
+if not DEBUG_EMAIL_STARTSWITH or not DEBUG_EMAIL_TO:
+    DEBUG_EMAIL_STARTSWITH = None
+    DEBUG_EMAIL_TO = None
 
 
 # ----------------------------------------------------------------------------

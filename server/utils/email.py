@@ -108,17 +108,17 @@ def create_message(
     text = render_to_string(f"{template_base}/body.txt", context)
     html = render_to_string(f"{template_base}/body.dhtml", context)
 
-    if settings.DEBUG_SEND_ALL_EMAIL_TO:
-        logger.info(
-            f"DEBUG_SEND_ALL_EMAIL_TO rerouting email {to} to {settings.DEBUG_SEND_ALL_EMAIL_TO} with subject: {subject}"  # noqa
-        )
-        if isinstance(settings.DEBUG_SEND_ALL_EMAIL_TO, list):
-            to = settings.DEBUG_SEND_ALL_EMAIL_TO
-        else:
-            to = [settings.DEBUG_SEND_ALL_EMAIL_TO]
+    final_to = list(to)
+    if settings.DEBUG_EMAIL_STARTSWITH and settings.DEBUG_EMAIL_TO:
+        for i, email in enumerate(final_to):
+            if email.startswith(settings.DEBUG_EMAIL_STARTSWITH):
+                final_to[i] = settings.DEBUG_EMAIL_TO
+                logger.info(
+                    f"DEBUG_EMAIL_STARTSWITH rerouting email {email} to {settings.DEBUG_EMAIL_TO} with subject: {subject}"  # noqa
+                )
 
     message = EmailMultiAlternatives(
-        from_email=from_email, to=to, subject=subject, body=text
+        from_email=from_email, to=final_to, subject=subject, body=text
     )
     message.attach_alternative(html, "text/html")
 
