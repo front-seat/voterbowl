@@ -17,7 +17,7 @@ We spend all our hipster tech tokens for this project to help us build a front-e
 
 Having never used any of these toys before, we'll see how this pans out.
 
-(Others under consideration include [django-slippers](https://github.com/mixxorz/slippers), [django-template-partials](https://github.com/carltongibson/django-template-partials), and [django-components](https://github.com/EmilStenstrom/django-components).)
+(Others under consideration include [django-slippers](https://github.com/mixxorz/slippers), [django-template-partials](https://github.com/carltongibson/django-template-partials), and [django-components](https://github.com/EmilStenstrom/django-components). And don't forget the [django-htmx-patterns](https://github.com/spookylukey/django-htmx-patterns/) documentation.)
 
 For code cleanliness, we also use:
 
