@@ -303,18 +303,24 @@ class EmailValidationLinkAdmin(admin.ModelAdmin):
     @admin.display(description="Student")
     def show_student(self, obj: GiftCard) -> str:
         """Return the gift card's student."""
+        if obj.student is None:
+            return ""
         url = reverse("admin:vb_student_change", args=[obj.student.pk])
         return mark_safe(f'<a href="{url}">{obj.student.name}</a>')
 
     @admin.display(description="School")
     def show_school(self, obj: GiftCard) -> str:
         """Return the gift card's school."""
+        if obj.student is None or obj.student.school is None:
+            return ""
         url = reverse("admin:vb_school_change", args=[obj.student.school.pk])
         return mark_safe(f'<a href="{url}">{obj.student.school.name}</a>')
 
     @admin.display(description="Contest")
     def show_contest(self, obj: GiftCard) -> str:
         """Return the gift card's contest."""
+        if obj.contest is None:
+            return ""
         url = reverse("admin:vb_contest_change", args=[obj.contest.pk])
         return mark_safe(f'<a href="{url}">{obj.contest.name}</a>')
 
