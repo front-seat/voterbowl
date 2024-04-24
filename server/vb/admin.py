@@ -13,8 +13,8 @@ from server.admin import admin_site
 
 from .models import (
     Contest,
+    ContestEntry,
     EmailValidationLink,
-    GiftCard,
     ImageMimeType,
     Logo,
     School,
@@ -183,6 +183,12 @@ class StudentAdmin(admin.ModelAdmin):
         """Return whether the student's email is validated."""
         return obj.is_validated
 
+    @admin.display(description="Contest Entries")
+    def contest_entries(self, obj: Student) -> int | None:
+        """Return the number of contest entries the student has made."""
+        count = obj.contest_entries.count()
+        return count if count > 0 else None
+
     @admin.display(description="Gift Card Total")
     def gift_card_total(self, obj: Student) -> str | None:
         """Return the total number of gift cards the student has received."""
@@ -249,8 +255,8 @@ class ContestAdmin(admin.ModelAdmin):
         return mark_safe(f'<a href="{school_admin_link}">{obj.school.name}</a>')
 
 
-class GiftCardAdmin(admin.ModelAdmin):
-    """Gift card admin."""
+class ContestEntryAdmin(admin.ModelAdmin):
+    """Contest Entry admin."""
 
     list_display = (
         "id",
@@ -263,24 +269,24 @@ class GiftCardAdmin(admin.ModelAdmin):
     search_fields = ("id", "created_at", "student__email", "student__name")
 
     @admin.display(description="Amount")
-    def show_amount(self, obj: GiftCard) -> str:
+    def show_amount(self, obj: ContestEntry) -> str:
         """Return the gift card's amount."""
         return f"${obj.amount}"
 
     @admin.display(description="Student")
-    def show_student(self, obj: GiftCard) -> str:
+    def show_student(self, obj: ContestEntry) -> str:
         """Return the gift card's student."""
         url = reverse("admin:vb_student_change", args=[obj.student.pk])
         return mark_safe(f'<a href="{url}">{obj.student.name}</a>')
 
     @admin.display(description="School")
-    def show_school(self, obj: GiftCard) -> str:
+    def show_school(self, obj: ContestEntry) -> str:
         """Return the gift card's school."""
         url = reverse("admin:vb_school_change", args=[obj.student.school.pk])
         return mark_safe(f'<a href="{url}">{obj.student.school.name}</a>')
 
     @admin.display(description="Contest")
-    def show_contest(self, obj: GiftCard) -> str:
+    def show_contest(self, obj: ContestEntry) -> str:
         """Return the gift card's contest."""
         url = reverse("admin:vb_contest_change", args=[obj.contest.pk])
         return mark_safe(f'<a href="{url}">{obj.contest.name}</a>')
@@ -301,7 +307,7 @@ class EmailValidationLinkAdmin(admin.ModelAdmin):
     search_fields = ("email", "token")
 
     @admin.display(description="Student")
-    def show_student(self, obj: GiftCard) -> str:
+    def show_student(self, obj: EmailValidationLink) -> str:
         """Return the gift card's student."""
         if obj.student is None:
             return ""
@@ -309,7 +315,7 @@ class EmailValidationLinkAdmin(admin.ModelAdmin):
         return mark_safe(f'<a href="{url}">{obj.student.name}</a>')
 
     @admin.display(description="School")
-    def show_school(self, obj: GiftCard) -> str:
+    def show_school(self, obj: EmailValidationLink) -> str:
         """Return the gift card's school."""
         if obj.student is None or obj.student.school is None:
             return ""
@@ -317,7 +323,7 @@ class EmailValidationLinkAdmin(admin.ModelAdmin):
         return mark_safe(f'<a href="{url}">{obj.student.school.name}</a>')
 
     @admin.display(description="Contest")
-    def show_contest(self, obj: GiftCard) -> str:
+    def show_contest(self, obj: EmailValidationLink) -> str:
         """Return the gift card's contest."""
         if obj.contest is None:
             return ""
@@ -333,5 +339,5 @@ class EmailValidationLinkAdmin(admin.ModelAdmin):
 admin_site.register(School, SchoolAdmin)
 admin_site.register(Student, StudentAdmin)
 admin_site.register(Contest, ContestAdmin)
-admin_site.register(GiftCard, GiftCardAdmin)
+admin_site.register(ContestEntry, ContestEntryAdmin)
 admin_site.register(EmailValidationLink, EmailValidationLinkAdmin)

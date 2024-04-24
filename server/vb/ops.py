@@ -7,7 +7,7 @@ from server.utils.agcod import AGCODClient
 from server.utils.email import send_template_email
 from server.utils.tokens import make_token
 
-from .models import Contest, EmailValidationLink, GiftCard, School, Student
+from .models import Contest, ContestEntry, EmailValidationLink, School, Student
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ class GiftCardPreconditionError(Exception):
     pass
 
 
-def _issue_gift_card(student: Student, contest: Contest) -> tuple[GiftCard, str]:
+def _issue_gift_card(student: Student, contest: Contest) -> tuple[ContestEntry, str]:
     """
     Low level routine to issue a new gift card.
 
@@ -35,7 +35,7 @@ def _issue_gift_card(student: Student, contest: Contest) -> tuple[GiftCard, str]
         raise ValueError(
             f"AGCOD failed for student {student.email} and contest {contest.pk}"
         ) from e
-    gift_card = GiftCard.objects.create(
+    gift_card = ContestEntry.objects.create(
         student=student,
         contest=contest,
         amount=contest.amount,
@@ -44,7 +44,7 @@ def _issue_gift_card(student: Student, contest: Contest) -> tuple[GiftCard, str]
     return gift_card, response.gc_claim_code
 
 
-def _get_claim_code(gift_card: GiftCard) -> str:
+def _get_claim_code(gift_card: ContestEntry) -> str:
     """Return the claim code for a gift card if it is not currently known."""
     client = AGCODClient.from_settings()
     try:
@@ -61,7 +61,7 @@ def _get_claim_code(gift_card: GiftCard) -> str:
 
 def get_or_issue_gift_card(
     student: Student, contest: Contest, when: datetime.datetime | None = None
-) -> tuple[GiftCard, str, bool]:
+) -> tuple[ContestEntry, str, bool]:
     """
     Issue a gift card to a student for a contest.
 
@@ -89,8 +89,8 @@ def get_or_issue_gift_card(
     # for the contest. If not, issue a new gift card.
     with transaction.atomic():
         try:
-            gift_card = GiftCard.objects.get(student=student, contest=contest)
-        except GiftCard.DoesNotExist:
+            gift_card = ContestEntry.objects.get(student=student, contest=contest)
+        except ContestEntry.DoesNotExist:
             gift_card = None
 
         if gift_card is not None:
@@ -155,7 +155,7 @@ def send_validation_link_email(
 
 def send_gift_card_email(
     student: Student,
-    gift_card: GiftCard,
+    gift_card: ContestEntry,
     claim_code: str,
     email: str,
 ) -> None:
