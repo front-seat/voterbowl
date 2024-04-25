@@ -86,21 +86,17 @@ def _get_claim_code(contest_entry: ContestEntry) -> str | None:
 
 def enter_contest(
     student: Student, contest: Contest, when: datetime.datetime | None = None
-) -> tuple[ContestEntry, str | None, bool]:
+) -> tuple[ContestEntry, bool]:
     """
-    Enter a contest if the student is eligible and hasn't already.
+    Return a contest entry for a student.
 
-    If the student previously entered the contest, return the existing
-    entry.
+    If the student has already entered the contest, return their existing entry.
+    Otherwise, assuming they are eligible, create a new entry.
 
-    If the student has not yet entered the contest and is eligible,
-    create a new entry.
+    If the student is not eligible, raise a ContestEntryPreconditionError.
 
-    In all cases, if the entry has an associated gift card, return its claim
-    code as well.
-
-    Returns a tuple of the contest entry, gift code (if any), and True if the
-    contest was newly entered.
+    The entry may or may not be a winner. If it is, an `amount` will be set.
+    No gift card is issued at this time.
     """
     # Precondition: student must have a validated email address.
     if not student.is_validated:

@@ -14,7 +14,6 @@ from server.admin import admin_site
 from .models import (
     Contest,
     ContestEntry,
-    EmailValidationLink,
     ImageMimeType,
     Logo,
     School,
@@ -256,89 +255,111 @@ class ContestAdmin(admin.ModelAdmin):
         return mark_safe(f'<a href="{school_admin_link}">{obj.school.name}</a>')
 
 
+class ContestWinnerListFilter(admin.SimpleListFilter):
+    """Contest winner list filter."""
+
+    title = "Winner?"
+    parameter_name = "winner"
+
+    def lookups(self, request, model_admin):
+        """Return the state lookups."""
+        return (
+            ("winner", "Winner"),
+            ("loser", "Loser"),
+        )
+
+    def queryset(self, request, queryset):
+        """Filter the queryset by state."""
+        if self.value() == "winner":
+            return queryset.filter(amount__gt=0)
+        if self.value() == "loser":
+            return queryset.filter(amount=0)
+        return queryset
+
+
+class ContestWinningsIssuedListFilter(admin.SimpleListFilter):
+    """Contest winnings issued list filter."""
+
+    title = "Winnings Issued?"
+    parameter_name = "winnings_issued"
+
+    def lookups(self, request, model_admin):
+        """Return the state lookups."""
+        return (
+            ("yes", "Yes"),
+            ("no", "No"),
+        )
+
+    def queryset(self, request, queryset):
+        """Filter the queryset by state."""
+        if self.value() == "yes":
+            return queryset.filter(creation_request_id__ne="")
+        if self.value() == "no":
+            return queryset.filter(creation_request_id__eq="")
+        return queryset
+
+
 class ContestEntryAdmin(admin.ModelAdmin):
     """Contest Entry admin."""
 
     list_display = (
         "id",
         "created_at",
-        "show_amount",
+        "show_is_winner",
+        "show_winnings",
+        "show_winnings_issued",
         "show_student",
         "show_school",
         "show_contest",
     )
     search_fields = ("id", "created_at", "student__email", "student__name")
+    list_filter = (
+        ContestWinnerListFilter,
+        ContestWinningsIssuedListFilter,
+        "contest__school__name",
+        "contest__name",
+    )
 
-    @admin.display(description="Amount")
-    def show_amount(self, obj: ContestEntry) -> str:
-        """Return the gift card's amount."""
-        return f"${obj.amount}"
+    @admin.display(description="Winner?", boolean=True)
+    def show_is_winner(self, obj: ContestEntry) -> bool:
+        """Return whether the contest entry is a winner."""
+        return obj.is_winner
+
+    @admin.display(description="Winnings")
+    def show_winnings(self, obj: ContestEntry) -> str:
+        """Return the contest entry's winnings, if any, if any."""
+        return f"${obj.amount}" if obj.is_winner else ""
+
+    @admin.display(description="Issued?", boolean=True)
+    def show_winnings_issued(self, obj: ContestEntry) -> str:
+        """Return whether the contest entry's winnings have been issued."""
+        if obj.has_issued:
+            return "Yes"
+        elif obj.is_winner:
+            return "Not yet"
+        else:
+            return ""
 
     @admin.display(description="Student")
     def show_student(self, obj: ContestEntry) -> str:
-        """Return the gift card's student."""
+        """Return the contest entry's student."""
         url = reverse("admin:vb_student_change", args=[obj.student.pk])
         return mark_safe(f'<a href="{url}">{obj.student.name}</a>')
 
     @admin.display(description="School")
     def show_school(self, obj: ContestEntry) -> str:
-        """Return the gift card's school."""
+        """Return the contest entry's school."""
         url = reverse("admin:vb_school_change", args=[obj.student.school.pk])
         return mark_safe(f'<a href="{url}">{obj.student.school.name}</a>')
 
     @admin.display(description="Contest")
     def show_contest(self, obj: ContestEntry) -> str:
-        """Return the gift card's contest."""
+        """Return the contest entry's contest."""
         url = reverse("admin:vb_contest_change", args=[obj.contest.pk])
         return mark_safe(f'<a href="{url}">{obj.contest.name}</a>')
-
-
-class EmailValidationLinkAdmin(admin.ModelAdmin):
-    """Email validation link admin."""
-
-    list_display = (
-        "id",
-        "email",
-        "show_student",
-        "show_school",
-        "show_contest",
-        "token",
-        "is_consumed",
-    )
-    search_fields = ("email", "token")
-
-    @admin.display(description="Student")
-    def show_student(self, obj: EmailValidationLink) -> str:
-        """Return the gift card's student."""
-        if obj.student is None:
-            return ""
-        url = reverse("admin:vb_student_change", args=[obj.student.pk])
-        return mark_safe(f'<a href="{url}">{obj.student.name}</a>')
-
-    @admin.display(description="School")
-    def show_school(self, obj: EmailValidationLink) -> str:
-        """Return the gift card's school."""
-        if obj.student is None or obj.student.school is None:
-            return ""
-        url = reverse("admin:vb_school_change", args=[obj.student.school.pk])
-        return mark_safe(f'<a href="{url}">{obj.student.school.name}</a>')
-
-    @admin.display(description="Contest")
-    def show_contest(self, obj: EmailValidationLink) -> str:
-        """Return the gift card's contest."""
-        if obj.contest is None:
-            return ""
-        url = reverse("admin:vb_contest_change", args=[obj.contest.pk])
-        return mark_safe(f'<a href="{url}">{obj.contest.name}</a>')
-
-    @admin.display(description="Is Consumed", boolean=True)
-    def is_consumed(self, obj: EmailValidationLink) -> bool:
-        """Return whether the email validation link is consumed."""
-        return obj.is_consumed()
 
 
 admin_site.register(School, SchoolAdmin)
 admin_site.register(Student, StudentAdmin)
 admin_site.register(Contest, ContestAdmin)
 admin_site.register(ContestEntry, ContestEntryAdmin)
-admin_site.register(EmailValidationLink, EmailValidationLinkAdmin)

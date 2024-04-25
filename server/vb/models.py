@@ -8,7 +8,6 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.template import Context, Template
-from django.urls import reverse
 from django.utils.timezone import now as django_now
 
 from server.utils.contrast import HEX_COLOR_VALIDATOR, get_text_color
@@ -51,7 +50,6 @@ class School(models.Model):
     logo: "Logo"
     contests: "ContestManager"
     students: "StudentManager"
-    email_validation_links: "EmailValidationLinkManager"
 
     def normalize_email(self, address: str) -> str:
         """Normalize an email address for this school."""
@@ -66,7 +64,8 @@ class School(models.Model):
     def hash_email(self, address: str) -> str:
         """Hash an email address for this school."""
         normalized = self.normalize_email(address)
-        return hashlib.sha256(normalized.encode("ascii")).hexdigest()
+        salted = f"{normalized}{settings.SECRET_KEY}"
+        return hashlib.sha256(salted.encode("ascii")).hexdigest()
 
     def is_valid_email(self, address: str) -> bool:
         """Validate an email address for this school."""
@@ -235,6 +234,10 @@ class Contest(models.Model):
 class StudentManager(models.Manager):
     """A custom manager for the student model."""
 
+    def for_token(self, token: str) -> "Student | None":
+        """Return a student by their shortened hash."""
+        return self.filter(hash__startswith=token).first()
+
     def validated(self):
         """Return all students with validated email addresses."""
         return self.filter(email_validated_at__isnull=False)
@@ -282,7 +285,7 @@ class Student(models.Model):
         null=True,
         default=None,
         db_index=True,
-        help_text="The time the email was validated.",
+        help_text="The time the primary email was validated.",
     )
 
     # Other identifying information
@@ -292,6 +295,11 @@ class Student(models.Model):
 
     contest_entries: "ContestEntryManager"
     email_validation_links: "EmailValidationLinkManager"
+
+    @property
+    def token(self) -> str:
+        """Return a token suitable for inclusion in URLs."""
+        return self.hash[:24]
 
     @property
     def is_validated(self) -> bool:
@@ -320,91 +328,6 @@ class Student(models.Model):
             self.save()
 
 
-class EmailValidationLinkManager(models.Manager):
-    """A custom manager for the email validation link model."""
-
-    OLD_DELTA = datetime.timedelta(days=7)
-
-    def consumed(self):
-        """Return all email validation links that are consumed."""
-        return self.filter(consumed_at__isnull=False)
-
-    def not_consumed(self):
-        """Return all email validation links that are not consumed."""
-        return self.filter(consumed_at__isnull=True)
-
-    def old(self, when: datetime.datetime | None = None):
-        """Return all email validation links that are old."""
-        when = when or django_now()
-        return self.filter(created_at__lt=when - self.OLD_DELTA)
-
-
-class EmailValidationLink(models.Model):
-    """A single email validation link for a student in a contest."""
-
-    student = models.ForeignKey(
-        Student, on_delete=models.CASCADE, related_name="email_validation_links"
-    )
-    school = models.ForeignKey(
-        School,
-        on_delete=models.CASCADE,
-        related_name="email_validation_links",
-    )
-    contest = models.ForeignKey(
-        Contest,
-        on_delete=models.CASCADE,
-        related_name="email_validation_links",
-        null=True,
-        # A user may still check registration outside of a contest.
-        # CONSTRAINT: contest.school must == student.school
-    )
-
-    email = models.EmailField(
-        blank=False,
-        help_text="The specific email address to be validated.",
-    )
-
-    token = models.CharField(
-        blank=False,
-        max_length=255,
-        unique=True,
-        help_text="The current validation token, if any.",
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        help_text="The time the email validation link was most recently created.",
-    )
-    consumed_at = models.DateTimeField(
-        blank=True,
-        null=True,
-        default=None,
-        help_text="The time the email validation link was first consumed.",
-    )
-
-    @property
-    def relative_url(self) -> str:
-        """Return the relative URL for the email validation link."""
-        return reverse("vb:validate_email", args=[self.school.slug, self.token])
-
-    @property
-    def absolute_url(self) -> str:
-        """Return the absolute URL for the email validation link."""
-        return f"{settings.BASE_URL}{self.relative_url}"
-
-    def is_consumed(self) -> bool:
-        """Return whether the email validation link has been consumed."""
-        return self.consumed_at is not None
-
-    def consume(self, when: datetime.datetime | None = None) -> None:
-        """Consume the email validation link."""
-        when = when or django_now()
-        self.consumed_at = when
-        self.save()
-
-        # Demeter says no, but my heart says yes.
-        self.student.mark_validated(when)
-
-
 class ContestEntryManager(models.Manager):
     """A custom manager for the contest entry model."""
 
@@ -418,11 +341,20 @@ class ContestEntryManager(models.Manager):
 
 
 class ContestEntry(models.Model):
-    """A contest entry by a single student for a single contest."""
+    """
+    A contest entry by a single student for a single contest.
+
+    When contest entries are created, they are either winners or losers.
+
+    Winning contest entries have a prize amount associated with them.
+    At some later point, the prize amount can be issued as a gift card; this
+    is represented by a creation request ID.
+    """
 
     objects = ContestEntryManager()
 
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     student = models.ForeignKey(
         Student, on_delete=models.CASCADE, related_name="contest_entries"
@@ -435,20 +367,30 @@ class ContestEntry(models.Model):
     amount = models.IntegerField(
         blank=False,
         default=0,
-        help_text="The USD amount of the gift card. 0 means no gift card.",
+        help_text="The USD amount of the gift card. 0 means no winnings.",
     )
     creation_request_id = models.CharField(
         blank=True,
         max_length=255,
         default="",
-        help_text="The creation code for the gift card, if a prize was won..",
+        help_text="The creation code for the gift card, if a prize was issued.",
     )
     email_sent_at = models.DateTimeField(blank=True, null=True, default=None)
+
+    @property
+    def has_issued(self) -> bool:
+        """Return whether a gift card has been issued."""
+        return bool(self.creation_request_id)
 
     @property
     def is_winner(self) -> bool:
         """Return whether the student won a prize."""
         return self.amount > 0
+
+    @property
+    def needs_to_issue(self) -> bool:
+        """Return whether a gift card needs to be issued."""
+        return self.is_winner and not self.has_issued
 
     class Meta:
         """Define the contest entry model's meta options."""

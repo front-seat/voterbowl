@@ -137,6 +137,14 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
         last_name=form.cleaned_data["last_name"],
     )
 
+    # Enter the student into the contest if there is one and they aren't
+    # already entered.
+    contest_entry, entered = None, False
+    if current_contest is not None:
+        contest_entry, entered = enter_contest(student, current_contest)
+
+    # XXX dave you are here
+
     # Always send a validation link EVEN if the student is validated.
     # This ensures we never show a gift code until we know the visitor
     # has access to the email address.
@@ -148,6 +156,7 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
         {
             "school": school,
             "current_contest": current_contest,
+            "contest_entry": contest_entry,
             "email": email,
         },
     )
