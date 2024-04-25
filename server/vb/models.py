@@ -398,11 +398,11 @@ class EmailValidationLink(models.Model):
 class ContestEntryManager(models.Manager):
     """A custom manager for the contest entry model."""
 
-    def won(self):
+    def winners(self):
         """Return all contest entries that won a prize."""
         return self.filter(amount__gt=0)
 
-    def not_won(self):
+    def losers(self):
         """Return all contest entries that did not win a prize."""
         return self.filter(amount=0)
 
@@ -436,7 +436,7 @@ class ContestEntry(models.Model):
     email_sent_at = models.DateTimeField(blank=True, null=True, default=None)
 
     @property
-    def won_prize(self) -> bool:
+    def is_winner(self) -> bool:
         """Return whether the student won a prize."""
         return self.amount > 0
 

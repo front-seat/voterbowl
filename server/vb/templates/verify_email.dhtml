@@ -152,8 +152,8 @@
       <div class="container">
         <img src="{{ school.logo.url }}"
              alt="{{ school.short_name }} {{ school.mascot }} logo" />
-        {% if gift_card and claim_code %}
-          <p>Congrats! You've got a ${{ gift_card.amount }} gift card!</p>
+        {% if contest_entry and claim_code %}
+          <p>Congrats! You won a ${{ contest_entry.amount }} gift card!</p>
           <h2>
             <span class="code">{{ claim_code }}</span>
             <span class="clipboard" title="Copy to clipboard">{% include "clipboard.svg" %}</span>
@@ -163,7 +163,13 @@
             To use your gift card, copy the code above and paste it into <a href="https://www.amazon.com/gc/redeem" target="_blank">Amazon.com</a>.
           </p>
           <p>
-            Tell three friends right now so they can also win a gift card! Here's the link: <a href="{{ BASE_URL }}/{{ school.slug }}/">{{ BASE_URL }}/{{ school.slug }}/</a>
+            Tell three friends right now so they can also win a gift card! Here's the link: <a href="{% url 'vb:school' slug=school.slug %}">{{ BASE_URL }}/{{ school.slug }}/</a>
+          </p>
+        {% elif contest_entry %}
+          <p>Thanks for entering the Voter Bowl!</p>
+          <p>Alas, you didn't win a gift card this time.</p>
+          <p>
+            Your friends still have a chance to win, though! Please share the contest link with them: <a href="{% url 'vb:school' slug=school.slug %}">{{ BASE_URL }}/{{ school.slug }}/</a>
           </p>
         {% elif error %}
           <p>

@@ -10,8 +10,8 @@ from django.views.decorators.http import require_GET, require_POST
 
 from .models import EmailValidationLink, School
 from .ops import (
+    enter_contest,
     get_or_create_student,
-    get_or_issue_gift_card,
     send_gift_card_email,
     send_validation_link_email,
 )
@@ -171,22 +171,26 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
     # The student is validated now!
     link.consume()
 
-    # If there's a contest associated with the validation, get a gift card.
-    gift_card, claim_code, error = None, None, False
+    # If there's a contest associated with the validation, see what their
+    # contest entry status is.
+    contest_entry, claim_code, error = None, None, False
     if link.contest is not None:
         try:
-            gift_card, claim_code, created = get_or_issue_gift_card(
+            contest_entry, claim_code, created = enter_contest(
                 link.student, link.contest
             )
-            if created:
-                send_gift_card_email(link.student, gift_card, claim_code, link.email)
+            # If the contest entry was newly created AND the student
+            # won a gift card, send them an email with the claim code.
+            if created and claim_code is not None:
+                send_gift_card_email(
+                    link.student, contest_entry, claim_code, link.email
+                )
         except Exception:
-            # If we fail to issue or re-obtain a gift card,
-            # log the error and report to the student.
+            # If we fail to enter the contest, log the error and continue.
             logger.exception(
                 "Failed to obtain gift card student: {link.student} token: {token}"
             )
-            gift_card, claim_code, error = None, None, True
+            contest_entry, claim_code, error = None, None, True
 
     return render(
         request,
@@ -195,7 +199,7 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
             "BASE_URL": settings.BASE_URL,
             "school": school,
             "student": link.student,
-            "gift_card": gift_card,
+            "contest_entry": contest_entry,
             "claim_code": claim_code,
             "error": error,
         },
