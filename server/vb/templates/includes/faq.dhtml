@@ -63,9 +63,11 @@
   <div class="qa">
     <h3>How do I claim my gift card?</h3>
     <p>
-      When you check your voter registration status by clicking the “Check My
-      Voter Status” button while a contest is running, we will send you an email
-      with a link to your gift card.
+      If you win, we'll send an Amazon gift card to your student email address.
+    </p> 
+    <p>
+      You can redeem your gift card by typing the claim code into 
+      <a href="https://www.amazon.com/gc/redeem" target="_blank">Amazon.com</a>.
     </p>
     <p>
       <a href="{% url 'vb:rules' %}" target="_blank">Read the full contest rules here</a>.
