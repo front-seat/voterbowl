@@ -5,7 +5,17 @@
   Hi {{ student.first_name }},
   {% include "email/base/p_close.html" %}
   {% include "email/base/p.html" %}
-  Thanks for checking your voter registration status! Click this button to {% if contest %}get your gift card{% else %}validate your email address{% endif %}.
+  Thanks for checking your voter registration status! Click this button to
+  {% if contest %}
+    {% if contest.is_giveaway %}
+      get your gift card
+    {% else %}
+      enter to win a gift card
+    {% endif %}
+  {% else %}
+    validate your email address
+  {% endif %}
+  .
   {% include "email/base/p_close.html" %}
   {% include "email/base/button.html" with url=link.relative_url title=button_text %}
 {% endblock message %}

@@ -163,7 +163,10 @@ def send_validation_link_email(
         token=make_token(12),
     )
     if contest:
-        button_text = f"Get my ${contest.amount} gift card"
+        if contest.is_giveaway:
+            button_text = f"Get my ${contest.amount} gift card"
+        else:
+            button_text = f"Enter to win a ${contest.amount} gift card"
     else:
         button_text = "Validate my email"
     success = send_template_email(

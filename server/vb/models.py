@@ -197,6 +197,11 @@ class Contest(models.Model):
         return Template(template_str).render(Context(context))
 
     @property
+    def is_giveaway(self) -> bool:
+        """Return whether the contest is a giveaway."""
+        return self.in_n == 1
+
+    @property
     def description(self) -> str:
         """Render the contest description template."""
         template_str = "{{ school.short_name }} students: check your voter registration to win a ${{ contest.amount }} Amazon gift card."  # noqa

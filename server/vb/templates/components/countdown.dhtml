@@ -16,7 +16,12 @@
   <p>
     ${{ contest.amount }} Amazon gift card
     <br />
-    Giveaway ends in:
+    {% if current_contest.is_giveaway %}
+      Giveaway
+    {% else %}
+      Contest
+    {% endif %}
+    ends in:
   </p>
   <div class="countdown"
        data-end-at="{{ contest.end_at|date:'c' }}"
