@@ -398,7 +398,13 @@ class EmailValidationLink(models.Model):
 class ContestEntryManager(models.Manager):
     """A custom manager for the contest entry model."""
 
-    pass
+    def won(self):
+        """Return all contest entries that won a prize."""
+        return self.filter(amount__gt=0)
+
+    def not_won(self):
+        """Return all contest entries that did not win a prize."""
+        return self.filter(amount=0)
 
 
 class ContestEntry(models.Model):
@@ -415,30 +421,36 @@ class ContestEntry(models.Model):
         Contest, on_delete=models.CASCADE, related_name="gift_cards"
     )
 
+    # The prize, if any, is a gift card.
     amount = models.IntegerField(
-        blank=False, help_text="The USD amount of the gift card."
+        blank=False,
+        default=0,
+        help_text="The USD amount of the gift card. 0 means no gift card.",
     )
     creation_request_id = models.CharField(
-        blank=False,
+        blank=True,
         max_length=255,
-        unique=True,
-        help_text="The creation code for the gift card.",
+        default="",
+        help_text="The creation code for the gift card, if a prize was won..",
     )
-
     email_sent_at = models.DateTimeField(blank=True, null=True, default=None)
 
+    @property
+    def won_prize(self) -> bool:
+        """Return whether the student won a prize."""
+        return self.amount > 0
+
     class Meta:
-        """Define the gift card model's meta options."""
+        """Define the contest entry model's meta options."""
 
         constraints = [
             models.UniqueConstraint(
                 fields=["student", "contest"],
+                # Should be renamed unique_student_contest_entry
                 name="unique_student_contest_gift_card",
             )
         ]
 
     def __str__(self):
         """Return the gift card model's string representation."""
-        return (
-            f"Gift Card: ${self.amount} for {self.student.name} in {self.contest.name}"
-        )
+        return f"Contest entry for {self.student.name} in {self.contest.name} (${self.amount} won)"  # noqa

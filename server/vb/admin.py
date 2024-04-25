@@ -192,7 +192,7 @@ class StudentAdmin(admin.ModelAdmin):
     @admin.display(description="Gift Card Total")
     def gift_card_total(self, obj: Student) -> str | None:
         """Return the total number of gift cards the student has received."""
-        usd = obj.gift_cards.aggregate(total=models.Sum("amount"))["total"] or 0
+        usd = obj.contest_entries.aggregate(total=models.Sum("amount"))["total"] or 0
         return f"${usd}" if usd > 0 else None
 
 
