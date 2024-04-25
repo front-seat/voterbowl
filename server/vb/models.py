@@ -1,6 +1,7 @@
 import base64
 import datetime
 import hashlib
+import secrets
 import typing as t
 
 from django.conf import settings
@@ -177,15 +178,28 @@ class Contest(models.Model):
     amount = models.IntegerField(
         blank=False, help_text="The USD amount of the gift card.", default=5
     )
+    in_n = models.IntegerField(
+        blank=False,
+        help_text="1 in_n students will win a gift card.",
+        default=1,
+    )
 
-    gift_cards: "GiftCardManager"
+    contest_entries: "ContestEntryManager"
 
     @property
     def name(self) -> str:
         """Render the contest name template."""
-        template_str = "${{ contest.amount }} Amazon Gift Card Giveaway"
+        if self.in_n > 1:
+            template_str = "${{ contest.amount }} Amazon Gift Card Giveaway (1 in {{ contest.in_n }} wins)"  # noqa
+        else:
+            template_str = "${{ contest.amount }} Amazon Gift Card Giveaway"
         context = {"school": self.school, "contest": self}
         return Template(template_str).render(Context(context))
+
+    @property
+    def is_giveaway(self) -> bool:
+        """Return whether the contest is a giveaway."""
+        return self.in_n == 1
 
     @property
     def description(self) -> str:
@@ -193,6 +207,10 @@ class Contest(models.Model):
         template_str = "{{ school.short_name }} students: check your voter registration to win a ${{ contest.amount }} Amazon gift card."  # noqa
         context = {"school": self.school, "contest": self}
         return Template(template_str).render(Context(context))
+
+    def mint_winner(self) -> bool:
+        """Determine whether to mint a new contest winner."""
+        return secrets.randbelow(self.in_n) == 0
 
     def is_upcoming(self, when: datetime.datetime | None = None) -> bool:
         """Return whether the contest is upcoming."""
@@ -272,7 +290,7 @@ class Student(models.Model):
     last_name = models.CharField(max_length=255, blank=False)
     phone = models.CharField(max_length=255, blank=True, default="")
 
-    gift_cards: "GiftCardManager"
+    contest_entries: "ContestEntryManager"
     email_validation_links: "EmailValidationLinkManager"
 
     @property
@@ -289,6 +307,11 @@ class Student(models.Model):
     def name(self) -> str:
         """Return the student's full name."""
         return f"{self.first_name} {self.last_name}"
+
+    @property
+    def anonymized_name(self) -> str:
+        """Return the student's anonymized name."""
+        return f"{self.first_name} {self.last_name[0]}."
 
     def add_email(self, email: str) -> None:
         """Add an email address to the student's list of emails."""
@@ -382,18 +405,24 @@ class EmailValidationLink(models.Model):
         self.student.mark_validated(when)
 
 
-class GiftCardManager(models.Manager):
-    """A custom manager for the gift card model."""
+class ContestEntryManager(models.Manager):
+    """A custom manager for the contest entry model."""
 
-    pass
+    def winners(self):
+        """Return all contest entries that won a prize."""
+        return self.filter(amount__gt=0)
+
+    def losers(self):
+        """Return all contest entries that did not win a prize."""
+        return self.filter(amount=0)
 
 
-class GiftCard(models.Model):
-    """A gift card issued to a single student for a single contest."""
+class ContestEntry(models.Model):
+    """A contest entry by a single student for a single contest."""
 
-    objects = GiftCardManager()
+    objects = ContestEntryManager()
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     student = models.ForeignKey(
         Student, on_delete=models.CASCADE, related_name="gift_cards"
@@ -402,30 +431,36 @@ class GiftCard(models.Model):
         Contest, on_delete=models.CASCADE, related_name="gift_cards"
     )
 
+    # The prize, if any, is a gift card.
     amount = models.IntegerField(
-        blank=False, help_text="The USD amount of the gift card."
+        blank=False,
+        default=0,
+        help_text="The USD amount of the gift card. 0 means no gift card.",
     )
     creation_request_id = models.CharField(
-        blank=False,
+        blank=True,
         max_length=255,
-        unique=True,
-        help_text="The creation code for the gift card.",
+        default="",
+        help_text="The creation code for the gift card, if a prize was won..",
     )
-
     email_sent_at = models.DateTimeField(blank=True, null=True, default=None)
 
+    @property
+    def is_winner(self) -> bool:
+        """Return whether the student won a prize."""
+        return self.amount > 0
+
     class Meta:
-        """Define the gift card model's meta options."""
+        """Define the contest entry model's meta options."""
 
         constraints = [
             models.UniqueConstraint(
                 fields=["student", "contest"],
+                # Should be renamed unique_student_contest_entry
                 name="unique_student_contest_gift_card",
             )
         ]
 
     def __str__(self):
         """Return the gift card model's string representation."""
-        return (
-            f"Gift Card: ${self.amount} for {self.student.name} in {self.contest.name}"
-        )
+        return f"Contest entry for {self.student.name} in {self.contest.name} (${self.amount} won)"  # noqa
