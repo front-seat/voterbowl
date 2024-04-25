@@ -32,5 +32,3 @@ For code cleanliness, we also use:
 1. Get postgres set up. If you've got docker installed, `./scripts/dockerpg.sh up`
 1. Configure your environment variables. (See `.env.sample` and `settings.py`)
 1. Run the app. `./manage.py runserver` and visit http://localhost:8000/
-
-Hi.
