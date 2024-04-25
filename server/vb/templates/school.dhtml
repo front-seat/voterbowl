@@ -82,13 +82,23 @@
         <h2>Welcome to the Voter Bowl</h2>
         {% if current_contest %}
           <p>
-            {{ school.short_name }} students: check your registration status to win a ${{ current_contest.amount }} Amazon gift card.
+            {{ school.short_name }} students: check your registration status
+            {% if current_contest.in_n > 1 %}for a 1 in {{ current_contest.in_n }} chance{% endif %}
+            to win a ${{ current_contest.amount }} Amazon gift card.
           </p>
         {% elif past_contest %}
-          <p>{{ school.short_name }} students: the ${{ past_contest.amount }} giveaway has ended.</p>
+          <p>
+            {{ school.short_name }} students: the ${{ past_contest.amount }}
+            {% if past_contest.is_giveaway %}
+              giveaway
+            {% else %}
+              contest
+            {% endif %}
+            has ended.
+          </p>
           <p>But: it's always a good time to make sure you're ready to vote.</p>
         {% else %}
-          <p>{{ school.short_name }} students: there's no giveaway right now.</p>
+          <p>{{ school.short_name }} students: there's no contest right now.</p>
           <p>But: it's always a good time to make sure you're ready to vote.</p>
         {% endif %}
         <div class="button-holder">
