@@ -1,12 +1,15 @@
 <img src="{{ school.logo.url }}"
      alt="{{ school.short_name }} {{ school.mascot }} logo" />
 <p>
+  {# djlint:off #}
   <script>
+      {% if contest_entry and contest_entry.is_winner %}
       (function(self) {
           const fireworks = new Fireworks.default(document.querySelector('.fireworks'));
           fireworks.start();
           setTimeout(() => fireworks.stop(), 10_000);
       })(me());
+      {% endif %}
       (function(self) {
           setTimeout(() => {
               // scroll entire window back to top, smoothly
@@ -16,18 +19,21 @@
               });
           }, 100);
       })(me());
-  </script>
+</script>
+  {# djlint:on #}
   <b>Please check your school email</b> (and spam folder).
   <br />
   <br />
   {% if current_contest %}
-    We've sent you a link to
-    {% if current_contest.is_giveaway %}
-      claim your ${{ current_contest.amount }}
+    {% if current_contest.is_winner %}
+      {% if current_contest.contest.is_giveaway %}
+        We've sent you a link to claim your ${{ current_contest.amount }} gift card.
+      {% else %}
+        You won a ${{ current_contest.amount }} gift card! We've sent you a link to claim it.
+      {% endif %}
     {% else %}
-      see if you won a ${{ current_contest.amount }}
+      Alas, you didn't win a gift card this time. Your friends still have a chance to win, though! Please share the contest link with them: <a href="{% url 'vb:school' slug=school.slug %}">{{ BASE_URL }}/{{ school.slug }}/</a>
     {% endif %}
-    gift card.
   {% else %}
     We've sent a validation link to confirm your address.
   {% endif %}

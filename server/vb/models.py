@@ -190,6 +190,10 @@ class Contest(models.Model):
 
     contest_entries: "ContestEntryManager"
 
+    def most_recent_winner(self) -> "ContestEntry | None":
+        """Return the most recent winner for this contest."""
+        return self.contest_entries.winners().order_by("-created_at").first()
+
     @property
     def name(self) -> str:
         """Render the contest name template."""
