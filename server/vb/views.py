@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
-from .models import EmailValidationLink, School
+from .models import ContestEntry, EmailValidationLink, School
 from .ops import (
     enter_contest,
     get_or_create_student,
@@ -173,12 +173,12 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
 
     # If there's a contest associated with the validation, see what their
     # contest entry status is.
+    contest = link.contest
     contest_entry, claim_code, error = None, None, False
-    if link.contest is not None:
+    most_recent_winner: ContestEntry | None = None
+    if contest is not None:
         try:
-            contest_entry, claim_code, created = enter_contest(
-                link.student, link.contest
-            )
+            contest_entry, claim_code, created = enter_contest(link.student, contest)
             # If the contest entry was newly created AND the student
             # won a gift card, send them an email with the claim code.
             if created and claim_code is not None:
@@ -192,6 +192,13 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
             )
             contest_entry, claim_code, error = None, None, True
 
+        # Is the contest entry a loser? If so, find the most recent winner so that
+        # we can say _something_ interesting about the contest.
+        if contest_entry is None or not contest_entry.is_winner:
+            most_recent_winner = (
+                contest.contest_entries.winners().order_by("-created_at").first()
+            )
+
     return render(
         request,
         "verify_email.dhtml",
@@ -201,6 +208,7 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
             "student": link.student,
             "contest_entry": contest_entry,
             "claim_code": claim_code,
+            "most_recent_winner": most_recent_winner,
             "error": error,
         },
     )

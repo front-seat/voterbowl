@@ -303,6 +303,11 @@ class Student(models.Model):
         """Return the student's full name."""
         return f"{self.first_name} {self.last_name}"
 
+    @property
+    def anonymized_name(self) -> str:
+        """Return the student's anonymized name."""
+        return f"{self.first_name} {self.last_name[0]}."
+
     def add_email(self, email: str) -> None:
         """Add an email address to the student's list of emails."""
         if email != self.email and email not in self.other_emails:
@@ -412,7 +417,7 @@ class ContestEntry(models.Model):
 
     objects = ContestEntryManager()
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     student = models.ForeignKey(
         Student, on_delete=models.CASCADE, related_name="gift_cards"
