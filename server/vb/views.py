@@ -8,11 +8,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
-from .models import ContestEntry, EmailValidationLink, School
+from .models import EmailValidationLink, School
 from .ops import (
     enter_contest,
     get_or_create_student,
-    send_gift_card_email,
+    get_or_issue_prize,
     send_validation_link_email,
 )
 
@@ -143,12 +143,18 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
     if current_contest is not None:
         contest_entry, entered = enter_contest(student, current_contest)
 
-    # XXX dave you are here
-
-    # Always send a validation link EVEN if the student is validated.
-    # This ensures we never show a gift code until we know the visitor
-    # has access to the email address.
-    send_validation_link_email(student, school, current_contest, email)
+    # Send the student an email validation link.
+    #
+    # In the case where (a) there's no contest, or (b) there's a contest
+    # but the student didn't win, this is a simple validation link. In theory,
+    # this is unnecessary if the given email has already been validated,
+    # but we send it anyway for consistency.
+    #
+    # In the case where the student *won* a contest, this link is used
+    # to claim their prize. We need to ensure the student has current access
+    # to the email address before we issue the prize (aka deduct money from
+    # our account).
+    send_validation_link_email(student, email, contest_entry)
 
     return render(
         request,
@@ -167,46 +173,43 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
     """
     View visited when a user clicks on a validation link in their email.
 
-    There may or may not be a current contest associated with the validation.
+    When a student reaches this point, we know (a) the email address is valid,
+    (b) it's valid for the school, and (c) the student has access to the email
+    address.
 
-    If the student reaches this point, we know they have a valid email that
-    matches the school in question.
+    This is our opportunity to check the student's contest entries and issue
+    any outstanding prizes. A student visiting this link may have entered zero
+    or more contests.
+
+    It's possible the user has clicked this validation link before. Behavior
+    must be idempotent.
     """
     link = get_object_or_404(EmailValidationLink, token=token)
     school = get_object_or_404(School, slug=slug)
-    if link.school != school:
+    if link.student.school != school:
         raise PermissionDenied("Invalid email validation link URL")
 
-    # The student is validated now!
+    # This email address is validated. As a result, the student is also
+    # validated.
     link.consume()
 
-    # If there's a contest associated with the validation, see what their
-    # contest entry status is.
-    contest = link.contest
+    # Issue a prize, if appropriate
     contest_entry, claim_code, error = None, None, False
-    most_recent_winner: ContestEntry | None = None
-    if contest is not None:
+    if link.contest_entry is not None:
         try:
-            contest_entry, claim_code, created = enter_contest(link.student, contest)
-            # If the contest entry was newly created AND the student
-            # won a gift card, send them an email with the claim code.
-            if created and claim_code is not None:
-                send_gift_card_email(
-                    link.student, contest_entry, claim_code, link.email
-                )
+            contest_entry, claim_code = get_or_issue_prize(link.contest_entry)
         except Exception:
-            # If we fail to enter the contest, log the error and continue.
-            logger.exception(
-                "Failed to obtain gift card student: {link.student} token: {token}"
-            )
-            contest_entry, claim_code, error = None, None, True
+            error = True
 
-        # Is the contest entry a loser? If so, find the most recent winner so that
-        # we can say _something_ interesting about the contest.
-        if contest_entry is None or not contest_entry.is_winner:
-            most_recent_winner = (
-                contest.contest_entries.winners().order_by("-created_at").first()
-            )
+    # Is the contest entry a loser? If so, find the most recent winner so that
+    # we can say _something_ interesting about the contest.
+    most_recent_winner = None
+    if contest_entry is not None and not contest_entry.is_winner:
+        most_recent_winner = (
+            contest_entry.contest.contest_entries.winners()
+            .order_by("-created_at")
+            .first()
+        )
 
     return render(
         request,

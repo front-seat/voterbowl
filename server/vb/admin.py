@@ -14,6 +14,7 @@ from server.admin import admin_site
 from .models import (
     Contest,
     ContestEntry,
+    EmailValidationLink,
     ImageMimeType,
     Logo,
     School,
@@ -317,7 +318,6 @@ class ContestEntryAdmin(admin.ModelAdmin):
         ContestWinnerListFilter,
         ContestWinningsIssuedListFilter,
         "contest__school__name",
-        "contest__name",
     )
 
     @admin.display(description="Winner?", boolean=True)
@@ -359,7 +359,52 @@ class ContestEntryAdmin(admin.ModelAdmin):
         return mark_safe(f'<a href="{url}">{obj.contest.name}</a>')
 
 
+class EmailValidationLinkAdmin(admin.ModelAdmin):
+    """Email validation link admin."""
+
+    list_display = (
+        "id",
+        "email",
+        "show_student",
+        "show_school",
+        "show_contest_entry",
+        "token",
+        "is_consumed",
+    )
+    search_fields = ("email", "token")
+
+    @admin.display(description="Student")
+    def show_student(self, obj: EmailValidationLink) -> str:
+        """Return the gift card's student."""
+        if obj.student is None:
+            return ""
+        url = reverse("admin:vb_student_change", args=[obj.student.pk])
+        return mark_safe(f'<a href="{url}">{obj.student.name}</a>')
+
+    @admin.display(description="School")
+    def show_school(self, obj: EmailValidationLink) -> str:
+        """Return the gift card's school."""
+        if obj.student is None or obj.student.school is None:
+            return ""
+        url = reverse("admin:vb_school_change", args=[obj.student.school.pk])
+        return mark_safe(f'<a href="{url}">{obj.student.school.name}</a>')
+
+    @admin.display(description="Contest Entry")
+    def show_contest_entry(self, obj: EmailValidationLink) -> str:
+        """Return the gift card's contest entry."""
+        if obj.contest_entry is None:
+            return ""
+        url = reverse("admin:vb_contestentry_change", args=[obj.contest_entry.pk])
+        return mark_safe(f'<a href="{url}">{str(obj.contest_entry)}</a>')
+
+    @admin.display(description="Is Consumed", boolean=True)
+    def is_consumed(self, obj: EmailValidationLink) -> bool:
+        """Return whether the email validation link is consumed."""
+        return obj.is_consumed()
+
+
 admin_site.register(School, SchoolAdmin)
 admin_site.register(Student, StudentAdmin)
 admin_site.register(Contest, ContestAdmin)
 admin_site.register(ContestEntry, ContestEntryAdmin)
+admin_site.register(EmailValidationLink, EmailValidationLinkAdmin)
