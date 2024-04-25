@@ -8,14 +8,13 @@
   Thanks for checking your voter registration status! Click this button to
   {% if contest %}
     {% if contest.is_giveaway %}
-      get your gift card
+      get your gift card.
     {% else %}
-      enter to win a gift card
+      see if you won.
     {% endif %}
   {% else %}
-    validate your email address
+    validate your email address.
   {% endif %}
-  .
   {% include "email/base/p_close.html" %}
   {% include "email/base/button.html" with url=link.relative_url title=button_text %}
 {% endblock message %}

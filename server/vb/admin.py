@@ -166,6 +166,7 @@ class StudentAdmin(admin.ModelAdmin):
         "show_school",
         "email",
         "show_is_validated",
+        "contest_entries",
         "gift_card_total",
     )
     search_fields = ("school__name", "email", "first_name", "last_name")
@@ -184,16 +185,16 @@ class StudentAdmin(admin.ModelAdmin):
         return obj.is_validated
 
     @admin.display(description="Contest Entries")
-    def contest_entries(self, obj: Student) -> int | None:
+    def contest_entries(self, obj: Student) -> int | str:
         """Return the number of contest entries the student has made."""
         count = obj.contest_entries.count()
-        return count if count > 0 else None
+        return count if count > 0 else ""
 
     @admin.display(description="Gift Card Total")
     def gift_card_total(self, obj: Student) -> str | None:
         """Return the total number of gift cards the student has received."""
         usd = obj.contest_entries.aggregate(total=models.Sum("amount"))["total"] or 0
-        return f"${usd}" if usd > 0 else None
+        return f"${usd}" if usd > 0 else ""
 
 
 class StatusListFilter(admin.SimpleListFilter):

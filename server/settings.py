@@ -196,19 +196,12 @@ EMAIL_PORT = os.getenv("EMAIL_PORT", None)
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "false").lower() == "true"
 EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "false").lower() == "true"
 
-# Special debug tool: emails matching this pattern will be sent to the
-# debug email address instead of the actual recipient. This is useful for
-# testing email functionality without spamming real users.
-#
-# For instance, if DEBUG_EMAIL_STARTSWITH is set to "frontseat@",
-# then any email sent to "frontseat@example.edu" will instead be sent to
-# DEBUG_EMAIL_TO.
-DEBUG_EMAIL_STARTSWITH = os.getenv("DEBUG_EMAIL_STARTSWITH", None)
+# Special debug tool: emails matching the pattern
+# frontseat-<digits>@ will be sent to DEBUG_EMAIL_TO
+# instead of the actual recipient. This is useful for testing email
+# functionality without spamming real users.
+DEBUG_EMAIL_REGEX = r"^frontseat-[a-zA-Z0-9]+@"
 DEBUG_EMAIL_TO = os.getenv("DEBUG_EMAIL_TO", None)
-if not DEBUG_EMAIL_STARTSWITH or not DEBUG_EMAIL_TO:
-    DEBUG_EMAIL_STARTSWITH = None
-    DEBUG_EMAIL_TO = None
-
 
 # ----------------------------------------------------------------------------
 # Logging settings

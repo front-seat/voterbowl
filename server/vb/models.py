@@ -425,10 +425,10 @@ class ContestEntry(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     student = models.ForeignKey(
-        Student, on_delete=models.CASCADE, related_name="gift_cards"
+        Student, on_delete=models.CASCADE, related_name="contest_entries"
     )
     contest = models.ForeignKey(
-        Contest, on_delete=models.CASCADE, related_name="gift_cards"
+        Contest, on_delete=models.CASCADE, related_name="contest_entries"
     )
 
     # The prize, if any, is a gift card.
@@ -452,6 +452,8 @@ class ContestEntry(models.Model):
 
     class Meta:
         """Define the contest entry model's meta options."""
+
+        verbose_name_plural = "Contest entries"
 
         constraints = [
             models.UniqueConstraint(
