@@ -11,9 +11,12 @@
       background-color: black;
     }
   </style>
-  <div>
+  <div data-bg-color="{{ school.logo.bg_color }}"
+       data-color="{{ school.logo.bg_text_color }}">
     <style>
       me {
+        --main-color: transparent;
+        --main-bg-color: transparent;
         width: 100%;
         display: flex;
         flex-direction: column;
@@ -21,7 +24,7 @@
       }
 
       me a {
-        color: white;
+        color: var(--main-color);
         text-decoration: underline;
         transition: opacity 0.2s;
       }
@@ -68,12 +71,17 @@
         margin: 1.5rem 0;
       }
     </style>
-    <main data-bg-color="{{ school.logo.bg_color }}"
-          data-color="{{ school.logo.bg_text_color }}">
+    <script>
+        (function(self) {
+            onloadAdd(() => {
+                self.style.setProperty('--main-color', self.dataset.color);
+                self.style.setProperty('--main-bg-color', self.dataset.bgColor);
+            });
+        })(me());
+    </script>
+    <main>
       <style>
         me {
-          --main-color: transparent;
-          --main-bg-color: transparent;
           color: var(--main-color);
           background-color: var(--main-bg-color);
         }
@@ -130,14 +138,14 @@
         }
       </style>
       <script>
-          (function() {
-              const self = me();
+          (function(self) {
               onloadAdd(() => {
-                  self.style.setProperty('--main-color', self.dataset.color);
-                  self.style.setProperty('--main-bg-color', self.dataset.bgColor);
                   const clipboard = self.querySelector(".clipboard");
                   const copied = self.querySelector(".copied");
                   const code = self.querySelector(".code");
+                  if (!clipboard || !copied || !code) {
+                      return;
+                  }
                   clipboard.addEventListener("click", () => {
                       navigator.clipboard.writeText(code.innerText);
                       // hide the `clipboard` span; show the `copied` span
@@ -147,13 +155,13 @@
                       copied.classList.remove("hidden");
                   });
               });
-          })();
+          })(me());
       </script>
       <div class="container">
         <img src="{{ school.logo.url }}"
              alt="{{ school.short_name }} {{ school.mascot }} logo" />
-        {% if gift_card and claim_code %}
-          <p>Congrats! You've got a ${{ gift_card.amount }} gift card!</p>
+        {% if contest_entry and claim_code %}
+          <p>Congrats! You won a ${{ contest_entry.amount_won }} gift card!</p>
           <h2>
             <span class="code">{{ claim_code }}</span>
             <span class="clipboard" title="Copy to clipboard">{% include "clipboard.svg" %}</span>
@@ -163,18 +171,15 @@
             To use your gift card, copy the code above and paste it into <a href="https://www.amazon.com/gc/redeem" target="_blank">Amazon.com</a>.
           </p>
           <p>
-            Tell three friends right now so they can also win a gift card! Here's the link: <a href="{{ BASE_URL }}/{{ school.slug }}/">{{ BASE_URL }}/{{ school.slug }}/</a>
+            Tell your friends so they can also win! Share this link: <a href="{% url 'vb:school' slug=school.slug %}">{{ BASE_HOST }}/{{ school.slug }}</a>
           </p>
-        {% elif error %}
+        {% else %}
           <p>
             Sorry, <b>there was an error</b>. Please try again later.
           </p>
           <p>
             If you continue to have issues, please contact us at <a href="mailto:info@voterbowl.org">info@voterbowl.org</a>.
           </p>
-        {% else %}
-          <p>Thanks for making sure you're ready to vote.</p>
-          <p>Happy voting in 2024!</p>
         {% endif %}
       </div>
     </main>

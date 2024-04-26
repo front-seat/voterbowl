@@ -1,5 +1,6 @@
 import dataclasses
 import logging
+import re
 import typing as t
 
 from django.conf import settings
@@ -103,18 +104,19 @@ def create_message(
     context = context or {}
     from_email = from_email or settings.DEFAULT_FROM_EMAIL
     context.setdefault("BASE_URL", settings.BASE_URL)
+    context.setdefault("BASE_HOST", settings.BASE_HOST)
 
     subject = render_to_string(f"{template_base}/subject.txt", context).strip()
     text = render_to_string(f"{template_base}/body.txt", context)
     html = render_to_string(f"{template_base}/body.dhtml", context)
 
     final_to = list(to)
-    if settings.DEBUG_EMAIL_STARTSWITH and settings.DEBUG_EMAIL_TO:
+    if settings.DEBUG_EMAIL_TO:
         for i, email in enumerate(final_to):
-            if email.startswith(settings.DEBUG_EMAIL_STARTSWITH):
+            if re.match(settings.DEBUG_EMAIL_REGEX, email):
                 final_to[i] = settings.DEBUG_EMAIL_TO
                 logger.info(
-                    f"DEBUG_EMAIL_STARTSWITH rerouting email {email} to {settings.DEBUG_EMAIL_TO} with subject: {subject}"  # noqa
+                    f"DEBUG_EMAIL rerouting email {email} to {settings.DEBUG_EMAIL_TO} with subject: {subject}"  # noqa
                 )
 
     message = EmailMultiAlternatives(

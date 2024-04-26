@@ -1,1 +1,1 @@
-Your ${{ gift_card.amount }} Amazon gift card
+Your ${{ contest_entry.amount_won }} Amazon gift card

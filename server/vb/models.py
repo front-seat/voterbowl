@@ -1,6 +1,7 @@
 import base64
 import datetime
 import hashlib
+import secrets
 import typing as t
 
 from django.conf import settings
@@ -50,7 +51,6 @@ class School(models.Model):
     logo: "Logo"
     contests: "ContestManager"
     students: "StudentManager"
-    email_validation_links: "EmailValidationLinkManager"
 
     def normalize_email(self, address: str) -> str:
         """Normalize an email address for this school."""
@@ -63,7 +63,12 @@ class School(models.Model):
         )
 
     def hash_email(self, address: str) -> str:
-        """Hash an email address for this school."""
+        """
+        Hash an email address for this school.
+
+        These hashes are not suitable for sharing with third parties, since
+        they are trivial to reverse-engineer.
+        """
         normalized = self.normalize_email(address)
         return hashlib.sha256(normalized.encode("ascii")).hexdigest()
 
@@ -177,15 +182,32 @@ class Contest(models.Model):
     amount = models.IntegerField(
         blank=False, help_text="The USD amount of the gift card.", default=5
     )
+    in_n = models.IntegerField(
+        blank=False,
+        help_text="1 in_n students will win a gift card.",
+        default=1,
+    )
 
-    gift_cards: "GiftCardManager"
+    contest_entries: "ContestEntryManager"
+
+    def most_recent_winner(self) -> "ContestEntry | None":
+        """Return the most recent winner for this contest."""
+        return self.contest_entries.winners().order_by("-created_at").first()
 
     @property
     def name(self) -> str:
         """Render the contest name template."""
-        template_str = "${{ contest.amount }} Amazon Gift Card Giveaway"
+        if self.in_n > 1:
+            template_str = "${{ contest.amount }} Amazon Gift Card Giveaway (1 in {{ contest.in_n }} wins)"  # noqa
+        else:
+            template_str = "${{ contest.amount }} Amazon Gift Card Giveaway"
         context = {"school": self.school, "contest": self}
         return Template(template_str).render(Context(context))
+
+    @property
+    def is_giveaway(self) -> bool:
+        """Return whether the contest is a giveaway."""
+        return self.in_n == 1
 
     @property
     def description(self) -> str:
@@ -193,6 +215,20 @@ class Contest(models.Model):
         template_str = "{{ school.short_name }} students: check your voter registration to win a ${{ contest.amount }} Amazon gift card."  # noqa
         context = {"school": self.school, "contest": self}
         return Template(template_str).render(Context(context))
+
+    def _roll_die(self) -> int:
+        """Roll a fair die from [0, self.in_n)."""
+        return secrets.randbelow(self.in_n)
+
+    def roll_die_and_get_winnings(self) -> tuple[int, int]:
+        """
+        Roll a fair die from [0, self.in_n).
+
+        Return a tuple of the roll and the amount won (or 0 if no win).
+        """
+        roll = self._roll_die()
+        amount_won = self.amount if roll == 0 else 0
+        return roll, amount_won
 
     def is_upcoming(self, when: datetime.datetime | None = None) -> bool:
         """Return whether the contest is upcoming."""
@@ -257,14 +293,14 @@ class Student(models.Model):
     other_emails = models.JSONField(
         default=list,
         blank=True,
-        help_text="The second+ emails for this user. These may not be validated.",
+        help_text="The second+ emails for this user. These *are* validated.",
     )
     email_validated_at = models.DateTimeField(
         blank=True,
         null=True,
         default=None,
         db_index=True,
-        help_text="The time the email was validated.",
+        help_text="The first time *any* email for this student was validated.",
     )
 
     # Other identifying information
@@ -272,16 +308,37 @@ class Student(models.Model):
     last_name = models.CharField(max_length=255, blank=False)
     phone = models.CharField(max_length=255, blank=True, default="")
 
-    gift_cards: "GiftCardManager"
+    contest_entries: "ContestEntryManager"
     email_validation_links: "EmailValidationLinkManager"
 
     @property
     def is_validated(self) -> bool:
         """Return whether the student's email address is validated."""
-        return self.email_validated_at is not None
+        return (self.email_validated_at is not None) or len(self.other_emails) > 0
 
-    def mark_validated(self, when: datetime.datetime | None = None) -> None:
-        """Mark the student's email address as validated."""
+    def mark_validated(
+        self,
+        email: str,
+        when: datetime.datetime | None = None,
+    ) -> None:
+        """
+        Mark a given email address as validated for a student.
+
+        If the email is *not* the current primary email, make it so, moving
+        the current primary email to the list of other emails.
+        """
+        # Get a set of all emails for this student, including the new one.
+        all_emails = set(self.other_emails + [self.email] + [email])
+        assert email in all_emails  # how could this not be true?
+
+        # Remove the new one from the set and make it our new primary
+        all_emails.remove(email)
+        self.email = email
+
+        # Take all remaining emails and make them "other" emails
+        self.other_emails = list(all_emails)
+
+        # Mark the student as having at least one validated email.
         self.email_validated_at = self.email_validated_at or when or django_now()
         self.save()
 
@@ -290,17 +347,14 @@ class Student(models.Model):
         """Return the student's full name."""
         return f"{self.first_name} {self.last_name}"
 
-    def add_email(self, email: str) -> None:
-        """Add an email address to the student's list of emails."""
-        if email != self.email and email not in self.other_emails:
-            self.other_emails.append(email)
-            self.save()
+    @property
+    def anonymized_name(self) -> str:
+        """Return the student's anonymized name."""
+        return f"{self.first_name} {self.last_name[0]}."
 
 
 class EmailValidationLinkManager(models.Manager):
     """A custom manager for the email validation link model."""
-
-    OLD_DELTA = datetime.timedelta(days=7)
 
     def consumed(self):
         """Return all email validation links that are consumed."""
@@ -310,11 +364,6 @@ class EmailValidationLinkManager(models.Manager):
         """Return all email validation links that are not consumed."""
         return self.filter(consumed_at__isnull=True)
 
-    def old(self, when: datetime.datetime | None = None):
-        """Return all email validation links that are old."""
-        when = when or django_now()
-        return self.filter(created_at__lt=when - self.OLD_DELTA)
-
 
 class EmailValidationLink(models.Model):
     """A single email validation link for a student in a contest."""
@@ -322,23 +371,26 @@ class EmailValidationLink(models.Model):
     student = models.ForeignKey(
         Student, on_delete=models.CASCADE, related_name="email_validation_links"
     )
-    school = models.ForeignKey(
-        School,
-        on_delete=models.CASCADE,
-        related_name="email_validation_links",
-    )
-    contest = models.ForeignKey(
-        Contest,
-        on_delete=models.CASCADE,
-        related_name="email_validation_links",
-        null=True,
-        # A user may still check registration outside of a contest.
-        # CONSTRAINT: contest.school must == student.school
-    )
 
     email = models.EmailField(
         blank=False,
         help_text="The specific email address to be validated.",
+    )
+
+    # TODO
+    #
+    # As of this writing, contest_entry should *never* be null when we create
+    # an email validation link. More than that: it should *always* be a winning
+    # contest entry. For historical reasons, we have null=True here; I haven't
+    # wanted to go back and clean up the production database for this.
+    contest_entry = models.ForeignKey(
+        "ContestEntry",
+        on_delete=models.CASCADE,
+        related_name="email_validation_links",
+        blank=True,
+        null=True,
+        default=None,
+        help_text="The contest entry, if any, associated with this email validation link.",  # noqa
     )
 
     token = models.CharField(
@@ -361,7 +413,7 @@ class EmailValidationLink(models.Model):
     @property
     def relative_url(self) -> str:
         """Return the relative URL for the email validation link."""
-        return reverse("vb:validate_email", args=[self.school.slug, self.token])
+        return reverse("vb:validate_email", args=[self.student.school.slug, self.token])
 
     @property
     def absolute_url(self) -> str:
@@ -379,53 +431,106 @@ class EmailValidationLink(models.Model):
         self.save()
 
         # Demeter says no, but my heart says yes.
-        self.student.mark_validated(when)
+        self.student.mark_validated(self.email, when)
 
 
-class GiftCardManager(models.Manager):
-    """A custom manager for the gift card model."""
+class ContestEntryManager(models.Manager):
+    """A custom manager for the contest entry model."""
 
-    pass
+    def winners(self):
+        """Return all contest entries that won a prize."""
+        return self.filter(roll=0)
+
+    def losers(self):
+        """Return all contest entries that did not win a prize."""
+        return self.exclude(roll=0)
 
 
-class GiftCard(models.Model):
-    """A gift card issued to a single student for a single contest."""
+class ContestEntry(models.Model):
+    """
+    A contest entry by a single student for a single contest.
 
-    objects = GiftCardManager()
+    When contest entries are created, they are either winners or losers.
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    Winning contest entries have a prize amount associated with them.
+    At some later point, the prize amount can be issued as a gift card; this
+    is represented by a creation request ID.
+    """
+
+    objects = ContestEntryManager()
+
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     student = models.ForeignKey(
-        Student, on_delete=models.CASCADE, related_name="gift_cards"
+        Student, on_delete=models.CASCADE, related_name="contest_entries"
     )
     contest = models.ForeignKey(
-        Contest, on_delete=models.CASCADE, related_name="gift_cards"
+        Contest, on_delete=models.CASCADE, related_name="contest_entries"
     )
 
-    amount = models.IntegerField(
-        blank=False, help_text="The USD amount of the gift card."
+    roll = models.IntegerField(
+        blank=False,
+        db_index=True,
+        help_text="The result of the entry dice roll. 0 is a win.",
+    )
+
+    @property
+    def is_winner(self) -> bool:
+        """Return whether the student won a prize."""
+        return self.roll == 0
+
+    # The prize, if any, is a gift card.
+    #
+    # TODO: these next three fields are tied to the contest entry for
+    # historical reasons, but they should be moved to a separate model with a
+    # one-to-one relationship.
+    amount_won = models.IntegerField(
+        blank=False,
+        default=0,
+        help_text="The USD amount won.",
     )
     creation_request_id = models.CharField(
-        blank=False,
+        blank=True,
         max_length=255,
-        unique=True,
-        help_text="The creation code for the gift card.",
+        default="",
+        help_text="The creation code for the gift card, if a prize was issued.",
     )
-
     email_sent_at = models.DateTimeField(blank=True, null=True, default=None)
 
+    @property
+    def has_issued(self) -> bool:
+        """Return whether a gift card has been issued."""
+        return bool(self.creation_request_id)
+
+    @property
+    def needs_to_issue(self) -> bool:
+        """Return whether a gift card needs to be issued."""
+        return self.is_winner and not self.has_issued
+
+    def clean(self):
+        """Clean the contest entry model."""
+        if (self.roll == 0) and (self.amount_won == 0):
+            raise ValidationError("Winning contest entries must have a prize amount.")
+        if (self.roll != 0) and (self.amount_won != 0):
+            raise ValidationError(
+                "Non-winning contest entries must not have a prize amount."
+            )
+        super().clean()
+
     class Meta:
-        """Define the gift card model's meta options."""
+        """Define the contest entry model's meta options."""
+
+        verbose_name_plural = "Contest entries"
 
         constraints = [
             models.UniqueConstraint(
                 fields=["student", "contest"],
+                # Should be renamed unique_student_contest_entry
                 name="unique_student_contest_gift_card",
             )
         ]
 
     def __str__(self):
         """Return the gift card model's string representation."""
-        return (
-            f"Gift Card: ${self.amount} for {self.student.name} in {self.contest.name}"
-        )
+        return f"Contest entry for {self.student.name} in {self.contest.name} (${self.amount_won} won)"  # noqa

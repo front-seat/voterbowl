@@ -7,102 +7,148 @@ from server.utils.agcod import AGCODClient
 from server.utils.email import send_template_email
 from server.utils.tokens import make_token
 
-from .models import Contest, EmailValidationLink, GiftCard, School, Student
+from .models import Contest, ContestEntry, EmailValidationLink, School, Student
 
 logger = logging.getLogger(__name__)
 
 
-class GiftCardPreconditionError(Exception):
-    """Raised when a gift card cannot be issued due to a precondition."""
+class ContestEntryPreconditionError(Exception):
+    """Raised when a contest cannot be entered due to a precondition."""
 
     pass
 
 
-def _issue_gift_card(student: Student, contest: Contest) -> tuple[GiftCard, str]:
-    """
-    Low level routine to issue a new gift card.
+# -----------------------------------------------------------------------------
+# Contest Management
+# -----------------------------------------------------------------------------
 
-    Should not be called directly. Use get_or_issue_gift_card instead, which
+
+def _create_contest_entry(student: Student, contest: Contest) -> ContestEntry:
+    """
+    Low level routine to enter a contest and, possibly, mint a winner.
+
+    Should not be called directly. Use enter_contest instead, which
     checks preconditions and handles transactions.
     """
-    client = AGCODClient.from_settings()
-    try:
-        response = client.create_gift_card(contest.amount)
-    except Exception as e:
-        logger.exception(
-            f"AGCOD failed for student {student.email} and contest {contest.pk}"
-        )
-        raise ValueError(
-            f"AGCOD failed for student {student.email} and contest {contest.pk}"
-        ) from e
-    gift_card = GiftCard.objects.create(
+    # Decide if the student is a winner! If the contest is 1-in-1 then
+    # this will always be True.
+    roll, amount_won = contest.roll_die_and_get_winnings()
+    return ContestEntry.objects.create(
         student=student,
         contest=contest,
-        amount=contest.amount,
-        creation_request_id=response.creation_request_id,
+        roll=roll,
+        amount_won=amount_won,
     )
-    return gift_card, response.gc_claim_code
 
 
-def _get_claim_code(gift_card: GiftCard) -> str:
-    """Return the claim code for a gift card if it is not currently known."""
+def enter_contest(
+    student: Student, contest: Contest, when: datetime.datetime | None = None
+) -> tuple[ContestEntry, bool]:
+    """
+    Return a contest entry for a student.
+
+    If the student has already entered the contest, return their existing entry.
+    Otherwise, assuming they are eligible, create a new entry.
+
+    If the student is not eligible, raise a ContestEntryPreconditionError.
+
+    The entry may or may not be a winner. If it is, an `amount` will be set.
+    No gift card is issued at this time.
+    """
+    # Precondition: student must go to the same school as the contest.
+    if student.school != contest.school:
+        raise ContestEntryPreconditionError(
+            f"Student {student.email} is not eligible for contest '{contest.name}'"
+        )
+
+    # In a transaction, check if the student has already entered the contest.
+    # If they haven't, enter them (assuming further preconditions are met).
+    with transaction.atomic():
+        try:
+            contest_entry = ContestEntry.objects.get(student=student, contest=contest)
+            return contest_entry, False
+        except ContestEntry.DoesNotExist:
+            contest_entry = None
+
+        # Precondition: the contest must be ongoing in order to win.
+        if not contest.is_ongoing(when):
+            raise ContestEntryPreconditionError(
+                f"Student {student.email} cannot enter inactive '{contest.name}'"
+            )
+
+        return _create_contest_entry(student, contest), True
+
+
+# -----------------------------------------------------------------------------
+# Gift Card Management
+# -----------------------------------------------------------------------------
+
+
+def get_or_issue_prize(
+    contest_entry: ContestEntry,
+) -> tuple[ContestEntry, str | None]:
+    """
+    Issue a gift card for a contest entry, if applicable.
+
+    Return the gift card claim code, if any.
+
+    Raise an exeption if unable to issue a gift card or obtain the claim code.
+    """
+    # For each contest the student has entered, issue a gift card if they won.
+    if contest_entry.is_winner:
+        if contest_entry.has_issued:
+            return contest_entry, _get_claim_code(contest_entry)
+        else:
+            contest_entry, claim_code = _create_gift_card(contest_entry)
+            send_gift_card_email(contest_entry, claim_code)
+            return contest_entry, claim_code
+    else:
+        return contest_entry, None
+
+
+def _create_gift_card(contest_entry: ContestEntry) -> tuple[ContestEntry, str]:
+    """Create a new gift card for a student in the amount of `amount`."""
+    assert contest_entry.is_winner
+    client = AGCODClient.from_settings()
+    try:
+        response = client.create_gift_card(contest_entry.amount_won)
+    except Exception as e:
+        logger.exception(
+            f"AGCOD failed for contest entry {contest_entry.pk} {contest_entry.student.email}"  # noqa
+        )
+        raise ValueError(
+            f"AGCOD failed for contest entry {contest_entry.pk} {contest_entry.student.email}"  # noqa
+        ) from e
+    contest_entry.creation_request_id = response.creation_request_id
+    contest_entry.save()
+    return contest_entry, response.gc_claim_code
+
+
+def _get_claim_code(contest_entry: ContestEntry) -> str:
+    """
+    Return the gift card claim code for a contest entry, if any.
+
+    Raise an exception if unable to obtain the claim code.
+    """
+    assert contest_entry.is_winner
     client = AGCODClient.from_settings()
     try:
         response = client.check_gift_card(
-            gift_card.amount, gift_card.creation_request_id
+            contest_entry.amount_won, contest_entry.creation_request_id
         )
     except Exception as e:
-        logger.exception(f"AGCOD failed for gift card {gift_card.creation_request_id}")
+        logger.exception(
+            f"AGCOD failed for gift card {contest_entry.creation_request_id}"
+        )
         raise ValueError(
-            f"AGCOD failed for gift card {gift_card.creation_request_id}"
+            f"AGCOD failed for gift card {contest_entry.creation_request_id}"
         ) from e
     return response.gc_claim_code
 
 
-def get_or_issue_gift_card(
-    student: Student, contest: Contest, when: datetime.datetime | None = None
-) -> tuple[GiftCard, str, bool]:
-    """
-    Issue a gift card to a student for a contest.
-
-    If the student has already received a gift card for the contest,
-    return the existing gift card.
-
-    If the student is not eligible for the contest at this time,
-    raise a GiftCardPreconditionError. If another error occurs, raise
-    an arbitrary exception.
-
-    Returns a tuple of the gift card, gift code, and True if the gift card
-    was newly issued.
-    """
-    # Precondition: student must have a validated email address.
-    if not student.is_validated:
-        raise GiftCardPreconditionError(f"Student {student.email} is not validated")
-
-    # Precondition: student must go to the same school as the contest.
-    if student.school != contest.school:
-        raise GiftCardPreconditionError(
-            f"Student {student.email} is not eligible for contest '{contest.name}'"
-        )
-
-    # In a transaction, check if the student has already received a gift card
-    # for the contest. If not, issue a new gift card.
-    with transaction.atomic():
-        try:
-            gift_card = GiftCard.objects.get(student=student, contest=contest)
-        except GiftCard.DoesNotExist:
-            gift_card = None
-
-        if gift_card is not None:
-            claim_code = _get_claim_code(gift_card)
-            return gift_card, claim_code, False
-
-        # Precondition: the contest must be ongoing to truly issue a gift card.
-        if not contest.is_ongoing(when):
-            raise GiftCardPreconditionError(f"Contest '{contest.name}' is not ongoing")
-
-        gift_card, claim_code = _issue_gift_card(student, contest)
-        return gift_card, claim_code, True
+# -----------------------------------------------------------------------------
+# Student Management
+# -----------------------------------------------------------------------------
 
 
 def get_or_create_student(
@@ -118,31 +164,32 @@ def get_or_create_student(
             "email": email,
         },
     )
-    student.add_email(email)
     return student
 
 
+# -----------------------------------------------------------------------------
+# Emails
+# -----------------------------------------------------------------------------
+
+
 def send_validation_link_email(
-    student: Student, school: School, contest: Contest | None, email: str
+    student: Student, email: str, contest_entry: ContestEntry
 ) -> EmailValidationLink:
-    """Generate a validation link to a student for a contest."""
+    """Send an email with a link to allow the student to claim their prize."""
+    assert contest_entry.is_winner
     link = EmailValidationLink.objects.create(
         student=student,
-        school=school,
-        contest=contest,
         email=email,
+        contest_entry=contest_entry,
         token=make_token(12),
     )
-    if contest:
-        button_text = f"Get my ${contest.amount} gift card"
-    else:
-        button_text = "Validate my email"
+    button_text = f"Get my ${contest_entry.amount_won} gift card"
     success = send_template_email(
         to=email,
         template_base="email/validate",
         context={
             "student": student,
-            "contest": contest,
+            "contest_entry": contest_entry,
             "email": email,
             "link": link,
             "button_text": button_text,
@@ -154,21 +201,20 @@ def send_validation_link_email(
 
 
 def send_gift_card_email(
-    student: Student,
-    gift_card: GiftCard,
+    contest_entry: ContestEntry,
     claim_code: str,
-    email: str,
 ) -> None:
-    """Send a gift card email to a student."""
+    """Send a gift card email to a student if they won."""
+    assert contest_entry.is_winner
     success = send_template_email(
-        to=email,
+        to=contest_entry.student.email,
         template_base="email/code",
         context={
-            "student": student,
-            "school": student.school,
-            "gift_card": gift_card,
+            "student": contest_entry.student,
+            "school": contest_entry.student.school,
+            "contest_entry": contest_entry,
             "claim_code": claim_code,
         },
     )
     if not success:
-        logger.error(f"Failed to send gift card email to {email}")
+        logger.error(f"Failed to send gift card email to {contest_entry.student.email}")
