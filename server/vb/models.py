@@ -478,7 +478,7 @@ class ContestEntry(models.Model):
     @property
     def is_winner(self) -> bool:
         """Return whether the student won a prize."""
-        return self.amount > 0
+        return self.amount_won > 0
 
     @property
     def needs_to_issue(self) -> bool:

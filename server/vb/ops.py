@@ -36,7 +36,7 @@ def _create_contest_entry(student: Student, contest: Contest) -> ContestEntry:
     return ContestEntry.objects.create(
         student=student,
         contest=contest,
-        amount=contest.amount if minted else 0,
+        amount_won=contest.amount if minted else 0,
     )
 
 
@@ -107,9 +107,10 @@ def get_or_issue_prize(
 
 def _create_gift_card(contest_entry: ContestEntry) -> tuple[ContestEntry, str]:
     """Create a new gift card for a student in the amount of `amount`."""
+    assert contest_entry.is_winner
     client = AGCODClient.from_settings()
     try:
-        response = client.create_gift_card(contest_entry.amount)
+        response = client.create_gift_card(contest_entry.amount_won)
     except Exception as e:
         logger.exception(
             f"AGCOD failed for contest entry {contest_entry.pk} {contest_entry.student.email}"  # noqa
@@ -128,11 +129,11 @@ def _get_claim_code(contest_entry: ContestEntry) -> str:
 
     Raise an exception if unable to obtain the claim code.
     """
-    # Otherwise, they do!
+    assert contest_entry.is_winner
     client = AGCODClient.from_settings()
     try:
         response = client.check_gift_card(
-            contest_entry.amount, contest_entry.creation_request_id
+            contest_entry.amount_won, contest_entry.creation_request_id
         )
     except Exception as e:
         logger.exception(
@@ -181,7 +182,7 @@ def send_validation_link_email(
         token=make_token(12),
     )
     if contest_entry and contest_entry.is_winner:
-        button_text = f"Get my ${contest_entry.amount} gift card"
+        button_text = f"Get my ${contest_entry.amount_won} gift card"
     else:
         button_text = "Validate my email"
     success = send_template_email(

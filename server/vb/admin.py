@@ -328,7 +328,7 @@ class ContestEntryAdmin(admin.ModelAdmin):
     @admin.display(description="Winnings")
     def show_winnings(self, obj: ContestEntry) -> str:
         """Return the contest entry's winnings, if any, if any."""
-        return f"${obj.amount}" if obj.is_winner else ""
+        return f"${obj.amount_won}" if obj.is_winner else ""
 
     @admin.display(description="Issued?")
     def show_winnings_issued(self, obj: ContestEntry) -> str:

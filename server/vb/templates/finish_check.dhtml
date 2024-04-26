@@ -29,9 +29,9 @@
   {% if contest_entry %}
     {% if contest_entry.is_winner %}
       {% if contest_entry.contest.is_giveaway %}
-        We've sent you a link to claim your ${{ contest_entry.amount }} gift card.
+        We've sent you a link to claim your ${{ contest_entry.amount_won }} gift card.
       {% else %}
-        You won a ${{ contest_entry.amount }} gift card! We've sent you a link to claim it.
+        You won a ${{ contest_entry.amount_won }} gift card! We've sent you a link to claim it.
       {% endif %}
     {% else %}
       Alas, you didn't win a gift card this time. Your friends still have a chance to win, though! Share the link with them: <a href="{% url 'vb:school' slug=school.slug %}">{{ BASE_URL }}{% url 'vb:school' slug=school.slug %}</a>

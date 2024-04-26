@@ -161,7 +161,7 @@
         <img src="{{ school.logo.url }}"
              alt="{{ school.short_name }} {{ school.mascot }} logo" />
         {% if contest_entry and claim_code %}
-          <p>Congrats! You won a ${{ contest_entry.amount }} gift card!</p>
+          <p>Congrats! You won a ${{ contest_entry.amount_won }} gift card!</p>
           <h2>
             <span class="code">{{ claim_code }}</span>
             <span class="clipboard" title="Copy to clipboard">{% include "clipboard.svg" %}</span>
