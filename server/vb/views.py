@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.timezone import now as dj_now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
@@ -110,8 +111,10 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
     In addition, while we know the student's email ends with *.edu, we do not
     yet know if it is a valid email address for the school.
     """
+    # Use a consistent time so that contest entry is not skewed
+    when = dj_now()
     school = get_object_or_404(School, slug=slug)
-    current_contest = school.contests.current()
+    current_contest = school.contests.current(when=when)
     form = FinishCheckForm(request.POST, school=school)
     if not form.is_valid():
         if not form.has_only_email_error():
@@ -141,20 +144,12 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
     # already entered. (Otherwise, get their existing entry.)
     contest_entry = None
     if current_contest is not None:
-        contest_entry, _ = enter_contest(student, current_contest)
+        contest_entry, _ = enter_contest(student, current_contest, when=when)
 
-    # Send the student an email validation link.
-    #
-    # In the case where (a) there's no contest, or (b) there's a contest
-    # but the student didn't win, this is a simple validation link. In theory,
-    # this is unnecessary if the given email has already been validated,
-    # but we send it anyway for consistency.
-    #
-    # In the case where the student *won* a contest, this link is used
-    # to claim their prize. We need to ensure the student has current access
-    # to the email address before we issue the prize (aka deduct money from
-    # our account).
-    send_validation_link_email(student, email, contest_entry)
+    # Send the student an email validation link to claim their prize
+    # if they won. In no other cases do we send validation links.
+    if contest_entry and contest_entry.is_winner:
+        send_validation_link_email(student, email, contest_entry)
 
     return render(
         request,
@@ -178,10 +173,6 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
     (b) it's valid for the school, and (c) the student has access to the email
     address.
 
-    This is our opportunity to check the student's contest entries and issue
-    any outstanding prizes. A student visiting this link may have entered zero
-    or more contests.
-
     It's possible the user has clicked this validation link before. Behavior
     must be idempotent.
     """
@@ -194,13 +185,21 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
     # validated.
     link.consume()
 
-    # Issue a prize, if appropriate
-    contest_entry, claim_code, error = None, None, False
-    if link.contest_entry is not None:
-        try:
-            contest_entry, claim_code = get_or_issue_prize(link.contest_entry)
-        except Exception:
-            error = True
+    # Historically, we issued email validation links for everyone, regardless
+    # of whether they were contest winners. This is no longer the case.
+    # Here, we simply bail out if the student is not a contest winner.
+    contest_entry = link.contest_entry
+    if contest_entry is None or not contest_entry.is_winner:
+        return redirect("vb:home", permanent=False)
+
+    try:
+        # See comment on ContestEntry that prizes *should* be in a separate
+        # model that has a 1:1 relationship with ContestEntry. For now, prize
+        # issuance is done in the same table.
+        contest_entry, claim_code = get_or_issue_prize(contest_entry)
+        error = False
+    except Exception:
+        error = True
 
     return render(
         request,

@@ -312,6 +312,7 @@ class ContestEntryAdmin(admin.ModelAdmin):
         "show_student",
         "show_school",
         "show_contest",
+        "roll",
     )
     search_fields = ("id", "created_at", "student__email")
     list_filter = (
@@ -375,7 +376,7 @@ class EmailValidationLinkAdmin(admin.ModelAdmin):
 
     @admin.display(description="Student")
     def show_student(self, obj: EmailValidationLink) -> str:
-        """Return the gift card's student."""
+        """Return the validation link's student."""
         if obj.student is None:
             return ""
         url = reverse("admin:vb_student_change", args=[obj.student.pk])
@@ -383,7 +384,7 @@ class EmailValidationLinkAdmin(admin.ModelAdmin):
 
     @admin.display(description="School")
     def show_school(self, obj: EmailValidationLink) -> str:
-        """Return the gift card's school."""
+        """Return the validation link's school."""
         if obj.student is None or obj.student.school is None:
             return ""
         url = reverse("admin:vb_school_change", args=[obj.student.school.pk])

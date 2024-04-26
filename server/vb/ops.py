@@ -32,11 +32,12 @@ def _create_contest_entry(student: Student, contest: Contest) -> ContestEntry:
     """
     # Decide if the student is a winner! If the contest is 1-in-1 then
     # this will always be True.
-    minted = contest.mint_winner()
+    roll, amount_won = contest.roll_die_and_get_winnings()
     return ContestEntry.objects.create(
         student=student,
         contest=contest,
-        amount_won=contest.amount if minted else 0,
+        roll=roll,
+        amount_won=amount_won,
     )
 
 
@@ -172,19 +173,17 @@ def get_or_create_student(
 
 
 def send_validation_link_email(
-    student: Student, email: str, contest_entry: ContestEntry | None
+    student: Student, email: str, contest_entry: ContestEntry
 ) -> EmailValidationLink:
-    """Generate a validation link to a student for a contest."""
+    """Send an email with a link to allow the student to claim their prize."""
+    assert contest_entry.is_winner
     link = EmailValidationLink.objects.create(
         student=student,
         email=email,
         contest_entry=contest_entry,
         token=make_token(12),
     )
-    if contest_entry and contest_entry.is_winner:
-        button_text = f"Get my ${contest_entry.amount_won} gift card"
-    else:
-        button_text = "Validate my email"
+    button_text = f"Get my ${contest_entry.amount_won} gift card"
     success = send_template_email(
         to=email,
         template_base="email/validate",

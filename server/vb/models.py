@@ -216,9 +216,19 @@ class Contest(models.Model):
         context = {"school": self.school, "contest": self}
         return Template(template_str).render(Context(context))
 
-    def mint_winner(self) -> bool:
-        """Determine whether to mint a new contest winner."""
-        return secrets.randbelow(self.in_n) == 0
+    def _roll_die(self) -> int:
+        """Roll a fair die from [0, self.in_n)."""
+        return secrets.randbelow(self.in_n)
+
+    def roll_die_and_get_winnings(self) -> tuple[int, int]:
+        """
+        Roll a fair die from [0, self.in_n).
+
+        Return a tuple of the roll and the amount won (or 0 if no win).
+        """
+        roll = self._roll_die()
+        amount_won = self.amount if roll == 0 else 0
+        return roll, amount_won
 
     def is_upcoming(self, when: datetime.datetime | None = None) -> bool:
         """Return whether the contest is upcoming."""
@@ -367,6 +377,12 @@ class EmailValidationLink(models.Model):
         help_text="The specific email address to be validated.",
     )
 
+    # TODO
+    #
+    # As of this writing, contest_entry should *never* be null when we create
+    # an email validation link. More than that: it should *always* be a winning
+    # contest entry. For historical reasons, we have null=True here; I haven't
+    # wanted to go back and clean up the production database for this.
     contest_entry = models.ForeignKey(
         "ContestEntry",
         on_delete=models.CASCADE,
@@ -423,11 +439,11 @@ class ContestEntryManager(models.Manager):
 
     def winners(self):
         """Return all contest entries that won a prize."""
-        return self.filter(amount__gt=0)
+        return self.filter(roll=0)
 
     def losers(self):
         """Return all contest entries that did not win a prize."""
-        return self.filter(amount=0)
+        return self.exclude(roll=0)
 
 
 class ContestEntry(models.Model):
@@ -453,9 +469,21 @@ class ContestEntry(models.Model):
         Contest, on_delete=models.CASCADE, related_name="contest_entries"
     )
 
+    roll = models.IntegerField(
+        blank=False,
+        db_index=True,
+        help_text="The result of the entry dice roll. 0 is a win.",
+    )
+
+    @property
+    def is_winner(self) -> bool:
+        """Return whether the student won a prize."""
+        return self.roll == 0
+
     # The prize, if any, is a gift card.
-    # TODO: these next fields are tied to the contest entry for historical
-    # reasons, but they should be moved to a separate model with a
+    #
+    # TODO: these next three fields are tied to the contest entry for
+    # historical reasons, but they should be moved to a separate model with a
     # one-to-one relationship.
     amount_won = models.IntegerField(
         blank=False,
@@ -476,14 +504,19 @@ class ContestEntry(models.Model):
         return bool(self.creation_request_id)
 
     @property
-    def is_winner(self) -> bool:
-        """Return whether the student won a prize."""
-        return self.amount_won > 0
-
-    @property
     def needs_to_issue(self) -> bool:
         """Return whether a gift card needs to be issued."""
         return self.is_winner and not self.has_issued
+
+    def clean(self):
+        """Clean the contest entry model."""
+        if (self.roll == 0) and (self.amount_won == 0):
+            raise ValidationError("Winning contest entries must have a prize amount.")
+        if (self.roll != 0) and (self.amount_won != 0):
+            raise ValidationError(
+                "Non-winning contest entries must not have a prize amount."
+            )
+        super().clean()
 
     class Meta:
         """Define the contest entry model's meta options."""
@@ -500,4 +533,4 @@ class ContestEntry(models.Model):
 
     def __str__(self):
         """Return the gift card model's string representation."""
-        return f"Contest entry for {self.student.name} in {self.contest.name} (${self.amount} won)"  # noqa
+        return f"Contest entry for {self.student.name} in {self.contest.name} (${self.amount_won} won)"  # noqa
