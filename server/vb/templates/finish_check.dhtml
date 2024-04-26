@@ -41,21 +41,19 @@
       <br />
       Your friends can also win. Share this link: <a href="{% url 'vb:school' slug=school.slug %}">{{ BASE_HOST }}/{{ school.slug }}</a>
     {% else %}
-      You didn't win.
+      Please register to vote if you haven't yet.
+      <br />
+      <br />
+      You didn't win a gift card.
       {% if most_recent_winner %}
-        (The last winner was {{ most_recent_winner.student.anonymized_name }} {{ most_recent_winner.created_at|timesince }} ago.)
+        The last winner was {{ most_recent_winner.student.anonymized_name }} {{ most_recent_winner.created_at|timesince }} ago.
       {% endif %}
-      <br />
-      <br />
-      Your friends can still win, though! Share this link: <a href="{% url 'vb:school' slug=school.slug %}">{{ BASE_HOST }}/{{ school.slug }}</a>
-      <br />
-      <br />
-      And: please register to vote if you haven't already.
+      Your friends can still win! Share this link: <a href="{% url 'vb:school' slug=school.slug %}">{{ BASE_HOST }}/{{ school.slug }}</a>
     {% endif %}
   {% else %}
     Thanks for checking your voter registration.
     <br />
     <br />
-    Please register to vote if you haven't already.
+    Please register to vote if you haven't yet.
   {% endif %}
 </p>
