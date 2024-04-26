@@ -272,9 +272,9 @@ class ContestWinnerListFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         """Filter the queryset by state."""
         if self.value() == "winner":
-            return queryset.filter(amount__gt=0)
+            return queryset.filter(roll=0)
         if self.value() == "loser":
-            return queryset.filter(amount=0)
+            return queryset.exclude(roll=0)
         return queryset
 
 
