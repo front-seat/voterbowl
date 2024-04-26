@@ -62,6 +62,11 @@
         padding: 2rem 0;
       }
 
+      me .urgency {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
       @media screen and (min-width: 768px) {
         me main {
           padding: 2rem 0;
@@ -74,6 +79,7 @@
 
         me .urgency {
           flex-direction: row;
+          gap: 2rem;
         }
       }
     </style>

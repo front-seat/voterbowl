@@ -1,6 +1,19 @@
 <img src="{{ school.logo.url }}"
      alt="{{ school.short_name }} {{ school.mascot }} logo" />
 <p>
+  <style>
+    me {
+      padding-top: 1rem;
+      margin-left: 0;
+    }
+
+    @media screen and (min-width: 768px) {
+      me {
+        padding-top: 0;
+        margin-left: 1rem;
+      }
+    }
+  </style>
   {# djlint:off #}
   <script>
       {% if contest_entry and contest_entry.is_winner %}
