@@ -454,10 +454,13 @@ class ContestEntry(models.Model):
     )
 
     # The prize, if any, is a gift card.
-    amount = models.IntegerField(
+    # TODO: these next fields are tied to the contest entry for historical
+    # reasons, but they should be moved to a separate model with a
+    # one-to-one relationship.
+    amount_won = models.IntegerField(
         blank=False,
         default=0,
-        help_text="The USD amount of the gift card. 0 means no winnings.",
+        help_text="The USD amount won.",
     )
     creation_request_id = models.CharField(
         blank=True,
