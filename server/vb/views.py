@@ -151,6 +151,10 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
     if contest_entry and contest_entry.is_winner:
         send_validation_link_email(student, email, contest_entry)
 
+    most_recent_winner = None
+    if current_contest is not None:
+        most_recent_winner = current_contest.most_recent_winner()
+
     return render(
         request,
         "finish_check.dhtml",
@@ -159,6 +163,7 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
             "school": school,
             "current_contest": current_contest,
             "contest_entry": contest_entry,
+            "most_recent_winner": most_recent_winner,
             "email": email,
         },
     )
@@ -199,7 +204,7 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
         contest_entry, claim_code = get_or_issue_prize(contest_entry)
         error = False
     except Exception:
-        error = True
+        contest_entry, claim_code, error = None, None, True
 
     return render(
         request,
