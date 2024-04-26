@@ -29,6 +29,7 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 # SECURITY WARNING: keep the secret key used in production secret!
 BASE_URL = os.environ["BASE_URL"]  # Of the form "https://www.voterbowl.org"
+BASE_HOST = BASE_URL.split("://")[1].split(":", 1)[0]
 if not DEBUG and not BASE_URL.startswith("https://"):
     raise ValueError("BASE_URL must be HTTPS in production")
 if BASE_URL.endswith("/"):

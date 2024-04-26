@@ -104,6 +104,7 @@ def create_message(
     context = context or {}
     from_email = from_email or settings.DEFAULT_FROM_EMAIL
     context.setdefault("BASE_URL", settings.BASE_URL)
+    context.setdefault("BASE_HOST", settings.BASE_HOST)
 
     subject = render_to_string(f"{template_base}/subject.txt", context).strip()
     text = render_to_string(f"{template_base}/body.txt", context)

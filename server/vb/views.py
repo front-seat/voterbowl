@@ -160,6 +160,7 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
         "finish_check.dhtml",
         {
             "BASE_URL": settings.BASE_URL,
+            "BASE_HOST": settings.BASE_HOST,
             "school": school,
             "current_contest": current_contest,
             "contest_entry": contest_entry,
@@ -211,6 +212,7 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
         "verify_email.dhtml",
         {
             "BASE_URL": settings.BASE_URL,
+            "BASE_HOST": settings.BASE_HOST,
             "school": school,
             "student": link.student,
             "contest_entry": contest_entry,

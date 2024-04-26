@@ -171,7 +171,7 @@
             To use your gift card, copy the code above and paste it into <a href="https://www.amazon.com/gc/redeem" target="_blank">Amazon.com</a>.
           </p>
           <p>
-            Tell your friends so they can also win! Share this link: <a href="{% url 'vb:school' slug=school.slug %}">voterbowl.org/{{ school.slug }}</a>
+            Tell your friends so they can also win! Share this link: <a href="{% url 'vb:school' slug=school.slug %}">{{ BASE_HOST }}/{{ school.slug }}</a>
           </p>
         {% else %}
           <p>

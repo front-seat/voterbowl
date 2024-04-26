@@ -39,7 +39,7 @@
       <b>You win!</b> We sent a ${{ contest_entry.amount_won }} gift card to your school email. (Check your spam folder.)
       <br />
       <br />
-      Your friends can also win. Share this link: <a href="{% url 'vb:school' slug=school.slug %}">voterbowl.org/{{ school.slug }}</a>
+      Your friends can also win. Share this link: <a href="{% url 'vb:school' slug=school.slug %}">{{ BASE_HOST }}/{{ school.slug }}</a>
     {% else %}
       You didn't win.
       {% if most_recent_winner %}
@@ -47,7 +47,7 @@
       {% endif %}
       <br />
       <br />
-      Your friends can still win, though! Share this link: <a href="{% url 'vb:school' slug=school.slug %}">voterbowl.org/{{ school.slug }}</a>
+      Your friends can still win, though! Share this link: <a href="{% url 'vb:school' slug=school.slug %}">{{ BASE_HOST }}/{{ school.slug }}</a>
       <br />
       <br />
       And: please register to vote if you haven't already.
