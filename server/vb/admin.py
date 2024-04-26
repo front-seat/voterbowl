@@ -313,7 +313,7 @@ class ContestEntryAdmin(admin.ModelAdmin):
         "show_school",
         "show_contest",
     )
-    search_fields = ("id", "created_at", "student__email", "student__name")
+    search_fields = ("id", "created_at", "student__email")
     list_filter = (
         ContestWinnerListFilter,
         ContestWinningsIssuedListFilter,
@@ -330,7 +330,7 @@ class ContestEntryAdmin(admin.ModelAdmin):
         """Return the contest entry's winnings, if any, if any."""
         return f"${obj.amount}" if obj.is_winner else ""
 
-    @admin.display(description="Issued?", boolean=True)
+    @admin.display(description="Issued?")
     def show_winnings_issued(self, obj: ContestEntry) -> str:
         """Return whether the contest entry's winnings have been issued."""
         if obj.has_issued:

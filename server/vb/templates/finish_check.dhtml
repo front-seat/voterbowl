@@ -21,18 +21,20 @@
       })(me());
 </script>
   {# djlint:on #}
-  <b>Please check your school email</b> (and spam folder).
+  <b>Please check your school email</b>
+  <br />
+  (and spam folder).
   <br />
   <br />
-  {% if current_contest %}
-    {% if current_contest.is_winner %}
-      {% if current_contest.contest.is_giveaway %}
-        We've sent you a link to claim your ${{ current_contest.amount }} gift card.
+  {% if contest_entry %}
+    {% if contest_entry.is_winner %}
+      {% if contest_entry.contest.is_giveaway %}
+        We've sent you a link to claim your ${{ contest_entry.amount }} gift card.
       {% else %}
-        You won a ${{ current_contest.amount }} gift card! We've sent you a link to claim it.
+        You won a ${{ contest_entry.amount }} gift card! We've sent you a link to claim it.
       {% endif %}
     {% else %}
-      Alas, you didn't win a gift card this time. Your friends still have a chance to win, though! Please share the contest link with them: <a href="{% url 'vb:school' slug=school.slug %}">{{ BASE_URL }}/{{ school.slug }}/</a>
+      Alas, you didn't win a gift card this time. Your friends still have a chance to win, though! Share the link with them: <a href="{% url 'vb:school' slug=school.slug %}">{{ BASE_URL }}{% url 'vb:school' slug=school.slug %}</a>
     {% endif %}
   {% else %}
     We've sent a validation link to confirm your address.

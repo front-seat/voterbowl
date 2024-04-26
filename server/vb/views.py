@@ -160,6 +160,7 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
         request,
         "finish_check.dhtml",
         {
+            "BASE_URL": settings.BASE_URL,
             "school": school,
             "current_contest": current_contest,
             "contest_entry": contest_entry,
