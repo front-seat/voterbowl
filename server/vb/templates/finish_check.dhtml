@@ -1,12 +1,28 @@
 <img src="{{ school.logo.url }}"
      alt="{{ school.short_name }} {{ school.mascot }} logo" />
 <p>
+  <style>
+    me {
+      padding-top: 1rem;
+      margin-left: 0;
+    }
+
+    @media screen and (min-width: 768px) {
+      me {
+        padding-top: 0;
+        margin-left: 1rem;
+      }
+    }
+  </style>
+  {# djlint:off #}
   <script>
+      {% if contest_entry and contest_entry.is_winner %}
       (function(self) {
           const fireworks = new Fireworks.default(document.querySelector('.fireworks'));
           fireworks.start();
           setTimeout(() => fireworks.stop(), 10_000);
       })(me());
+      {% endif %}
       (function(self) {
           setTimeout(() => {
               // scroll entire window back to top, smoothly
@@ -16,19 +32,30 @@
               });
           }, 100);
       })(me());
-  </script>
-  <b>Please check your school email</b> (and spam folder).
-  <br />
-  <br />
-  {% if current_contest %}
-    We've sent you a link to
-    {% if current_contest.is_giveaway %}
-      claim your ${{ current_contest.amount }}
+</script>
+  {# djlint:on #}
+  {% if contest_entry %}
+    {% if contest_entry.is_winner %}
+      <b>You win!</b> We sent a ${{ contest_entry.amount_won }} gift card to your school email. (Check your spam folder.)
+      <br />
+      <br />
+      Your friends can also win. Share this link: <a href="{% url 'vb:school' slug=school.slug %}">voterbowl.org/{{ school.slug }}</a>
     {% else %}
-      see if you won a ${{ current_contest.amount }}
+      You didn't win.
+      {% if most_recent_winner %}
+        (The last winner was {{ most_recent_winner.student.anonymized_name }} {{ most_recent_winner.created_at|timesince }} ago.)
+      {% endif %}
+      <br />
+      <br />
+      Your friends can still win, though! Share this link: <a href="{% url 'vb:school' slug=school.slug %}">voterbowl.org/{{ school.slug }}</a>
+      <br />
+      <br />
+      And: please register to vote if you haven't already.
     {% endif %}
-    gift card.
   {% else %}
-    We've sent a validation link to confirm your address.
+    Thanks for checking your voter registration.
+    <br />
+    <br />
+    Please register to vote if you haven't already.
   {% endif %}
 </p>

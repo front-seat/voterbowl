@@ -193,7 +193,9 @@ class StudentAdmin(admin.ModelAdmin):
     @admin.display(description="Gift Card Total")
     def gift_card_total(self, obj: Student) -> str | None:
         """Return the total number of gift cards the student has received."""
-        usd = obj.contest_entries.aggregate(total=models.Sum("amount"))["total"] or 0
+        usd = (
+            obj.contest_entries.aggregate(total=models.Sum("amount_won"))["total"] or 0
+        )
         return f"${usd}" if usd > 0 else ""
 
 
@@ -256,39 +258,106 @@ class ContestAdmin(admin.ModelAdmin):
         return mark_safe(f'<a href="{school_admin_link}">{obj.school.name}</a>')
 
 
+class ContestWinnerListFilter(admin.SimpleListFilter):
+    """Contest winner list filter."""
+
+    title = "Winner?"
+    parameter_name = "winner"
+
+    def lookups(self, request, model_admin):
+        """Return the state lookups."""
+        return (
+            ("winner", "Winner"),
+            ("loser", "Loser"),
+        )
+
+    def queryset(self, request, queryset):
+        """Filter the queryset by state."""
+        if self.value() == "winner":
+            return queryset.filter(roll=0)
+        if self.value() == "loser":
+            return queryset.exclude(roll=0)
+        return queryset
+
+
+class ContestWinningsIssuedListFilter(admin.SimpleListFilter):
+    """Contest winnings issued list filter."""
+
+    title = "Winnings Issued?"
+    parameter_name = "winnings_issued"
+
+    def lookups(self, request, model_admin):
+        """Return the state lookups."""
+        return (
+            ("yes", "Yes"),
+            ("no", "No"),
+        )
+
+    def queryset(self, request, queryset):
+        """Filter the queryset by state."""
+        if self.value() == "yes":
+            return queryset.filter(creation_request_id__ne="")
+        if self.value() == "no":
+            return queryset.filter(creation_request_id__eq="")
+        return queryset
+
+
 class ContestEntryAdmin(admin.ModelAdmin):
     """Contest Entry admin."""
 
     list_display = (
         "id",
         "created_at",
-        "show_amount",
+        "show_is_winner",
+        "show_winnings",
+        "show_winnings_issued",
         "show_student",
         "show_school",
         "show_contest",
+        "roll",
     )
-    search_fields = ("id", "created_at", "student__email", "student__name")
+    search_fields = ("id", "created_at", "student__email")
+    list_filter = (
+        ContestWinnerListFilter,
+        ContestWinningsIssuedListFilter,
+        "contest__school__name",
+    )
 
-    @admin.display(description="Amount")
-    def show_amount(self, obj: ContestEntry) -> str:
-        """Return the gift card's amount."""
-        return f"${obj.amount}"
+    @admin.display(description="Winner?", boolean=True)
+    def show_is_winner(self, obj: ContestEntry) -> bool:
+        """Return whether the contest entry is a winner."""
+        return obj.is_winner
+
+    @admin.display(description="Winnings")
+    def show_winnings(self, obj: ContestEntry) -> str:
+        """Return the contest entry's winnings, if any, if any."""
+        return f"${obj.amount_won}" if obj.is_winner else ""
+
+    @admin.display(description="Issued?")
+    def show_winnings_issued(self, obj: ContestEntry) -> str:
+        """Return whether the contest entry's winnings have been issued."""
+        if obj.has_issued:
+            return "Yes"
+        elif obj.is_winner:
+            return "Not yet"
+        else:
+            return ""
 
     @admin.display(description="Student")
     def show_student(self, obj: ContestEntry) -> str:
-        """Return the gift card's student."""
+        """Return the contest entry's student."""
         url = reverse("admin:vb_student_change", args=[obj.student.pk])
         return mark_safe(f'<a href="{url}">{obj.student.name}</a>')
 
     @admin.display(description="School")
     def show_school(self, obj: ContestEntry) -> str:
-        """Return the gift card's school."""
+        """Return the contest entry's school."""
         url = reverse("admin:vb_school_change", args=[obj.student.school.pk])
         return mark_safe(f'<a href="{url}">{obj.student.school.name}</a>')
 
     @admin.display(description="Contest")
     def show_contest(self, obj: ContestEntry) -> str:
-        """Return the gift card's contest."""
+        """Return the contest entry's contest."""
         url = reverse("admin:vb_contest_change", args=[obj.contest.pk])
         return mark_safe(f'<a href="{url}">{obj.contest.name}</a>')
 
@@ -301,7 +370,7 @@ class EmailValidationLinkAdmin(admin.ModelAdmin):
         "email",
         "show_student",
         "show_school",
-        "show_contest",
+        "show_contest_entry",
         "token",
         "is_consumed",
     )
@@ -309,7 +378,7 @@ class EmailValidationLinkAdmin(admin.ModelAdmin):
 
     @admin.display(description="Student")
     def show_student(self, obj: EmailValidationLink) -> str:
-        """Return the gift card's student."""
+        """Return the validation link's student."""
         if obj.student is None:
             return ""
         url = reverse("admin:vb_student_change", args=[obj.student.pk])
@@ -317,19 +386,19 @@ class EmailValidationLinkAdmin(admin.ModelAdmin):
 
     @admin.display(description="School")
     def show_school(self, obj: EmailValidationLink) -> str:
-        """Return the gift card's school."""
+        """Return the validation link's school."""
         if obj.student is None or obj.student.school is None:
             return ""
         url = reverse("admin:vb_school_change", args=[obj.student.school.pk])
         return mark_safe(f'<a href="{url}">{obj.student.school.name}</a>')
 
-    @admin.display(description="Contest")
-    def show_contest(self, obj: EmailValidationLink) -> str:
-        """Return the gift card's contest."""
-        if obj.contest is None:
+    @admin.display(description="Contest Entry")
+    def show_contest_entry(self, obj: EmailValidationLink) -> str:
+        """Return the gift card's contest entry."""
+        if obj.contest_entry is None:
             return ""
-        url = reverse("admin:vb_contest_change", args=[obj.contest.pk])
-        return mark_safe(f'<a href="{url}">{obj.contest.name}</a>')
+        url = reverse("admin:vb_contestentry_change", args=[obj.contest_entry.pk])
+        return mark_safe(f'<a href="{url}">{str(obj.contest_entry)}</a>')
 
     @admin.display(description="Is Consumed", boolean=True)
     def is_consumed(self, obj: EmailValidationLink) -> bool:

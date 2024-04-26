@@ -161,7 +161,7 @@
         <img src="{{ school.logo.url }}"
              alt="{{ school.short_name }} {{ school.mascot }} logo" />
         {% if contest_entry and claim_code %}
-          <p>Congrats! You won a ${{ contest_entry.amount }} gift card!</p>
+          <p>Congrats! You won a ${{ contest_entry.amount_won }} gift card!</p>
           <h2>
             <span class="code">{{ claim_code }}</span>
             <span class="clipboard" title="Copy to clipboard">{% include "clipboard.svg" %}</span>
@@ -171,30 +171,15 @@
             To use your gift card, copy the code above and paste it into <a href="https://www.amazon.com/gc/redeem" target="_blank">Amazon.com</a>.
           </p>
           <p>
-            Tell three friends right now so they can also win a gift card! Here's the link: <a href="{% url 'vb:school' slug=school.slug %}">{{ BASE_URL }}/{{ school.slug }}/</a>
+            Tell your friends so they can also win! Share this link: <a href="{% url 'vb:school' slug=school.slug %}">voterbowl.org/{{ school.slug }}</a>
           </p>
-        {% elif contest_entry %}
-          <p>Thanks for entering the Voter Bowl!</p>
-          <p>
-            Alas, you didn't win a gift card.
-            {% if most_recent_winner %}
-              <br />
-              (Your schoolmate {{ most_recent_winner.student.anonymized_name }} won just {{ most_recent_winner.created_at|timesince }} ago.)
-            {% endif %}
-          </p>
-          <p>
-            Your friends still have a chance to win, though! Please share the contest link with them: <a href="{% url 'vb:school' slug=school.slug %}">{{ BASE_URL }}/{{ school.slug }}/</a>
-          </p>
-        {% elif error %}
+        {% else %}
           <p>
             Sorry, <b>there was an error</b>. Please try again later.
           </p>
           <p>
             If you continue to have issues, please contact us at <a href="mailto:info@voterbowl.org">info@voterbowl.org</a>.
           </p>
-        {% else %}
-          <p>Thanks for making sure you're ready to vote.</p>
-          <p>Happy voting in 2024!</p>
         {% endif %}
       </div>
     </main>

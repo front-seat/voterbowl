@@ -5,7 +5,7 @@
   Hi {{ student.first_name }},
   {% include "email/base/p_close.html" %}
   {% include "email/base/p.html" %}
-  Your ${{ contest_entry.amount }} Amazon gift code is: <strong>{{ claim_code }}</strong>
+  Your ${{ contest_entry.amount_won }} Amazon gift code is: <strong>{{ claim_code }}</strong>
   {% include "email/base/p_close.html" %}
   {% include "email/base/p.html" %}
   Copy and paste it into Amazon's gift card redemption page to claim your gift.

@@ -2,9 +2,9 @@
 
 {% block message %}Hi {{ student.first_name }},
 
-Thanks for checking your voter registration status! You're almost done.
+Thanks for checking your voter registration status.{% if not contest_entry.contest.is_giveaway %} You won!{% endif %}
 
-{% if contest %}Click this link to {% if contest.is_giveaway %}get your ${{ contest.amount }} gift card{% else %}see if you won a ${{ contest.amount }} gift card:{% endif %}{% else %}Click this link to validate your email address:{% endif %}
+Click this link to get your ${{ contest_entry.amount_won }} gift card:
 
 {{ link.absolute_url }}
 {% endblock message %}
