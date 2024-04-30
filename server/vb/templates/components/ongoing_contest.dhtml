@@ -1,0 +1,139 @@
+<div data-logo-bg-color="{{ contest.school.logo.bg_color }}">
+  <style>
+    me {
+      border: 3px solid black;
+      color: black;
+      font-weight: 400;
+      font-size: 18px;
+      line-height: 140%;
+      padding-left: 1em;
+      padding-right: 1em;
+      position: relative;
+    }
+
+    me .content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    me .logo {
+      --logo-bg-color: transparent;
+      border-radius: 100%;
+      border: 2px solid black;
+      background-color: var(--logo-bg-color);
+      overflow: hidden;
+      width: 60px;
+      height: 60px;
+      margin: 1.5em auto 1em auto;
+    }
+
+    me .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    me .school {
+      margin: 0;
+      font-weight: 500;
+      font-size: 24px;
+      line-height: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    me .description {
+      margin-bottom: 0;
+    }
+
+    me .button-holder {
+      width: 100%;
+    }
+
+    me .button-holder a {
+      width: 100%;
+    }
+
+    /* A centered box at the top of the card */
+    me .box {
+      position: absolute;
+      top: -1em;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 3px solid black;
+      background-color: #cdff64;
+      font-weight: 600;
+      line-height: 100%;
+      letter-spacing: 4%;
+      min-width: 30%;
+      padding: 0.25rem;
+      text-transform: uppercase;
+    }
+  </style>
+  <script>
+      (function(self) {
+          onloadAdd(() => {
+              const logo = self.querySelector(".logo");
+              logo.style.setProperty("--logo-bg-color", self.dataset.logoBgColor);
+          });
+      })(me());
+  </script>
+  <div class="content">
+    <div class="logo">
+      <img src="{{ contest.school.logo.url }}"
+           alt="{{ school.short_name }} {{ school.mascot }} logo" />
+    </div>
+    <p class="school">{{ contest.school.name }}</p>
+    <p class="description">
+      Check your voter registration status
+      {% if not contest.is_giveaway %}for a 1 in {{ contest.in_n }} chance{% endif %}
+      to win a ${{ contest.amount }} Amazon gift card.
+    </p>
+    <div class="button-holder">
+      {% include "components/button.dhtml" with text="Visit event" href=contest.school.relative_url bg_color="black" color="white" %}
+    </div>
+  </div>
+  <div class="box" data-end-at="{{ contest.end_at|date:'c' }}">
+    <script>
+        (function(self) {
+            function countdown(self) {
+                // compute the deadline
+                const deadline = new Date(self.dataset.endAt);
+                const deadlineTime = deadline.getTime();
+
+                /** Update the countdown. */
+                function updateCountdown() {
+                    const now = new Date().getTime();
+                    const diff = deadlineTime - now;
+
+                    if (diff <= 0) {
+                        clearInterval(interval);
+                        self.innerText = "Just ended!";
+                        return;
+                    }
+
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    const h0digit = Math.floor(hours / 10);
+                    const h1digit = hours % 10;
+                    const m0digit = Math.floor(minutes / 10);
+                    const m1digit = minutes % 10;
+                    const s0digit = Math.floor(seconds / 10);
+                    const s1digit = seconds % 10;
+
+                    const endsIn = `Ends in ${h0digit}${h1digit}:${m0digit}${m1digit}:${s0digit}${s1digit}`;
+                    self.innerText = endsIn;
+                }
+
+                updateCountdown();
+                const interval = setInterval(updateCountdown, 1000);
+            }
+
+            onloadAdd(() => countdown(self));
+        })(me());
+    </script>
+    Ends in ...
+  </div>
+</div>

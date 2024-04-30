@@ -15,7 +15,7 @@ We spend all our hipster tech tokens for this project to help us build a front-e
 - [css-scope-inline](https://github.com/gnat/css-scope-inline)
 - [surreal](https://github.com/gnat/surreal?tab=readme-ov-file)
 
-Having never used any of these toys before, we'll see how this pans out.
+Having never used any of these toys before, we'll see how this pans out. (Update: so far, I sorta like HTMX but don't love how I've structured everything with the other two. And I hate Django templates as much as I remember.)
 
 (Others under consideration include [django-slippers](https://github.com/mixxorz/slippers), [django-template-partials](https://github.com/carltongibson/django-template-partials), and [django-components](https://github.com/EmilStenstrom/django-components). And don't forget the [django-htmx-patterns](https://github.com/spookylukey/django-htmx-patterns/) documentation.)
 

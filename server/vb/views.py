@@ -9,7 +9,7 @@ from django.utils.timezone import now as dj_now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
-from .models import EmailValidationLink, School
+from .models import Contest, EmailValidationLink, School
 from .ops import (
     enter_contest,
     get_or_create_student,
@@ -23,8 +23,13 @@ logger = logging.getLogger(__name__)
 @require_GET
 def home(request: HttpRequest) -> HttpResponse:
     """Render the voterbowl homepage."""
-    # return render(request, "home.dhtml")
-    return redirect("/mga/", permanent=False)
+    ongoing_contests = list(Contest.objects.ongoing().order_by("end_at"))
+    upcoming_contests = list(Contest.objects.upcoming().order_by("start_at"))
+    return render(
+        request,
+        "home.dhtml",
+        {"ongoing_contests": ongoing_contests, "upcoming_contests": upcoming_contests},
+    )
 
 
 @require_GET

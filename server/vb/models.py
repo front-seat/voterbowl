@@ -88,6 +88,16 @@ class School(models.Model):
         """Return the school model's string representation."""
         return f"School: {self.name}"
 
+    @property
+    def relative_url(self) -> str:
+        """Return the relative URL for the school."""
+        return reverse("vb:school", args=[self.slug])
+
+    @property
+    def absolute_url(self) -> str:
+        """Return the absolute URL for the school."""
+        return f"{settings.BASE_URL}{self.relative_url}"
+
 
 class Logo(models.Model):
     """A single logo for a school."""
@@ -163,7 +173,7 @@ class ContestManager(models.Manager):
 class Contest(models.Model):
     """A single contest in the competition."""
 
-    objects = ContestManager()
+    objects: ContestManager = ContestManager()
 
     # For now, we assume that each contest is associated with a single school.
     school = models.ForeignKey(
