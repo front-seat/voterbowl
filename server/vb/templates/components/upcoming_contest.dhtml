@@ -1,0 +1,54 @@
+<div data-logo-bg-color="{{ contest.school.logo.bg_color }}">
+  <style>
+    me {
+      border: 3px solid black;
+      padding: 1rem;
+      color: black;
+      font-size: 18px;
+      font-weight: 440;
+      font-variation-settings: "wght" 440;
+      line-height: 1;
+    }
+
+    me .content {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+    }
+
+    me .logo {
+      --logo-bg-color: transparent;
+      border-radius: 100%;
+      border: 2px solid black;
+      background-color: var(--logo-bg-color);
+      overflow: hidden;
+      width: 36px;
+      height: 36px;
+    }
+
+    me .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    me p {
+      margin: 0;
+    }
+  </style>
+  <script>
+      (function(self) {
+          onloadAdd(() => {
+              const logo = self.querySelector(".logo");
+              logo.style.setProperty("--logo-bg-color", self.dataset.logoBgColor);
+          });
+      })(me());
+  </script>
+  <div class="content">
+    <div class="logo">
+      <img src="{{ contest.school.logo.url }}"
+           alt="{{ school.short_name }} {{ school.mascot }} logo" />
+    </div>
+    <p class="school">{{ contest.school.name }}</p>
+  </div>
+</div>
