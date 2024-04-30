@@ -17,7 +17,13 @@
       me main {
         width: 100%;
         text-align: center;
-        padding: 2rem 0;
+        padding-bottom: 2rem;
+      }
+
+      @media screen and (min-width: 768px) {
+        me main {
+          padding: 2rem 0;
+        }
       }
 
       me main img {
