@@ -23,8 +23,8 @@ logger = logging.getLogger(__name__)
 @require_GET
 def home(request: HttpRequest) -> HttpResponse:
     """Render the voterbowl homepage."""
-    ongoing_contests = list(Contest.objects.ongoing())
-    upcoming_contests = list(Contest.objects.upcoming())
+    ongoing_contests = list(Contest.objects.ongoing().order_by("end_at"))
+    upcoming_contests = list(Contest.objects.upcoming().order_by("start_at"))
     return render(
         request,
         "home.dhtml",
