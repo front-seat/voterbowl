@@ -28,7 +28,7 @@ For code cleanliness, we also use:
 
 1. Make sure you have python 3.12 installed
 1. Create and enable a python virtualenv with `python -m venv .venv; source .venv/bin/activate`
-1. Install the python dependencies with `pip install -r requirements.txt` or `pip install ".[dev]"`
+1. Install the python dependencies with `pip install -r requirements.txt`
 1. Get postgres set up. If you've got docker installed, `./scripts/dockerpg.sh up`
 1. Configure your environment variables. (See `.env.sample` and `settings.py`)
 1. Run the app. `./manage.py runserver` and visit http://localhost:8000/

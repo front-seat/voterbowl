@@ -57,20 +57,10 @@
         }
       }
 
-      me .faq {
-        width: 100%;
-        color: white;
-        padding: 2rem 0;
-      }
-
       me .button-holder {
         display: flex;
         justify-content: center;
         margin: 1.5rem 0;
-      }
-
-      me .faq {
-        background-color: black;
       }
 
       me .ongoing {

@@ -9,7 +9,7 @@ from django.utils.timezone import now as dj_now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
-from .components import home_page
+from .components.home import home_page
 from .models import Contest, EmailValidationLink, School
 from .ops import (
     enter_contest,
@@ -26,7 +26,6 @@ def home(request: HttpRequest) -> HttpResponse:
     """Render the voterbowl homepage."""
     ongoing_contests = Contest.objects.ongoing().order_by("end_at")
     upcoming_contests = Contest.objects.upcoming().order_by("start_at")
-    print(home_page(ongoing_contests, upcoming_contests))
     return HttpResponse(home_page(ongoing_contests, upcoming_contests))
 
 

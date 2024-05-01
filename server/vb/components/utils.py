@@ -3,9 +3,14 @@ from dataclasses import dataclass, field, replace
 
 import htpy as h
 
+# FUTURE use PEP 695 syntax when mypy supports it
+P = t.ParamSpec("P")
+C = t.TypeVar("C")
+R = t.TypeVar("R", h.Element, h.Node)
+
 
 @dataclass(frozen=True)
-class with_children[C, **P, R]:
+class with_children(t.Generic[C, P, R]):
     """Wrap a function to make it look more like an htpy.Element."""
 
     _f: t.Callable[t.Concatenate[C, P], R]
@@ -40,33 +45,33 @@ def list_items(children: t.Iterable[str]) -> h.Node:
     return [h.li[child] for child in children]
 
 
-# Wrapped func that returns Element; children only
-# <div class="card"><p>paragraph content</p></div>
-print(card[h.p["paragraph content"]])
+# # Wrapped func that returns Element; children only
+# # <div class="card"><p>paragraph content</p></div>
+# print(card[h.p["paragraph content"]])
 
-# Wrapped func that returns Element; children + kwargs
-# <div class="card" data-foo="bar">content</div>
-print(card(data_foo="bar")["content"])
+# # Wrapped func that returns Element; children + kwargs
+# # <div class="card" data-foo="bar">content</div>
+# print(card(data_foo="bar")["content"])
 
-# Wrapped func that returns Node; children only
-# <ul><li>Neato</li><li>Burrito</li></ul>
-print(h.ul[list_items["Neato", "Burrito"]])
+# # Wrapped func that returns Node; children only
+# # <ul><li>Neato</li><li>Burrito</li></ul>
+# print(h.ul[list_items["Neato", "Burrito"]])
 
-# The odd duck that doesn't behave like an h.Element:
-# with_children[card]
-print(card)
+# # The odd duck that doesn't behave like an h.Element:
+# # with_children[card]
+# print(card)
 
-# Another odd duck:
-# with_children[card]
-print(card())
+# # Another odd duck:
+# # with_children[card]
+# print(card())
 
 
-if t.TYPE_CHECKING:
-    # h.Element
-    t.reveal_type(card["content"])
+# if t.TYPE_CHECKING:
+#     # h.Element
+#     t.reveal_type(card["content"])
 
-    # h.Node
-    t.reveal_type(list_items["Neato", "Burrito"])
+#     # h.Node
+#     t.reveal_type(list_items["Neato", "Burrito"])
 
-    # with_children[...]
-    t.reveal_type(card)
+#     # with_children[...]
+#     t.reveal_type(card)
