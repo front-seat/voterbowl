@@ -1,54 +1,72 @@
 import typing as t
-from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 
 import htpy as h
 
-P = t.ParamSpec("P")
-R = t.TypeVar("R")
-C = t.TypeVar("C")
 
+@dataclass(frozen=True)
+class with_children[C, **P, R]:
+    """Wrap a function to make it look more like an htpy.Element."""
 
-@dataclass
-class _ChildrenWrapper(t.Generic[C, R]):
-    _component_func: t.Callable
-    _args: t.Tuple[t.Any, ...]
-    _kwargs: t.Dict[str, t.Any]
+    _f: t.Callable[t.Concatenate[C, P], R]
+    _args: tuple[t.Any, ...] = field(default_factory=tuple)
+    _kwargs: t.Mapping[str, t.Any] = field(default_factory=dict)
 
     def __getitem__(self, children: C) -> R:
-        return self._component_func(children, *self._args, **self._kwargs)  # type: ignore
+        """Render the component with the given children."""
+        return self._f(children, *self._args, **self._kwargs)  # type: ignore
 
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> t.Self:
+        """Return a new instance of the class with the given arguments."""
+        return replace(self, _args=args, _kwargs=kwargs)
 
-@dataclass
-class _OuterChildrenWrapper(t.Generic[P, C, R]):
-    _component_func: t.Callable
-
-    def __getitem__(self, children: C) -> R:
-        return self._component_func(children)
-
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> _ChildrenWrapper[C, R]:
-        return _ChildrenWrapper(self._component_func, args, kwargs)
-
-
-def with_children(
-    component_func: Callable[t.Concatenate[C, P], R],
-) -> _OuterChildrenWrapper[P, C, R]:
-    """Wrap a component function to allow for children to be passed in a more natural way."""
-    return _OuterChildrenWrapper[P, C, R](component_func)
+    def __str__(self) -> str:
+        """Return the name of the function being wrapped."""
+        # CONSIDER: alternatively, require that all wrapped functions
+        # have a default value for the `children` argument, and invoke
+        # the function here?
+        return f"with_children[{self._f.__name__}]"
 
 
 @with_children
-def bs_button(children: h.Node, style: t.Literal["success", "danger"]) -> h.Element:
-    """Render a Bootstrap button."""
-    return h.button(class_=["btn", f"btn-{style}"])[children]
+def card(children: h.Node, data_foo: str | None = None) -> h.Element:
+    """Render a card with the given children."""
+    return h.div(".card", data_foo=data_foo)[children]
 
 
 @with_children
-def card(children: h.Node) -> h.Element:
-    """Render only the children."""
-    return h.div("card")[children]
+def list_items(children: t.Iterable[str]) -> h.Node:
+    """Render all children in list items."""
+    return [h.li[child] for child in children]
 
 
-print(bs_button(style="danger")["Delete my account"])
-print(bs_button(style="success"))
-print(card[h.p["This is a paragraph."]])
+# Wrapped func that returns Element; children only
+# <div class="card"><p>paragraph content</p></div>
+print(card[h.p["paragraph content"]])
+
+# Wrapped func that returns Element; children + kwargs
+# <div class="card" data-foo="bar">content</div>
+print(card(data_foo="bar")["content"])
+
+# Wrapped func that returns Node; children only
+# <ul><li>Neato</li><li>Burrito</li></ul>
+print(h.ul[list_items["Neato", "Burrito"]])
+
+# The odd duck that doesn't behave like an h.Element:
+# with_children[card]
+print(card)
+
+# Another odd duck:
+# with_children[card]
+print(card())
+
+
+if t.TYPE_CHECKING:
+    # h.Element
+    t.reveal_type(card["content"])
+
+    # h.Node
+    t.reveal_type(list_items["Neato", "Burrito"])
+
+    # with_children[...]
+    t.reveal_type(card)
