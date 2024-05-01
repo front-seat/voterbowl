@@ -1,18 +1,15 @@
 import logging
-import typing as t
 
-import ludic.html as h
 from django import forms
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.templatetags.static import static
 from django.utils.timezone import now as dj_now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
-from ludic.types import BaseElement
 
+from .components import home_page
 from .models import Contest, EmailValidationLink, School
 from .ops import (
     enter_contest,
@@ -24,55 +21,13 @@ from .ops import (
 logger = logging.getLogger(__name__)
 
 
-def base_page(
-    title: str = "VoterBowl", children: t.Iterable[BaseElement] | None = None
-) -> BaseElement:
-    """Render a basic HTML page."""
-    return h.html(
-        h.head(
-            h.title(title),
-            h.meta(name="description", content="VoterBowl: online voting competitions"),
-            h.meta(name="keywords", content="voting, competition, online"),
-            h.meta(charset="utf-8"),
-            # h.meta(http_equiv="X-UA-Compatible", content="IE=edge"),
-            h.meta(name="vierwport", content="width=device-width, initial-scale=1.0"),
-            h.meta(name="format-detection", content="telephone=no"),
-            h.link(rel="stylesheet", href=static("/css/modern-normalize.min.css")),
-            h.link(rel="stylesheet", href=static("/css/base.css")),
-            h.script(src=static("js/htmx.min.js")),
-            h.script(src=static("js/css-scope-inline.js")),
-            h.script(src=static("/js/surreal.js")),
-        ),
-        h.body(*(children or [])),
-    )
-
-
-def home_page() -> BaseElement:
-    """Render the home page."""
-    return base_page(
-        children=[
-            h.div(
-                h.main(
-                    h.div(class_="container"),
-                    h.div("LOGO GOES HERE", class_="center"),
-                    h.div("CONTESTS", class_="ongoing") if ongoing_contests else None,
-                )
-            )
-        ]
-    )
-
-
-def render_element(element: BaseElement) -> HttpResponse:
-    """Render a ludic element as an HTTP response."""
-    return HttpResponse(content=element.to_html(), content_type="text/html")
-
-
 @require_GET
 def home(request: HttpRequest) -> HttpResponse:
     """Render the voterbowl homepage."""
-    ongoing_contests = list(Contest.objects.ongoing().order_by("end_at"))
-    upcoming_contests = list(Contest.objects.upcoming().order_by("start_at"))
-    return render_element(home_page())
+    ongoing_contests = Contest.objects.ongoing().order_by("end_at")
+    upcoming_contests = Contest.objects.upcoming().order_by("start_at")
+    print(home_page(ongoing_contests, upcoming_contests))
+    return HttpResponse(home_page(ongoing_contests, upcoming_contests))
 
 
 @require_GET
