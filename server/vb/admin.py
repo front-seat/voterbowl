@@ -1,4 +1,5 @@
 import typing as t
+import zoneinfo
 
 from django import forms
 from django.contrib import admin
@@ -20,6 +21,8 @@ from .models import (
     School,
     Student,
 )
+
+PACIFIC = zoneinfo.ZoneInfo("America/Los_Angeles")
 
 
 def validate_file_is_image(file: UploadedFile) -> None:
@@ -168,9 +171,16 @@ class StudentAdmin(admin.ModelAdmin):
         "show_is_validated",
         "contest_entries",
         "gift_card_total",
+        "created_at_pacific",
     )
     search_fields = ("school__name", "email", "first_name", "last_name")
     list_filter = (EmailValidatedListFilter, "school__name")
+    readonly_fields = (
+        "email_validated_at",
+        "email_validated_at_pacific",
+        "created_at_pacific",
+        "updated_at_pacific",
+    )
 
     @admin.display(description="School")
     def show_school(self, obj: Student) -> str:
@@ -197,6 +207,25 @@ class StudentAdmin(admin.ModelAdmin):
             obj.contest_entries.aggregate(total=models.Sum("amount_won"))["total"] or 0
         )
         return f"${usd}" if usd > 0 else ""
+
+    @admin.display(description="Email Validated At (Pacific)")
+    def email_validated_at_pacific(self, obj: Student) -> str:
+        """Return the student's email validated at time in the Pacific timezone."""
+        return (
+            obj.email_validated_at.astimezone(PACIFIC).strftime("%B %d, %Y @ %I:%M %p")
+            if obj.email_validated_at
+            else ""
+        )
+
+    @admin.display(description="Created At (Pacific)")
+    def created_at_pacific(self, obj: Student) -> str:
+        """Return the student's created at time in the Pacific timezone."""
+        return obj.created_at.astimezone(PACIFIC).strftime("%B %d, %Y @ %I:%M %p")
+
+    @admin.display(description="Updated At (Pacific)")
+    def updated_at_pacific(self, obj: Student) -> str:
+        """Return the student's updated at time in the Pacific timezone."""
+        return obj.updated_at.astimezone(PACIFIC).strftime("%B %d, %Y @ %I:%M %p")
 
 
 class StatusListFilter(admin.SimpleListFilter):
@@ -233,11 +262,21 @@ class ContestAdmin(admin.ModelAdmin):
         "name",
         "status",
         "show_school",
-        "start_at",
-        "end_at",
+        "start_at_pacific",
+        "end_at_pacific",
     )
     search_fields = ("school__name", "school__short_name", "school__slug")
     list_filter = (StatusListFilter, "school__name")
+
+    @admin.display(description="Start At (Pacific)")
+    def start_at_pacific(self, obj: Contest) -> str:
+        """Return the contest's start time in the Pacific timezone."""
+        return obj.start_at.astimezone(PACIFIC).strftime("%B %d, %Y @ %I:%M %p")
+
+    @admin.display(description="End At (Pacific)")
+    def end_at_pacific(self, obj: Contest) -> str:
+        """Return the contest's end time in the Pacific timezone."""
+        return obj.end_at.astimezone(PACIFIC).strftime("%B %d, %Y @ %I:%M %p")
 
     @admin.display(description="Status")
     def status(self, obj: Contest) -> str:
