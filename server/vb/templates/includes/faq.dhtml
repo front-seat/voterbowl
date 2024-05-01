@@ -46,14 +46,15 @@
   <h2>F.A.Q.</h2>
   <div class="qa">
     <h3>Why should I check my voter registration status now?</h3>
-    <p>Check now to avoid any last-minute issues before the election.</p>
+    <p>
+      {# djlint:off #}
+      {% if school %}<a href="{% url 'vb:check' slug=school.slug %}">{% endif %}Check now{% if school %}</a>{% endif %} to avoid any last-minute issues before the election.
+      {# djlint:on #}
+    </p>
   </div>
   <div class="qa">
     <h3>What is the Voter Bowl?</h3>
-    <p>
-      The Voter Bowl is a contest where college students win prizes
-      by checking if they are registered to vote.
-    </p>
+    <p>The Voter Bowl is a contest where college students win prizes by checking if they are registered to vote.</p>
     <p>
       The Voter Bowl is a nonprofit, nonpartisan project of
       <a href="https://www.voteamerica.com/" target="_blank">VoteAmerica</a>, a
@@ -62,11 +63,9 @@
   </div>
   <div class="qa">
     <h3>How do I claim my gift card?</h3>
+    <p>If you win, we'll send an Amazon gift card to your student email address.</p>
     <p>
-      If you win, we'll send an Amazon gift card to your student email address.
-    </p> 
-    <p>
-      You can redeem your gift card by typing the claim code into 
+      You can redeem your gift card by typing the claim code into
       <a href="https://www.amazon.com/gc/redeem" target="_blank">Amazon.com</a>.
     </p>
     <p>
