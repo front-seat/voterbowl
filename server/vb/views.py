@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from .components.home import home_page
+from .components.school import school_page
 from .models import Contest, EmailValidationLink, School
 from .ops import (
     enter_contest,
@@ -53,15 +54,7 @@ def school(request: HttpRequest, slug: str) -> HttpResponse:
         return redirect("vb:home", permanent=False)
     current_contest = school.contests.current()
     past_contest = school.contests.most_recent_past()
-    return render(
-        request,
-        "school.dhtml",
-        {
-            "school": school,
-            "current_contest": current_contest,
-            "past_contest": past_contest,
-        },
-    )
+    return HttpResponse(school_page(school, current_contest, past_contest))
 
 
 @require_GET
