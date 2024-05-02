@@ -5,6 +5,7 @@ from markupsafe import Markup
 
 from ..models import Contest, School
 from .base import base_page
+from .button import button
 from .logo import VOTER_BOWL_LOGO
 
 
@@ -143,7 +144,11 @@ def _ongoing_contest(contest: Contest) -> h.Element:
                 None if contest.is_giveaway else f" for a 1 in {contest.in_n} chance",
                 f" to win a ${contest.amount} Amazon gift card.",
             ],
-            h.div(".button-holder")["TODO"],
+            h.div(".button-holder")[
+                button(
+                    href=contest.school.relative_url, bg_color="black", color="white"
+                )["Visit event"]
+            ],
         ],
         h.div(".box", data_end_at=contest.end_at.isoformat())[
             h.script[_COUNTDOWN_JS], "Ends in ..."
