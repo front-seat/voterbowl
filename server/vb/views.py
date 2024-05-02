@@ -51,7 +51,9 @@ def school(request: HttpRequest, slug: str) -> HttpResponse:
     Otherwise, show generic text encouraging the visitor to check their
     voter registration anyway.
     """
-    school = get_object_or_404(School, slug=slug)
+    school = School.objects.filter(slug=slug).first()
+    if school is None:
+        return redirect("vb:home", permanent=False)
     current_contest = school.contests.current()
     past_contest = school.contests.most_recent_past()
     return render(
