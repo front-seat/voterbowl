@@ -1,4 +1,7 @@
+import htpy as h
 from markupsafe import Markup
+
+from ..models import School
 
 VOTER_BOWL_LOGO = Markup("""
     <svg viewBox="0 0 102 103" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
@@ -22,3 +25,13 @@ VOTER_BOWL_LOGO = Markup("""
     </defs>
     </svg>
 """)
+
+
+def school_logo(school: School) -> h.Element:
+    """Render a school's logo as an image element."""
+    return h.div(".logo")[
+        h.img(
+            src=school.logo.url,
+            alt=f"{school.short_name} {school.mascot} logo",
+        )
+    ]

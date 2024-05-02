@@ -3,20 +3,10 @@ import typing as t
 import htpy as h
 from markupsafe import Markup
 
-from ..models import Contest, School
+from ..models import Contest
 from .base import base_page
 from .button import button
-from .logo import VOTER_BOWL_LOGO
-
-
-def _logo_img(school: School) -> h.Element:
-    return h.div(".logo")[
-        h.img(
-            src=school.logo.url,
-            alt=f"{school.short_name} {school.mascot} logo",
-        )
-    ]
-
+from .logo import VOTER_BOWL_LOGO, school_logo
 
 _COUNTDOWN_JS = Markup("""
 (function(self) {
@@ -137,7 +127,7 @@ def _ongoing_contest(contest: Contest) -> h.Element:
     return h.div[
         h.style[_ongoing_style(contest.school.logo.bg_color)],
         h.div(".content")[
-            _logo_img(contest.school),
+            school_logo(contest.school),
             h.p(".school")[contest.school.name],
             h.p(".description")[
                 "Check your voter registration status",
@@ -206,7 +196,7 @@ def _upcoming_contest(contest: Contest) -> h.Element:
     return h.div[
         h.style[_upcoming_style(contest.school.logo.bg_color)],
         h.div(".content")[
-            _logo_img(contest.school),
+            school_logo(contest.school),
             h.p(".school")[contest.school.name],
         ],
     ]
