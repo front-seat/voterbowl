@@ -6,6 +6,13 @@
 
 {% block body %}
   <div class="container">
+    <style>
+      me {
+        font-size: 1.25em;
+        line-height: 150%;
+        font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+      }
+    </style>
     <p>
       <b>OFFICIAL SWEEPSTAKES RULES: The Voter Bowl, a project of www.voteamerica.com</b>
     </p>
