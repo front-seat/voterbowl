@@ -4,7 +4,7 @@ import htpy as h
 from markupsafe import Markup
 
 from ..models import Contest
-from .base import base_page
+from .base_page import base_page
 from .button import button
 from .logo import VOTER_BOWL_LOGO, school_logo
 

@@ -1,7 +1,7 @@
 import htpy as h
 
 from ..models import Contest, School
-from .base import base_page
+from .base_page import base_page
 from .button import button
 from .countdown import countdown
 from .logo import school_logo
@@ -99,7 +99,9 @@ def school_page(
     school: School, current_contest: Contest | None, past_contest: Contest | None
 ) -> h.Element:
     """Render a school landing page."""
-    return base_page(title=f"Voter Bowl x {school.name}")[
+    return base_page(
+        title=f"Voter Bowl x {school.name}", bg_color=school.logo.bg_color
+    )[
         h.div[
             _style(bg_color=school.logo.bg_color, color=school.logo.bg_text_color),
             h.main[

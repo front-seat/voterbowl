@@ -9,8 +9,8 @@ from django.utils.timezone import now as dj_now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
-from .components.home import home_page
-from .components.school import school_page
+from .components.home_page import home_page
+from .components.school_page import school_page
 from .models import Contest, EmailValidationLink, School
 from .ops import (
     enter_contest,
