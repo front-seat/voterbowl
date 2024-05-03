@@ -9,7 +9,7 @@ from django.utils.timezone import now as dj_now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
-from .components.check_page import check_page
+from .components.check_page import check_page, fail_check_partial, finish_check_partial
 from .components.home_page import home_page
 from .components.school_page import school_page
 from .models import Contest, EmailValidationLink, School
@@ -115,15 +115,13 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
     if not form.is_valid():
         if not form.has_only_email_error():
             raise PermissionDenied("Invalid")
-        return render(
-            request,
-            "fail_check.dhtml",
-            {
-                "school": school,
-                "first_name": form.cleaned_data["first_name"],
-                "last_name": form.cleaned_data["last_name"],
-                "current_contest": current_contest,
-            },
+        return HttpResponse(
+            fail_check_partial(
+                school,
+                form.cleaned_data["first_name"],
+                form.cleaned_data["last_name"],
+                current_contest,
+            )
         )
     email = form.cleaned_data["email"]
 
@@ -151,18 +149,13 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
     if current_contest is not None:
         most_recent_winner = current_contest.most_recent_winner()
 
-    return render(
-        request,
-        "finish_check.dhtml",
-        {
-            "BASE_URL": settings.BASE_URL,
-            "BASE_HOST": settings.BASE_HOST,
-            "school": school,
-            "current_contest": current_contest,
-            "contest_entry": contest_entry,
-            "most_recent_winner": most_recent_winner,
-            "email": email,
-        },
+    return HttpResponse(
+        finish_check_partial(
+            school,
+            current_contest,
+            contest_entry,
+            most_recent_winner,
+        )
     )
 
 

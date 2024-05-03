@@ -2,6 +2,8 @@ import typing as t
 from dataclasses import dataclass, field, replace
 
 import htpy as h
+from htpy import _iter_children as _h_iter_children
+from markupsafe import Markup
 
 # FUTURE use PEP 695 syntax when mypy supports it
 P = t.ParamSpec("P")
@@ -45,33 +47,26 @@ def list_items(children: t.Iterable[str]) -> h.Node:
     return [h.li[child] for child in children]
 
 
-# # Wrapped func that returns Element; children only
-# # <div class="card"><p>paragraph content</p></div>
-# print(card[h.p["paragraph content"]])
+class Fragment:
+    """A fragment of HTML that can be rendered as a string."""
 
-# # Wrapped func that returns Element; children + kwargs
-# # <div class="card" data-foo="bar">content</div>
-# print(card(data_foo="bar")["content"])
+    __slots__ = ("_children",)
 
-# # Wrapped func that returns Node; children only
-# # <ul><li>Neato</li><li>Burrito</li></ul>
-# print(h.ul[list_items["Neato", "Burrito"]])
+    def __init__(self, children: h.Node) -> None:
+        """Initialize the fragment with the given children."""
+        self._children = children
 
-# # The odd duck that doesn't behave like an h.Element:
-# # with_children[card]
-# print(card)
+    def __getitem__(self, children: h.Node) -> t.Self:
+        """Return a new fragment with the given children."""
+        return self.__class__(children)
 
-# # Another odd duck:
-# # with_children[card]
-# print(card())
+    def __str__(self) -> Markup:
+        """Return the fragment as a string."""
+        return Markup("".join(str(x) for x in self))
+
+    def __iter__(self):
+        """Iterate over the children of the fragment."""
+        yield from _h_iter_children(self._children)
 
 
-# if t.TYPE_CHECKING:
-#     # h.Element
-#     t.reveal_type(card["content"])
-
-#     # h.Node
-#     t.reveal_type(list_items["Neato", "Burrito"])
-
-#     # with_children[...]
-#     t.reveal_type(card)
+fragment = Fragment(None)
