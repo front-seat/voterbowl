@@ -9,6 +9,7 @@ from django.utils.timezone import now as dj_now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
+from .components.check_page import check_page
 from .components.home_page import home_page
 from .components.school_page import school_page
 from .models import Contest, EmailValidationLink, School
@@ -66,9 +67,7 @@ def check(request: HttpRequest, slug: str) -> HttpResponse:
     """
     school = get_object_or_404(School, slug=slug)
     current_contest = school.contests.current()
-    return render(
-        request, "check.dhtml", {"school": school, "current_contest": current_contest}
-    )
+    return HttpResponse(check_page(school, current_contest))
 
 
 class FinishCheckForm(forms.Form):

@@ -53,6 +53,8 @@ def base_page(
     extra_head: h.Node | None = None,
     title: str = "VoterBowl",
     bg_color: str = "#cdff64",
+    show_faq: bool = True,
+    show_footer: bool = True,
 ) -> h.Element:
     """Render the generic structure for all pages on voterbowl.org."""
     return h.html(lang="en")[
@@ -75,7 +77,7 @@ def base_page(
         ],
         h.body[
             children,
-            h.div(".faq")[h.div(".container")[faq(school=None)]],
-            footer(),
+            h.div(".faq")[h.div(".container")[faq(school=None)]] if show_faq else None,
+            footer() if show_footer else None,
         ],
     ]
