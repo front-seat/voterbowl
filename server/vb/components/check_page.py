@@ -189,6 +189,7 @@ def check_page(school: School, current_contest: Contest | None) -> h.Element:
             _style(
                 main_color=school.logo.bg_text_color, main_bg_color=school.logo.bg_color
             ),
+            _SCRIPT,
             h.main[
                 h.div(".container")[
                     h.div(".urgency")[
@@ -216,16 +217,15 @@ def check_page(school: School, current_contest: Contest | None) -> h.Element:
     ]
 
 
-_FAIL_CHECK_SCRIPT = h.script[
-    Markup("""
+_FAIL_CHECK_SCRIPT = """
     (function (self) {
-      const schoolName = "{{ school.short_name }}";
-      const firstName = "{{ first_name }}";
-      const lastName = "{{ last_name }}";
+      const schoolName = "{school.short_name}";
+      const firstName = "{first_name}";
+      const lastName = "{last_name}";
       let email = null;
       let count = 0; // give up after 3 tries
       while (email === null && count < 3) {
-        email = prompt("Sorry, but we need your {{ school.short_name }} student email to continue. Please enter it below:");
+        email = prompt(`Sorry, but we need your ${schoolName} student email to continue. Please enter it below:`);
         count++;
       }
       if (email) {
@@ -240,8 +240,17 @@ _FAIL_CHECK_SCRIPT = h.script[
         });
       }
     })(me());
-""")
-]
+"""
+
+
+def _fail_check_script(school: School, first_name: str, last_name: str) -> h.Element:
+    return h.script[
+        Markup(
+            _FAIL_CHECK_SCRIPT.replace("{school.short_name}", school.short_name)
+            .replace("{first_name}", first_name)
+            .replace("{last_name}", last_name)
+        )
+    ]
 
 
 def fail_check_partial(
@@ -251,7 +260,7 @@ def fail_check_partial(
     return fragment[
         school_logo(school),
         h.p[
-            _FAIL_CHECK_SCRIPT,
+            _fail_check_script(school, first_name, last_name),
             h.b["We could not use your email"],
             f". Please use your { school.short_name } student email.",
         ],
@@ -316,7 +325,7 @@ def finish_check_partial(
         description = [
             h.b["You win!"],
             f" We sent a ${contest_entry.amount_won} gift card to your school email. ",
-            "(Check your spam folder.)",
+            "(Check your spam folder.) ",
             h.br,
             h.br,
             "Your friends can also win. ",
@@ -327,8 +336,8 @@ def finish_check_partial(
             "Please register to vote if you haven't yet.",
             h.br,
             h.br,
-            "You didn't win a gift card.",
-            f" The last winner was {most_recent_winner.student.anonymized_name} {naturaltime(most_recent_winner.created_at)}"
+            "You didn't win a gift card. ",
+            f"The last winner was {most_recent_winner.student.anonymized_name} {naturaltime(most_recent_winner.created_at)} ago."
             if most_recent_winner
             else None,
             "Your friends can still win! ",
