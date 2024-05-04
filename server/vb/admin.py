@@ -66,7 +66,7 @@ class RenderLogoSpecimenMixin:
             "width": "48px",
             "height": "48px",
         }
-        return mark_safe(render_to_string("components/logo_specimen.dhtml", context))
+        return mark_safe(render_to_string("logo_specimen.dhtml", context))
 
 
 class LogoAdmin(admin.TabularInline, RenderLogoSpecimenMixin):

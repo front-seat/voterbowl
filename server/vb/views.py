@@ -1,7 +1,6 @@
 import logging
 
 from django import forms
-from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -12,6 +11,7 @@ from django.views.decorators.http import require_GET, require_POST
 from .components.check_page import check_page, fail_check_partial, finish_check_partial
 from .components.home_page import home_page
 from .components.school_page import school_page
+from .components.validate_email_page import validate_email_page
 from .models import Contest, EmailValidationLink, School
 from .ops import (
     enter_contest,
@@ -196,16 +196,4 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
     except Exception:
         contest_entry, claim_code, error = None, None, True
 
-    return render(
-        request,
-        "verify_email.dhtml",
-        {
-            "BASE_URL": settings.BASE_URL,
-            "BASE_HOST": settings.BASE_HOST,
-            "school": school,
-            "student": link.student,
-            "contest_entry": contest_entry,
-            "claim_code": claim_code,
-            "error": error,
-        },
-    )
+    return HttpResponse(validate_email_page(school, contest_entry, claim_code, error))
