@@ -3,13 +3,14 @@ import logging
 from django import forms
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.timezone import now as dj_now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from .components.check_page import check_page, fail_check_partial, finish_check_partial
 from .components.home_page import home_page
+from .components.rules_page import rules_page
 from .components.school_page import school_page
 from .components.validate_email_page import validate_email_page
 from .models import Contest, EmailValidationLink, School
@@ -34,7 +35,7 @@ def home(request: HttpRequest) -> HttpResponse:
 @require_GET
 def rules(request: HttpRequest) -> HttpResponse:
     """Render the voterbowl rules page."""
-    return render(request, "rules.dhtml")
+    return HttpResponse(rules_page())
 
 
 @require_GET

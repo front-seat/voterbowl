@@ -94,6 +94,7 @@ In the 2020 presidential election, 33% of college students didn’t vote. We bel
 
 def faq(school: School | None) -> h.Element:
     """Render the frequently asked questions."""
+    # TODO HTPY
     # check_now: list[h.Node] = [
     #     "Check now to avoid any last minute issues before the election."
     # ]

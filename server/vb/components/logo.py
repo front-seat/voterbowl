@@ -1,7 +1,7 @@
 import htpy as h
 from markupsafe import Markup
 
-from ..models import School
+from ..models import Logo, School
 
 VOTER_BOWL_LOGO = Markup("""
     <svg viewBox="0 0 102 103" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
@@ -34,4 +34,76 @@ def school_logo(school: School) -> h.Element:
             src=school.logo.url,
             alt=f"{school.short_name} {school.mascot} logo",
         )
+    ]
+
+
+_LOGO_STYLE = """
+me {
+  display: flex;
+  gap: 0.5rem;
+}
+
+me .bubble {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  width: 48px;
+  height: 48px;
+  background-color: {logo_bg_color};
+}
+
+me .bubble img {
+  display: block;
+  margin: 0 auto;
+  max-width: 80%;
+  max-height: 80%;
+}
+
+me .bg {
+  display: flex;
+  font-weight: 600;
+  align-items: center;
+  justify-content: center;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  background-color: {logo_bg_color};
+  color: {logo_bg_text_color};
+}
+
+me .action {
+  cursor: pointer;
+  display: flex;
+  font-weight: 600;
+  align-items: center;
+  justify-content: center;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  transition: opacity 0.2s;
+  background-color: {logo_action_color};
+  color: {logo_action_text_color};
+}
+
+me .action:hover {
+  opacity: 0.7;
+  transition: opacity 0.2s ease-in-out;
+}
+"""
+
+
+def _style(logo: Logo) -> h.Element:
+    return h.style[
+        _LOGO_STYLE.replace("{logo_bg_color}", logo.bg_color)
+        .replace("{logo_bg_text_color}", logo.bg_text_color)
+        .replace("{logo_action_color}", logo.action_color)
+        .replace("{logo_action_text_color}", logo.action_text_color)
+    ]
+
+
+def logo_specimen(logo: Logo) -> h.Element:
+    """Render a school's logo as a specimen for our admin views."""
+    return h.div[
+        _style(logo),
+        h.div(".bubble")[h.img(src=logo.url, alt="logo")],
+        h.div(".bg")["text"],
+        h.div(".action")["action"],
     ]
