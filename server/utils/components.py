@@ -23,7 +23,7 @@ def load_sibling_file(base_file_name: str | pathlib.Path, file_name: str) -> str
 
 def _css_vars(selector: str, /, **vars: str) -> str:
     """Generate CSS variables to inject into a stylesheet."""
-    as_css = "\n".join("  --{k.replace('_', '-')}: {v};" for k, v in vars.items())
+    as_css = "\n".join(f"  --{k.replace('_', '-')}: {v};" for k, v in vars.items())
     return f"{selector} {{\n{as_css}\n}}\n"
 
 
@@ -69,7 +69,7 @@ def js(
         as_json = json.dumps(as_camel)
         element = element(data_props=as_json)
     if surreal:
-        text = f"({text})(me(), me('script').dataset.props && JSON.parse(me('script').dataset.props))"  # noqa: E501
+        text = f"({text})(me(), me().querySelector('script').dataset.props && JSON.parse(me().querySelector('script').dataset.props))"  # noqa: E501
     return element[Markup(text)]
 
 

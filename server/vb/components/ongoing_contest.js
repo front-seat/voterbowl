@@ -3,7 +3,7 @@
  * 
  * @param {HTMLElement} self 
  * @param {object} props
- * @param {string} props.endAt
+ * @param {string} props.endsAt
  */
 
 function ongoingCountdown(self, props) {
@@ -12,12 +12,12 @@ function ongoingCountdown(self, props) {
    * 
    * @param {HTMLElement} self 
    * @param {object} props
-   * @param {string} props.endAt
+   * @param {string} props.endsAt
    */
   function countdown(self, props) {
     // compute the deadline
-    const { endAt } = props;
-    const deadline = new Date(endAt);
+    const { endsAt } = props;
+    const deadline = new Date(endsAt);
     const deadlineTime = deadline.getTime();
 
     /** Update the countdown. */

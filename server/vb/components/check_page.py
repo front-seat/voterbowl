@@ -41,7 +41,7 @@ def check_page(school: School, current_contest: Contest | None) -> h.Element:
                         countdown(current_contest)
                         if current_contest
                         else h.div(".separate")[
-                            h.p["Check your voter registraiton status below."]
+                            h.p["Check your voter registration status below."]
                         ],
                     ]
                 ],

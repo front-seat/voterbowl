@@ -27,7 +27,7 @@ def ongoing_contest(contest: Contest) -> h.Element:
                 )["Visit event"]
             ],
         ],
-        h.div(".box", data_end_at=contest.end_at.isoformat())[
+        h.div(".box")[
             js(__file__, "ongoing_contest.js", ends_at=contest.end_at.isoformat()),
             "Ends in ...",
         ],
