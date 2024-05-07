@@ -1,13 +1,10 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "module": "CommonJS",
+    "module": "None",
     "checkJs": true,
     "allowJs": true,
-    "noEmit": true
+    "lib": ["dom", "es6"]
   },
-  "include": [
-    "server/static/js/surreal.js",
-    "server/static/js/css-scope-inline.js"
-  ]
+  "include": ["server/**/*.js", "types/htmx.d.ts"]
 }

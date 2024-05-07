@@ -153,7 +153,6 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
     return HttpResponse(
         finish_check_partial(
             school,
-            current_contest,
             contest_entry,
             most_recent_winner,
         )
