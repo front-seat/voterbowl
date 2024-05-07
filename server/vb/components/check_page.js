@@ -26,11 +26,8 @@ function checkPage(self) {
   };
 
   window.addEventListener('VoteAmericaEvent', (event) => {
-    /** @type {object} 
-     * @property {object} detail
-    */
-    const objEvent = event;
-    const { data } = objEvent;
+    // @ts-ignore-next-line
+    const { data } = event.detail;
     if (data?.tool === "verify" && data?.event === "action-finish") {
       setTimeout(() => {
         finishVerify(data.first_name, data.last_name, data.email);
