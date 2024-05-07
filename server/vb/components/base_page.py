@@ -2,6 +2,8 @@ import htpy as h
 from django.templatetags.static import static
 from markupsafe import Markup
 
+from server.utils.components import style
+
 from .faq import faq
 from .footer import footer
 from .utils import with_children
@@ -26,24 +28,6 @@ def _gtag_scripts() -> h.Node:
             """)
         ],
     ]
-
-
-_STYLE = """
-html {
-    background-color: {bg_color};
-}
-
-.faq {
-    width: 100%;
-    color: white;
-    padding: 2rem 0;
-    background-color: black;
-}
-"""
-
-
-def _style(bg_color: str) -> h.Element:
-    return h.style[_STYLE.replace("{bg_color}", bg_color)]
 
 
 @with_children
@@ -72,7 +56,7 @@ def base_page(
             h.script(src=static("js/htmx.min.js")),
             h.script(src=static("js/css-scope-inline.js")),
             h.script(src=static("/js/surreal.js")),
-            _style(bg_color),
+            style(__file__, "base_page.css", bg_color=bg_color),
             extra_head,
         ],
         h.body[

@@ -10,18 +10,15 @@ from markupsafe import Markup
 from pydantic.alias_generators import to_camel
 
 
-def load_file(file_name: str | pathlib.Path, markup: bool) -> str:
+def load_file(file_name: str | pathlib.Path) -> str:
     """Load a text file and return its contents."""
     with open(file_name, "r") as f:
-        text = f.read()
-        return Markup(text) if markup else text
+        return f.read()
 
 
-def load_sibling_file(
-    base_file_name: str | pathlib.Path, file_name: str, markup: bool
-) -> str:
+def load_sibling_file(base_file_name: str | pathlib.Path, file_name: str) -> str:
     """Load a file in the same directory as the base file."""
-    return load_file(pathlib.Path(base_file_name).resolve().parent / file_name, markup)
+    return load_file(pathlib.Path(base_file_name).resolve().parent / file_name)
 
 
 def _css_vars(selector: str, /, **vars: str) -> str:
@@ -37,10 +34,10 @@ def style(base_file_name: str | pathlib.Path, file_name: str, **vars: str) -> h.
     In addition to the file, you can pass in CSS variables to inject into the
     stylesheet.
     """
-    text = load_sibling_file(base_file_name, file_name, markup=True)
+    text = load_sibling_file(base_file_name, file_name)
     if vars:
         text = _css_vars("me", **vars) + text
-    return h.style[text]
+    return h.style[Markup(text)]
 
 
 def js(
@@ -65,7 +62,7 @@ def js(
     CONSIDER: this still feels awkward to me, and I bet there's a cleaner
     pattern -- our CSS pattern feels very clean to me, for instance.
     """
-    text = load_sibling_file(base_file_name, file_name, markup=True)
+    text = load_sibling_file(base_file_name, file_name)
     element = h.script
     if props:
         as_camel = {to_camel(k): v for k, v in props.items()}
@@ -73,10 +70,15 @@ def js(
         element = element(data_props=as_json)
     if surreal:
         text = f"({text})(me(), me('script').dataset.props && JSON.parse(me('script').dataset.props))"  # noqa: E501
-    return element[text]
+    return element[Markup(text)]
+
+
+def svg(base_file_name: str | pathlib.Path, file_name: str) -> Markup:
+    """Load an SVG file in the same directory as the base file."""
+    return Markup(load_sibling_file(base_file_name, file_name))
 
 
 def markdown_html(base_file_name: str | pathlib.Path, file_name: str) -> Markup:
     """Load a markdown file in the same directory as the base file."""
-    text = load_sibling_file(base_file_name, file_name, markup=False)
+    text = load_sibling_file(base_file_name, file_name)
     return Markup(markdown.markdown(text))

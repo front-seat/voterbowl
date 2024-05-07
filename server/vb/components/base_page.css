@@ -1,0 +1,10 @@
+html {
+  background-color: var(--bg-color);
+}
+
+.faq {
+  width: 100%;
+  color: white;
+  padding: 2rem 0;
+  background-color: black;
+}

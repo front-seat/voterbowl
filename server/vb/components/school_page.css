@@ -1,0 +1,54 @@
+me {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+me main {
+  width: 100%;
+  text-align: center;
+  padding-bottom: 2rem;
+  color: var(--color);
+  background-color: var(--bg-color);
+}
+
+@media screen and (min-width: 768px) {
+  me main {
+    padding: 2rem 0;
+  }
+}
+
+me main img {
+  height: 150px;
+  margin: 1.5rem 0;
+}
+
+me main p {
+  font-weight: 378;
+  font-size: 20px;
+  line-height: 130%;
+}
+
+me main h2 {
+  font-weight: 500;
+  font-size: 36px;
+  line-height: 120%;
+  text-transform: uppercase;
+}
+
+me .faq {
+  width: 100%;
+  color: white;
+  padding: 2rem 0;
+}
+
+me .button-holder {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+
+me .faq {
+  background-color: black;
+}

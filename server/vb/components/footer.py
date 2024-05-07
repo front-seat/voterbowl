@@ -1,79 +1,15 @@
 import htpy as h
 from django.urls import reverse
 
+from server.utils.components import style
+
 from .logo import VOTER_BOWL_LOGO
-
-_STYLE = """
-me {
-  background-color: black;
-  color: #aaa;
-  padding-top: 4rem;
-  padding-bottom: 2rem;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  width: 100%;
-}
-
-@media screen and (min-width: 768px) {
-  me {
-    padding-left: 2em;
-    padding-right: 2rem;
-  }
-}
-
-me div.center {
-  margin-bottom: 2em;
-  display: flex;
-  justify-content: center;
-  color: #fff;
-}
-
-me div.center svg {
-  width: 120px !important;
-}
-
-me div.outer {
-  display: flex;
-  flex-direction: column-reverse;
-  justify-content: space-between;
-  align-items: center;
-}
-
-@media screen and (min-width: 768px) {
-  me div.outer {
-    flex-direction: row;
-  }
-}
-
-me div.inner {
-  display: flex;
-  flex-direction: row;
-  gap: 1em;
-}
-
-me a {
-  color: #aaa;
-  text-decoration: underline;
-}
-
-me a:hover {
-  color: white;
-}
-
-me .colophon {
-  text-align: center;
-  color: #888;
-  font-size: 0.8em;
-  padding-top: 1em;
-  padding-bottom: 3em;
-}
-"""
 
 
 def footer() -> h.Element:
     """Render the site-wide footer."""
     return h.footer[
-        h.style[_STYLE],
+        style(__file__, "footer.css"),
         h.div(".center")[VOTER_BOWL_LOGO],
         h.div(".outer")[
             h.p(".copyright")["© 2024 The Voter Bowl"],
