@@ -331,9 +331,9 @@ class ContestWinningsIssuedListFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         """Filter the queryset by state."""
         if self.value() == "yes":
-            return queryset.filter(creation_request_id__ne="")
+            return queryset.exclude(creation_request_id="")
         if self.value() == "no":
-            return queryset.filter(creation_request_id__eq="")
+            return queryset.filter(creation_request_id="")
         return queryset
 
 
