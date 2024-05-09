@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "module": "None",
+    "module": "ESNext",
     "checkJs": true,
     "allowJs": true,
     "lib": ["dom", "es6"]
   },
-  "include": ["server/**/*.js", "types/htmx.d.ts"]
+  "include": ["server/**/*.js", "server/**/*.mjs"]
 }

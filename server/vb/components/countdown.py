@@ -1,8 +1,10 @@
 import htpy as h
 
-from server.utils.components import js, style
+from server.utils.components import style
 
 from ..models import Contest
+
+big_countdown = h.Element("big-countdown", {}, None)
 
 
 def countdown(contest: Contest) -> h.Element:
@@ -22,15 +24,16 @@ def countdown(contest: Contest) -> h.Element:
             "giveaway " if contest.is_giveaway else "contest ",
             "ends in:",
         ],
-        h.div(".countdown")[
-            js(__file__, "countdown.js", end_at=contest.end_at.isoformat()),
-            h.span(".number", data_number="h0"),
-            h.span(".number", data_number="h1"),
-            h.span(".colon")[":"],
-            h.span(".number", data_number="m0"),
-            h.span(".number", data_number="m1"),
-            h.span(".colon")[":"],
-            h.span(".number", data_number="s0"),
-            h.span(".number", data_number="s1"),
+        big_countdown(data_end_at=contest.end_at.isoformat())[
+            h.div(".countdown")[
+                h.span(".number", data_number="h0"),
+                h.span(".number", data_number="h1"),
+                h.span(".colon")[":"],
+                h.span(".number", data_number="m0"),
+                h.span(".number", data_number="m1"),
+                h.span(".colon")[":"],
+                h.span(".number", data_number="s0"),
+                h.span(".number", data_number="s1"),
+            ]
         ],
     ]

@@ -1,10 +1,12 @@
 import htpy as h
 
-from server.utils.components import js, style
+from server.utils.components import style
 
 from ..models import Contest
 from .button import button
 from .logo import school_logo
+
+small_countdown = h.Element("small-countdown", {}, None)
 
 
 def ongoing_contest(contest: Contest) -> h.Element:
@@ -27,8 +29,7 @@ def ongoing_contest(contest: Contest) -> h.Element:
                 )["Visit event"]
             ],
         ],
-        h.div(".box")[
-            js(__file__, "ongoing_contest.js", ends_at=contest.end_at.isoformat()),
-            "Ends in ...",
+        small_countdown(data_end_at=contest.end_at.isoformat())[
+            h.div(".box countdown")[""]
         ],
     ]
