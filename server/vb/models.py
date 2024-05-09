@@ -506,7 +506,6 @@ class ContestEntry(models.Model):
         default="",
         help_text="The creation code for the gift card, if a prize was issued.",
     )
-    email_sent_at = models.DateTimeField(blank=True, null=True, default=None)
 
     @property
     def has_issued(self) -> bool:
