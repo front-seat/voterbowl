@@ -408,6 +408,7 @@ class ContestEntryAdmin(admin.ModelAdmin):
         ContestWinnerListFilter,
         ContestWinningsIssuedListFilter,
         "contest__school__name",
+        "contest",
     )
 
     @admin.display(description="Winner?", boolean=True)
