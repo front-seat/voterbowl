@@ -275,6 +275,7 @@ class InlineContestEntryAdmin(admin.TabularInline):
         "show_winnings_issued",
         "roll",
     )
+    ordering = ("-amount_won", "creation_request_id")
 
     def created_at_pacific(self, obj: ContestEntry) -> str:
         """Return the contest entry's creation time in the Pacific timezone."""
