@@ -12,6 +12,8 @@ from .countdown import countdown
 from .logo import school_logo
 from .utils import Fragment, fragment
 
+check_page_elt = h.Element("check-page", {}, None)
+
 
 def check_page(school: School, current_contest: Contest | None) -> h.Element:
     """Render a school-specific 'check voter registration' form page."""
@@ -26,37 +28,38 @@ def check_page(school: School, current_contest: Contest | None) -> h.Element:
         show_faq=False,
         show_footer=False,
     )[
-        h.div[
-            style(
-                __file__,
-                "check_page.css",
-                main_color=school.logo.bg_text_color,
-                main_bg_color=school.logo.bg_color,
-            ),
-            js(__file__, "check_page.js"),
-            h.main[
-                h.div(".container")[
-                    h.div(".urgency")[
-                        school_logo(school),
-                        countdown(current_contest)
-                        if current_contest
-                        else h.div(".separate")[
-                            h.p["Check your voter registration status below."]
-                        ],
+        check_page_elt[
+            h.div[
+                style(
+                    __file__,
+                    "check_page.css",
+                    main_color=school.logo.bg_text_color,
+                    main_bg_color=school.logo.bg_color,
+                ),
+                h.main[
+                    h.div(".container")[
+                        h.div(".urgency")[
+                            school_logo(school),
+                            countdown(current_contest)
+                            if current_contest
+                            else h.div(".separate")[
+                                h.p["Check your voter registration status below."]
+                            ],
+                        ]
+                    ],
+                    h.div(".fireworks"),
+                ],
+                h.div(".form")[
+                    h.div(".container")[
+                        h.div(
+                            ".voteamerica-embed",
+                            data_subscriber="voterbowl",
+                            data_tool="verify",
+                            data_edition="college",
+                        )
                     ]
                 ],
-                h.div(".fireworks"),
-            ],
-            h.div(".form")[
-                h.div(".container")[
-                    h.div(
-                        ".voteamerica-embed",
-                        data_subscriber="voterbowl",
-                        data_tool="verify",
-                        data_edition="college",
-                    )
-                ]
-            ],
+            ]
         ]
     ]
 
@@ -118,7 +121,7 @@ def _finish_check_description(
         ]
 
     return [
-        "Thanks for checking your voter registraiton.",
+        "Thanks for checking your voter registration.",
         h.br,
         h.br,
         "Please register to vote if you haven't yet.",

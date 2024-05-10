@@ -4,6 +4,7 @@
     "module": "ESNext",
     "checkJs": true,
     "allowJs": true,
+    "strictNullChecks": true,
     "lib": ["dom", "es6"]
   },
   "include": ["server/**/*.js", "server/**/*.mjs"]

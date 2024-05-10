@@ -1,7 +1,129 @@
 import * as htmx from "./htmx.min.js";
 
 /*-----------------------------------------------------------------
- * Countdown Timer
+ * Check Page Component
+ * -----------------------------------------------------------------*/
+
+/**
+ * @typedef {object} VoteAmericaData
+ * @property {string?} tool The tool that sent the event.
+ * @property {string?} event The event that was sent.
+ * @property {string?} first_name The first name of the user.
+ * @property {string?} last_name The last name of the user.
+ * @property {string?} email The email of the user.
+ */
+
+/**
+ * @typedef {object} VoteAmericaDetail
+ * @property {VoteAmericaData?} data The data of the event.
+ */
+
+class CheckPage extends HTMLElement {
+  connectedCallback() {
+    window.addEventListener("VoteAmericaEvent", this.handleVoteAmericaEvent);
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener("VoteAmericaEvent", this.handleVoteAmericaEvent);
+  }
+
+  /**
+   * Listen for the VoteAmericaEvent and, if appropriate, finish the verify.
+   *
+   * @param {CustomEvent<VoteAmericaDetail>} event
+   */
+  handleVoteAmericaEvent = (event) => {
+    const { data } = event.detail;
+    if (!data) return;
+    if (data?.tool === "verify" && data?.event === "action-finish") {
+      if (!data.first_name || !data.last_name || !data.email) {
+        console.error("Missing data in event");
+        return;
+      }
+      this.finishVerify(data.first_name, data.last_name, data.email);
+    }
+  };
+
+  /**
+   * Finalize a verify and, possibly, mint a new gift card if all is well.
+   *
+   * @param {string} first_name
+   * @param {string} last_name
+   * @param {string} email
+   * @returns {Promise<void>}
+   */
+  async finishVerify(first_name, last_name, email) {
+    /** @type {HTMLElement|null} */
+    const urgency = this.querySelector(".urgency");
+    if (!urgency) {
+      console.error("Missing urgency element");
+      return;
+    }
+    try {
+      await htmx.ajax("POST", "./finish/", {
+        target: urgency,
+        values: {
+          first_name,
+          last_name,
+          email,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+customElements.define("check-page", CheckPage);
+
+/*-----------------------------------------------------------------
+ * Gift code clipboard behavior
+ * -----------------------------------------------------------------*/
+
+class GiftCode extends HTMLElement {
+  /** @type {HTMLElement} */
+  #code;
+  /** @type {HTMLElement} */
+  #clipboard;
+  /** @type {HTMLElement} */
+  #copied;
+
+  connectedCallback() {
+    /** @type {HTMLElement|null} */
+    const code = this.querySelector(".code");
+    /** @type {HTMLElement|null} */
+    const clipboard = this.querySelector(".clipboard");
+    /** @type {HTMLElement|null} */
+    const copied = this.querySelector(".copied");
+
+    if (!code || !clipboard || !copied) {
+      return;
+    }
+
+    this.#code = code;
+    this.#clipboard = clipboard;
+    this.#copied = copied;
+
+    this.#clipboard.addEventListener("click", this.handleClick);
+  }
+
+  disconnectedCallback() {
+    if (this.#clipboard) {
+      this.#clipboard.removeEventListener("click", this.handleClick);
+    }
+  }
+
+  handleClick = () => {
+    navigator.clipboard.writeText(this.#code.innerText);
+    this.#clipboard.classList.add("hidden");
+    this.#copied.classList.remove("hidden");
+  };
+}
+
+customElements.define("gift-code", GiftCode);
+
+/*-----------------------------------------------------------------
+ * Countdown Timers
  * -----------------------------------------------------------------*/
 
 /**
@@ -64,7 +186,11 @@ class BaseCountdown extends HTMLElement {
 
   /** @returns {Date} The end time of the countdown. */
   get endAt() {
-    return new Date(this.dataset.endAt);
+    const endAt = this.dataset.endAt;
+    if (!endAt) {
+      throw new Error("Missing endAt attribute");
+    }
+    return new Date(endAt);
   }
 
   tick() {
@@ -103,39 +229,44 @@ class BaseCountdown extends HTMLElement {
  * explicitly define it here.
  */
 class BigCountdown extends BaseCountdown {
-  /** @type {HTMLElement|null} */
-  #h0 = null;
-  /** @type {HTMLElement|null} */
-  #h1 = null;
-  /** @type {HTMLElement|null} */
-  #m0 = null;
-  /** @type {HTMLElement|null} */
-  #m1 = null;
-  /** @type {HTMLElement|null} */
-  #s0 = null;
-  /** @type {HTMLElement|null} */
-  #s1 = null;
+  /** @type {HTMLElement} */
+  #h0;
+  /** @type {HTMLElement} */
+  #h1;
+  /** @type {HTMLElement} */
+  #m0;
+  /** @type {HTMLElement} */
+  #m1;
+  /** @type {HTMLElement} */
+  #s0;
+  /** @type {HTMLElement} */
+  #s1;
 
   connectedCallback() {
-    this.#h0 = this.querySelector("[data-number=h0]");
-    this.#h1 = this.querySelector("[data-number=h1]");
-    this.#m0 = this.querySelector("[data-number=m0]");
-    this.#m1 = this.querySelector("[data-number=m1]");
-    this.#s0 = this.querySelector("[data-number=s0]");
-    this.#s1 = this.querySelector("[data-number=s1]");
+    /** @type {HTMLElement|null} */
+    const h0 = this.querySelector("[data-number=h0]");
+    /** @type {HTMLElement|null} */
+    const h1 = this.querySelector("[data-number=h1]");
+    /** @type {HTMLElement|null} */
+    const m0 = this.querySelector("[data-number=m0]");
+    /** @type {HTMLElement|null} */
+    const m1 = this.querySelector("[data-number=m1]");
+    /** @type {HTMLElement|null} */
+    const s0 = this.querySelector("[data-number=s0]");
+    /** @type {HTMLElement|null} */
+    const s1 = this.querySelector("[data-number=s1]");
 
     // if any of the numbers are missing, don't start the countdown
-    const numbers = [
-      this.#h0,
-      this.#h1,
-      this.#m0,
-      this.#m1,
-      this.#s0,
-      this.#s1,
-    ];
-    if (numbers.some((number) => !number)) {
+    if (!h0 || !h1 || !m0 || !m1 || !s0 || !s1) {
       return;
     }
+
+    this.#h0 = h0;
+    this.#h1 = h1;
+    this.#m0 = m0;
+    this.#m1 = m1;
+    this.#s0 = s0;
+    this.#s1 = s1;
 
     super.connectedCallback();
   }
@@ -177,15 +308,17 @@ class BigCountdown extends BaseCountdown {
  * explicitly define it here.
  */
 class SmallCountdown extends BaseCountdown {
-  /** @type {HTMLElement|null} */
-  #countdown = null;
+  /** @type {HTMLElement} */
+  #countdown;
 
   connectedCallback() {
-    this.#countdown = this.querySelector(".countdown");
-
-    if (!this.#countdown) {
+    /** @type {HTMLElement|null} */
+    const countdown = this.querySelector(".countdown");
+    if (!countdown) {
       return;
     }
+
+    this.#countdown = countdown;
 
     super.connectedCallback();
   }

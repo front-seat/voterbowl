@@ -2,11 +2,13 @@ import htpy as h
 from django.conf import settings
 from django.urls import reverse
 
-from server.utils.components import js, style, svg
+from server.utils.components import style, svg
 
 from ..models import ContestEntry, School
 from .base_page import base_page
 from .logo import school_logo
+
+gift_code = h.Element("gift-code", {}, None)
 
 
 def _congrats(contest_entry: ContestEntry, claim_code: str) -> h.Node:
@@ -66,13 +68,14 @@ def validate_email_page(
                 main_bg_color=school.logo.bg_color,
             ),
             h.main[
-                js(__file__, "validate_email_page.js"),
-                h.div(".container")[
-                    school_logo(school),
-                    _congrats(contest_entry, claim_code)
-                    if contest_entry and claim_code
-                    else _sorry(),
-                ],
+                gift_code[
+                    h.div(".container")[
+                        school_logo(school),
+                        _congrats(contest_entry, claim_code)
+                        if contest_entry and claim_code
+                        else _sorry(),
+                    ],
+                ]
             ],
         ],
     ]
