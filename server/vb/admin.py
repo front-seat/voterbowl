@@ -261,12 +261,34 @@ class InlineContestEntryAdmin(admin.TabularInline):
     extra = 0
 
     # These should be READONLY
-    fields = ("student", "created_at_pacific", "roll", "amount_won")
-    readonly_fields = ("student", "created_at_pacific", "roll", "amount_won")
+    fields = (
+        "student",
+        "created_at_pacific",
+        "show_winnings_issued",
+        "amount_won",
+        "roll",
+    )
+    readonly_fields = (
+        "student",
+        "created_at_pacific",
+        "amount_won",
+        "show_winnings_issued",
+        "roll",
+    )
 
     def created_at_pacific(self, obj: ContestEntry) -> str:
         """Return the contest entry's creation time in the Pacific timezone."""
         return obj.created_at.astimezone(PACIFIC).strftime("%B %d, %Y @ %I:%M %p")
+
+    @admin.display(description="Issued?")
+    def show_winnings_issued(self, obj: ContestEntry) -> str:
+        """Return whether the contest entry's winnings have been issued."""
+        if obj.has_issued:
+            return "Yes"
+        elif obj.is_winner:
+            return "Not yet"
+        else:
+            return ""
 
     def has_delete_permission(self, *args, **kwargs) -> bool:
         """No permission to delete."""
