@@ -362,6 +362,10 @@ class Student(models.Model):
         """Return the student's anonymized name."""
         return f"{self.first_name} {self.last_name[0]}."
 
+    def __str__(self) -> str:
+        """Return myself as a string."""
+        return f"{self.name} <{self.email}>"
+
 
 class EmailValidationLinkManager(models.Manager):
     """A custom manager for the email validation link model."""

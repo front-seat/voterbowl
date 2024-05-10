@@ -254,6 +254,29 @@ class StatusListFilter(admin.SimpleListFilter):
         return queryset
 
 
+class InlineContestEntryAdmin(admin.TabularInline):
+    """Inline contest entry admin."""
+
+    model = ContestEntry
+    extra = 0
+
+    # These should be READONLY
+    fields = ("student", "created_at_pacific", "roll", "amount_won")
+    readonly_fields = ("student", "created_at_pacific", "roll", "amount_won")
+
+    def created_at_pacific(self, obj: ContestEntry) -> str:
+        """Return the contest entry's creation time in the Pacific timezone."""
+        return obj.created_at.astimezone(PACIFIC).strftime("%B %d, %Y @ %I:%M %p")
+
+    def has_delete_permission(self, *args, **kwargs) -> bool:
+        """No permission to delete."""
+        return False
+
+    def has_add_permission(self, *args, **kwargs) -> bool:
+        """No permission to add."""
+        return False
+
+
 class ContestAdmin(admin.ModelAdmin):
     """Contest admin."""
 
@@ -267,6 +290,8 @@ class ContestAdmin(admin.ModelAdmin):
     )
     search_fields = ("school__name", "school__short_name", "school__slug")
     list_filter = (StatusListFilter, "school__name")
+    readonly_fields = ("status", "start_at_pacific", "end_at_pacific")
+    inlines = [InlineContestEntryAdmin]
 
     @admin.display(description="Start At (Pacific)")
     def start_at_pacific(self, obj: Contest) -> str:
