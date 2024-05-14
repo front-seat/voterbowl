@@ -6,8 +6,6 @@ from ..models import Contest
 from .button import button
 from .logo import school_logo
 
-small_countdown = h.Element("small-countdown", {}, None)
-
 
 def ongoing_contest(contest: Contest) -> h.Element:
     """Render an ongoing contest."""
@@ -29,7 +27,7 @@ def ongoing_contest(contest: Contest) -> h.Element:
                 )["Visit event"]
             ],
         ],
-        small_countdown(data_end_at=contest.end_at.isoformat())[
+        h.small_countdown(data_end_at=contest.end_at.isoformat())[
             h.div(".box countdown")[""]
         ],
     ]

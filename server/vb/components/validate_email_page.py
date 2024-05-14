@@ -8,8 +8,6 @@ from ..models import ContestEntry, School
 from .base_page import base_page
 from .logo import school_logo
 
-gift_code = h.Element("gift-code", {}, None)
-
 
 def _congrats(contest_entry: ContestEntry, claim_code: str) -> h.Node:
     return [
@@ -68,7 +66,7 @@ def validate_email_page(
                 main_bg_color=school.logo.bg_color,
             ),
             h.main[
-                gift_code[
+                h.gift_code[
                     h.div(".container")[
                         school_logo(school),
                         _congrats(contest_entry, claim_code)

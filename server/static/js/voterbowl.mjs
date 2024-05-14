@@ -1,4 +1,36 @@
 import * as htmx from "./htmx.min.js";
+import { Fireworks } from "./fireworks.js";
+
+/*-----------------------------------------------------------------
+ * API Calls
+ * -----------------------------------------------------------------*/
+
+const api = {
+  /**
+   * Finalize a verify and, possibly, mint a new gift ca
+   *
+   * @param {string} first_name
+   * @param {string} last_name
+   * @param {string} email
+   * @param {HTMLElement} target
+   * @returns {Promise<void>}
+   */
+  finishVerify: async (first_name, last_name, email, target) => {
+    /** @type {HTMLElement|null} */
+    try {
+      await htmx.ajax("POST", "./finish/", {
+        target,
+        values: {
+          first_name,
+          last_name,
+          email,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  },
+};
 
 /*-----------------------------------------------------------------
  * Check Page Component
@@ -40,41 +72,99 @@ class CheckPage extends HTMLElement {
         console.error("Missing data in event");
         return;
       }
-      this.finishVerify(data.first_name, data.last_name, data.email);
+      /** @type {HTMLElement|null} */
+      const target = this.querySelector(".urgency");
+      if (!target) {
+        console.error("Missing target element");
+        return;
+      }
+      api.finishVerify(data.first_name, data.last_name, data.email, target);
     }
   };
-
-  /**
-   * Finalize a verify and, possibly, mint a new gift card if all is well.
-   *
-   * @param {string} first_name
-   * @param {string} last_name
-   * @param {string} email
-   * @returns {Promise<void>}
-   */
-  async finishVerify(first_name, last_name, email) {
-    /** @type {HTMLElement|null} */
-    const urgency = this.querySelector(".urgency");
-    if (!urgency) {
-      console.error("Missing urgency element");
-      return;
-    }
-    try {
-      await htmx.ajax("POST", "./finish/", {
-        target: urgency,
-        values: {
-          first_name,
-          last_name,
-          email,
-        },
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  }
 }
 
 customElements.define("check-page", CheckPage);
+
+/*-----------------------------------------------------------------
+ * Fail Check Partial
+ * -----------------------------------------------------------------*/
+
+class FailCheck extends HTMLElement {
+  connectedCallback() {
+    const { schoolName, firstName, lastName } = this.dataset;
+    if (!schoolName || !firstName || !lastName) {
+      console.error("Missing data attributes");
+      return;
+    }
+
+    /** @type {HTMLElement|null} */
+    const target = this.querySelector(".urgency");
+    if (!target) {
+      console.error("Missing target element");
+      return;
+    }
+
+    const email = this.demandValidEmail(schoolName, 3);
+    if (!email) {
+      console.log("No email provided");
+      return;
+    }
+
+    api.finishVerify(firstName, lastName, email, target);
+  }
+
+  /**
+   * Prompt the user for a valid email address.
+   *
+   * @param {string} schoolName The name of the school.
+   * @param {number} tries The number of tries to allow.
+   * @returns {string|null} The email address or null if not provided.
+   * @private
+   * @memberof FailCheck
+   */
+  demandValidEmail(schoolName, tries) {
+    /** @type {string|null} */
+    let email = null;
+    let count = 0;
+    while (email === null && count < tries) {
+      email = prompt(
+        `Sorry, but we need your ${schoolName} student email to continue. Please enter it below:`
+      );
+      count++;
+    }
+    return email;
+  }
+}
+
+customElements.define("fail-check", FailCheck);
+
+/*-----------------------------------------------------------------
+ * Finish Check Partial
+ * -----------------------------------------------------------------*/
+
+class FinishCheck extends HTMLElement {
+  connectedCallback() {
+    // smoothly scroll to the top of the page after a slight delay
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
+
+    // if the user is a winner, start the fireworks
+    const { isWinner } = this.dataset;
+    if (isWinner !== "true") {
+      return;
+    }
+
+    // CONSIDER: use of document needed here?
+    /** @type {HTMLElement|null} */
+    const target = document.querySelector(".fireworks");
+    if (!target) {
+      console.error("Missing target element");
+      return;
+    }
+    const fireworks = new Fireworks(target);
+    fireworks.start();
+    setTimeout(() => fireworks.stop(), 10_000);
+  }
+}
 
 /*-----------------------------------------------------------------
  * Gift code clipboard behavior

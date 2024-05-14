@@ -4,15 +4,13 @@ from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.templatetags.static import static
 from django.urls import reverse
 
-from server.utils.components import js, style
+from server.utils.components import style
 
 from ..models import Contest, ContestEntry, School
 from .base_page import base_page
 from .countdown import countdown
 from .logo import school_logo
 from .utils import Fragment, fragment
-
-check_page_elt = h.Element("check-page", {}, None)
 
 
 def check_page(school: School, current_contest: Contest | None) -> h.Element:
@@ -28,7 +26,7 @@ def check_page(school: School, current_contest: Contest | None) -> h.Element:
         show_faq=False,
         show_footer=False,
     )[
-        check_page_elt[
+        h.check_page[
             h.div[
                 style(
                     __file__,
@@ -70,16 +68,15 @@ def fail_check_partial(
     """Render a partial page for when the user's email is invalid."""
     return fragment[
         school_logo(school),
-        h.p[
-            js(
-                __file__,
-                "fail_check_partial.js",
-                school_name=school.short_name,
-                first_name=first_name,
-                last_name=last_name,
-            ),
-            h.b["We could not use your email"],
-            f". Please use your { school.short_name } student email.",
+        h.fail_check(
+            data_school_name=school.short_name,
+            data_first_name=first_name,
+            data_last_name=last_name,
+        )[
+            h.p[
+                h.b["We could not use your email"],
+                f". Please use your { school.short_name } student email.",
+            ]
         ],
     ]
 
@@ -136,13 +133,14 @@ def finish_check_partial(
     """Render a partial page for when the user has finished the check."""
     return fragment[
         school_logo(school),
-        h.p[
-            style(__file__, "finish_check_partial.css"),
-            js(
-                __file__,
-                "finish_check_partial.js",
-                is_winner=contest_entry and contest_entry.is_winner,
-            ),
-            _finish_check_description(school, contest_entry, most_recent_winner),
+        h.finish_check(
+            data_is_winner="true"
+            if contest_entry and contest_entry.is_winner
+            else "false"
+        )[
+            h.p[
+                style(__file__, "finish_check_partial.css"),
+                _finish_check_description(school, contest_entry, most_recent_winner),
+            ]
         ],
     ]

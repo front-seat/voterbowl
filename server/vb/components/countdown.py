@@ -4,8 +4,6 @@ from server.utils.components import style
 
 from ..models import Contest
 
-big_countdown = h.Element("big-countdown", {}, None)
-
 
 def countdown(contest: Contest) -> h.Element:
     """Render a countdown timer for the given contest."""
@@ -24,7 +22,7 @@ def countdown(contest: Contest) -> h.Element:
             "giveaway " if contest.is_giveaway else "contest ",
             "ends in:",
         ],
-        big_countdown(data_end_at=contest.end_at.isoformat())[
+        h.big_countdown(data_end_at=contest.end_at.isoformat())[
             h.div(".countdown")[
                 h.span(".number", data_number="h0"),
                 h.span(".number", data_number="h1"),
