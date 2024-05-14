@@ -1,7 +1,6 @@
 import htpy as h
 from django.conf import settings
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.templatetags.static import static
 from django.urls import reverse
 
 from server.utils.components import style
@@ -16,7 +15,6 @@ from .utils import Fragment, fragment
 def check_page(school: School, current_contest: Contest | None) -> h.Element:
     """Render a school-specific 'check voter registration' form page."""
     extra_head = [
-        h.script(src=static("js/fireworks.js")),
         h.script(src="https://cdn.voteamerica.com/embed/tools.js", _async=True),
     ]
     return base_page(
@@ -110,7 +108,7 @@ def _finish_check_description(
             h.br,
             h.br,
             "You didn't win a gift card. ",
-            f"The last winner was {most_recent_winner.student.anonymized_name} {naturaltime(most_recent_winner.created_at)} ago."
+            f"The last winner was {most_recent_winner.student.anonymized_name} {naturaltime(most_recent_winner.created_at)}. "
             if most_recent_winner
             else None,
             "Your friends can still win! ",

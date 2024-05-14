@@ -1,5 +1,5 @@
-import * as htmx from "./htmx.min.js";
-import { Fireworks } from "./fireworks.js";
+import htmx from "./htmx.mjs";
+import { Fireworks } from "./fireworks.mjs";
 
 /*-----------------------------------------------------------------
  * API Calls
@@ -144,11 +144,22 @@ customElements.define("fail-check", FailCheck);
 
 class FinishCheck extends HTMLElement {
   connectedCallback() {
-    // smoothly scroll to the top of the page after a slight delay
-    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
+    console.log("FinishCheck connected");
+
+    // smoothly scroll to the top of the page after a 1/2 second
+    // delay, since some browsers will ignore the scrollIntoView
+    // if it's called too soon after the page loads or reflows
+    setTimeout(() => {
+      document.body.scrollIntoView({
+        block: "start",
+        inline: "nearest",
+        behavior: "smooth",
+      });
+    }, 500);
 
     // if the user is a winner, start the fireworks
     const { isWinner } = this.dataset;
+    console.log("FinishCheck isWinner:", isWinner);
     if (isWinner !== "true") {
       return;
     }
@@ -165,6 +176,8 @@ class FinishCheck extends HTMLElement {
     setTimeout(() => fireworks.stop(), 10_000);
   }
 }
+
+customElements.define("finish-check", FinishCheck);
 
 /*-----------------------------------------------------------------
  * Gift code clipboard behavior
