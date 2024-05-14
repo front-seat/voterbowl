@@ -1,14 +1,18 @@
 import logging
 
 from django import forms
-from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.timezone import now as dj_now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
+from .components.check_page import check_page, fail_check_partial, finish_check_partial
+from .components.home_page import home_page
+from .components.rules_page import rules_page
+from .components.school_page import school_page
+from .components.validate_email_page import validate_email_page
 from .models import Contest, EmailValidationLink, School
 from .ops import (
     enter_contest,
@@ -23,19 +27,15 @@ logger = logging.getLogger(__name__)
 @require_GET
 def home(request: HttpRequest) -> HttpResponse:
     """Render the voterbowl homepage."""
-    ongoing_contests = list(Contest.objects.ongoing().order_by("end_at"))
-    upcoming_contests = list(Contest.objects.upcoming().order_by("start_at"))
-    return render(
-        request,
-        "home.dhtml",
-        {"ongoing_contests": ongoing_contests, "upcoming_contests": upcoming_contests},
-    )
+    ongoing_contests = Contest.objects.ongoing().order_by("end_at")
+    upcoming_contests = Contest.objects.upcoming().order_by("start_at")
+    return HttpResponse(home_page(ongoing_contests, upcoming_contests))
 
 
 @require_GET
 def rules(request: HttpRequest) -> HttpResponse:
     """Render the voterbowl rules page."""
-    return render(request, "rules.dhtml")
+    return HttpResponse(rules_page())
 
 
 @require_GET
@@ -56,15 +56,7 @@ def school(request: HttpRequest, slug: str) -> HttpResponse:
         return redirect("vb:home", permanent=False)
     current_contest = school.contests.current()
     past_contest = school.contests.most_recent_past()
-    return render(
-        request,
-        "school.dhtml",
-        {
-            "school": school,
-            "current_contest": current_contest,
-            "past_contest": past_contest,
-        },
-    )
+    return HttpResponse(school_page(school, current_contest, past_contest))
 
 
 @require_GET
@@ -76,9 +68,7 @@ def check(request: HttpRequest, slug: str) -> HttpResponse:
     """
     school = get_object_or_404(School, slug=slug)
     current_contest = school.contests.current()
-    return render(
-        request, "check.dhtml", {"school": school, "current_contest": current_contest}
-    )
+    return HttpResponse(check_page(school, current_contest))
 
 
 class FinishCheckForm(forms.Form):
@@ -126,15 +116,13 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
     if not form.is_valid():
         if not form.has_only_email_error():
             raise PermissionDenied("Invalid")
-        return render(
-            request,
-            "fail_check.dhtml",
-            {
-                "school": school,
-                "first_name": form.cleaned_data["first_name"],
-                "last_name": form.cleaned_data["last_name"],
-                "current_contest": current_contest,
-            },
+        return HttpResponse(
+            fail_check_partial(
+                school,
+                form.cleaned_data["first_name"],
+                form.cleaned_data["last_name"],
+                current_contest,
+            )
         )
     email = form.cleaned_data["email"]
 
@@ -162,18 +150,12 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
     if current_contest is not None:
         most_recent_winner = current_contest.most_recent_winner()
 
-    return render(
-        request,
-        "finish_check.dhtml",
-        {
-            "BASE_URL": settings.BASE_URL,
-            "BASE_HOST": settings.BASE_HOST,
-            "school": school,
-            "current_contest": current_contest,
-            "contest_entry": contest_entry,
-            "most_recent_winner": most_recent_winner,
-            "email": email,
-        },
+    return HttpResponse(
+        finish_check_partial(
+            school,
+            contest_entry,
+            most_recent_winner,
+        )
     )
 
 
@@ -214,16 +196,4 @@ def validate_email(request: HttpRequest, slug: str, token: str) -> HttpResponse:
     except Exception:
         contest_entry, claim_code, error = None, None, True
 
-    return render(
-        request,
-        "verify_email.dhtml",
-        {
-            "BASE_URL": settings.BASE_URL,
-            "BASE_HOST": settings.BASE_HOST,
-            "school": school,
-            "student": link.student,
-            "contest_entry": contest_entry,
-            "claim_code": claim_code,
-            "error": error,
-        },
-    )
+    return HttpResponse(validate_email_page(school, contest_entry, claim_code, error))

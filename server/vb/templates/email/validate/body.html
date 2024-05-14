@@ -1,0 +1,11 @@
+{% extends "email/base/body.html" %}
+
+{% block message %}
+  {% include "email/base/p.html" %}
+  Hi {{ student.first_name }},
+  {% include "email/base/p_close.html" %}
+  {% include "email/base/p.html" %}
+  Thanks for checking your voter registration status. You {% if contest_entry.contest.is_giveaway %}got{% else %}won{% endif %} a gift card!
+  {% include "email/base/p_close.html" %}
+  {% include "email/base/button.html" with url=link.relative_url title=button_text %}
+{% endblock message %}
