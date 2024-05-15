@@ -147,9 +147,9 @@ def _finish_check_description(
                 "Thanks! Please register to vote if you haven't yet.",
                 h.br,
                 h.br,
-                f"You're entered into the ${contest.amount:,} drawing and we'll email you if you win."
+                f"You're entered into the ${contest.amount:,} drawing. We'll email you if you win."
                 if contest.is_monetary
-                else "You're entered into the drawing and we'll email you if you win.",
+                else "You're entered into the drawing. We'll email you if you win.",
                 h.br,
                 h.br,
                 "Your friends can also win! ",
