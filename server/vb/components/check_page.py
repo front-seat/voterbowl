@@ -37,7 +37,7 @@ def check_page(school: School, current_contest: Contest | None) -> h.Element:
                         h.div(".urgency")[
                             school_logo(school),
                             countdown(current_contest)
-                            if current_contest
+                            if current_contest and not current_contest.is_no_prize
                             else h.div(".separate")[
                                 h.p["Check your voter registration status below."]
                             ],
@@ -116,7 +116,7 @@ def _finish_check_description(
         contest = contest_entry.contest
         if contest.is_no_prize:
             return [
-                "Thanks for checking your voter registration. ",
+                "Thanks for checking. ",
                 "Please register to vote if you haven't yet.",
                 h.br,
                 h.br,
@@ -158,10 +158,12 @@ def _finish_check_description(
         raise ValueError(f"Unknown contest kind: {contest.kind}")
 
     return [
-        "Thanks for checking your voter registration.",
-        h.br,
-        h.br,
+        "Thanks for checking. ",
         "Please register to vote if you haven't yet.",
+        h.br,
+        h.br,
+        "Tell your friends! ",
+        share_link,
     ]
 
 

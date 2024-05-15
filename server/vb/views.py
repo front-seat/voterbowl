@@ -55,8 +55,7 @@ def school(request: HttpRequest, slug: str) -> HttpResponse:
     if school is None:
         return redirect("vb:home", permanent=False)
     current_contest = school.contests.current()
-    past_contest = school.contests.most_recent_past()
-    return HttpResponse(school_page(school, current_contest, past_contest))
+    return HttpResponse(school_page(school, current_contest))
 
 
 @require_GET
