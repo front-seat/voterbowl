@@ -8,7 +8,7 @@ from ..models import Contest
 def _describe_contest(contest: Contest) -> h.Node:
     """Render a description of the given contest."""
     if contest.is_no_prize:
-        return h.p["Check your registration status soon:"]
+        return h.p["Check your voter registration soon:"]
     if contest.is_giveaway:
         if contest.is_monetary:
             return h.p[

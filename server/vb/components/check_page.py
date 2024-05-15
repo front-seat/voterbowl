@@ -39,7 +39,12 @@ def check_page(school: School, current_contest: Contest | None) -> h.Element:
                             countdown(current_contest)
                             if current_contest and not current_contest.is_no_prize
                             else h.div(".separate")[
-                                h.p["Check your voter registration status below."]
+                                h.p[
+                                    "Check your voter registration.",
+                                    h.br,
+                                    h.br,
+                                    "It only takes 30 seconds.",
+                                ]
                             ],
                         ]
                     ],
