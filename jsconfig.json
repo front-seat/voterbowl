@@ -1,13 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "module": "CommonJS",
+    "module": "ESNext",
     "checkJs": true,
     "allowJs": true,
-    "noEmit": true
+    "strictNullChecks": true,
+    "lib": ["dom", "es6"]
   },
-  "include": [
-    "server/static/js/surreal.js",
-    "server/static/js/css-scope-inline.js"
-  ]
+  "include": ["server/**/*.js", "server/**/*.mjs"]
 }

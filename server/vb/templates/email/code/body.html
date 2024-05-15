@@ -1,0 +1,16 @@
+{% extends "email/base/body.html" %}
+
+{% block message %}
+  {% include "email/base/p.html" %}
+  Hi {{ student.first_name }},
+  {% include "email/base/p_close.html" %}
+  {% include "email/base/p.html" %}
+  Your ${{ contest_entry.amount_won }} Amazon gift code is: <strong>{{ claim_code }}</strong>
+  {% include "email/base/p_close.html" %}
+  {% include "email/base/p.html" %}
+  Copy and paste it into Amazon's gift card redemption page to claim your gift.
+  {% include "email/base/p_close.html" %}
+  {% include "email/base/p.html" %}
+  Tell your friends so they can also win! Share this link: {{ BASE_HOST }}/{{ contest_entry.student.school.slug }}
+  {% include "email/base/p_close.html" %}
+{% endblock message %}

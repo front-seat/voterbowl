@@ -13,11 +13,11 @@ We spend all our hipster tech tokens for this project to help us build a front-e
 
 - [HTMX](https://htmx.org/) with [django-htmx](https://github.com/adamchainz/django-htmx)
 - [css-scope-inline](https://github.com/gnat/css-scope-inline)
-- [surreal](https://github.com/gnat/surreal?tab=readme-ov-file)
+- [htpy](https://htpy.dev/) for HTML building, rather than Django templates (with a small handful of exceptions).
 
-Having never used any of these toys before, we'll see how this pans out. (Update: so far, I sorta like HTMX but don't love how I've structured everything with the other two. And I hate Django templates as much as I remember.)
+Having never used any of these toys before, we'll see how this pans out. (Update: I'm going to go back and remove `css-scope-inline` when I have a chance, in favor of, y'know, just being more careful with top-level CSS. `htpy` is better than Django templates for our purposes but not without its friction and pain.)
 
-(Others under consideration include [django-slippers](https://github.com/mixxorz/slippers), [django-template-partials](https://github.com/carltongibson/django-template-partials), and [django-components](https://github.com/EmilStenstrom/django-components). And don't forget the [django-htmx-patterns](https://github.com/spookylukey/django-htmx-patterns/) documentation.)
+(Others under consideration include [surreal](https://github.com/gnat/surreal?tab=readme-ov-file), [django-slippers](https://github.com/mixxorz/slippers), [django-template-partials](https://github.com/carltongibson/django-template-partials), and [django-components](https://github.com/EmilStenstrom/django-components). And don't forget the [django-htmx-patterns](https://github.com/spookylukey/django-htmx-patterns/) documentation.)
 
 For code cleanliness, we also use:
 
@@ -28,7 +28,9 @@ For code cleanliness, we also use:
 
 1. Make sure you have python 3.12 installed
 1. Create and enable a python virtualenv with `python -m venv .venv; source .venv/bin/activate`
-1. Install the python dependencies with `pip install -r requirements.txt` or `pip install ".[dev]"`
+1. Install the python dependencies with `pip install -r requirements.txt`
 1. Get postgres set up. If you've got docker installed, `./scripts/dockerpg.sh up`
 1. Configure your environment variables. (See `.env.sample` and `settings.py`)
 1. Run the app. `./manage.py runserver` and visit http://localhost:8000/
+
+New tests.

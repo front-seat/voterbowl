@@ -69,7 +69,7 @@ def send_template_email(
 
         - `subject.txt`: renders the subject line
         - `body.txt`: renders the plain-text body
-        - `body.dhtml`: renders the HTML body
+        - `body.html`: renders the HTML body
 
     Django's template system is flexible and can load templates from just about
     anywhere, provided you write a plugin. But! By default, we're going to load
@@ -108,7 +108,7 @@ def create_message(
 
     subject = render_to_string(f"{template_base}/subject.txt", context).strip()
     text = render_to_string(f"{template_base}/body.txt", context)
-    html = render_to_string(f"{template_base}/body.dhtml", context)
+    html = render_to_string(f"{template_base}/body.html", context)
 
     final_to = list(to)
     if settings.DEBUG_EMAIL_TO:

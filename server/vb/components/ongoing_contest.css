@@ -1,0 +1,68 @@
+me {
+  border: 3px solid black;
+  color: black;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 140%;
+  padding-left: 1em;
+  padding-right: 1em;
+  position: relative;
+}
+
+me .content {
+  display: flex;
+  flex-direction: column;
+}
+
+me .logo {
+  border-radius: 100%;
+  border: 2px solid black;
+  background-color: var(--logo-bg-color);
+  overflow: hidden;
+  width: 60px;
+  height: 60px;
+  margin: 1.5em auto 1em auto;
+}
+
+me .logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+me .school {
+  margin: 0;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+me .description {
+  margin-bottom: 0;
+}
+
+me .button-holder {
+  width: 100%;
+}
+
+me .button-holder a {
+  width: 100%;
+}
+
+/* A centered box at the top of the card */
+me .box {
+  position: absolute;
+  top: -1em;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 3px solid black;
+  background-color: #cdff64;
+  font-weight: 600;
+  line-height: 100%;
+  letter-spacing: 4%;
+  min-width: 30%;
+  padding: 0.25rem;
+  text-transform: uppercase;
+}

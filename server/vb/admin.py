@@ -5,13 +5,13 @@ from django import forms
 from django.contrib import admin
 from django.core.files.uploadedfile import UploadedFile
 from django.db import models
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now as django_now
 
 from server.admin import admin_site
 
+from .components.logo import logo_specimen
 from .models import (
     Contest,
     ContestEntry,
@@ -60,13 +60,9 @@ class RenderLogoSpecimenMixin:
         """Return the logo as an image."""
         if obj is None:
             return None
-
-        context = {
-            "logo": obj,
-            "width": "48px",
-            "height": "48px",
-        }
-        return mark_safe(render_to_string("components/logo_specimen.dhtml", context))
+        # XXX str(logo_specimen) returns markupsafe.Markup, lame.
+        as_str = str(str(logo_specimen(obj)))
+        return mark_safe(as_str)
 
 
 class LogoAdmin(admin.TabularInline, RenderLogoSpecimenMixin):
