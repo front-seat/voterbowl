@@ -92,10 +92,20 @@ def _finish_check_description(
     ]
 
     if contest_entry and contest_entry.is_winner:
+        contest = contest_entry.contest
+        if contest.is_monetary:
+            return [
+                h.b["You win!"],
+                f" We sent a ${contest_entry.amount_won} {contest.prize} to your school email. ",
+                "(Check your spam folder.) ",
+                h.br,
+                h.br,
+                "Your friends can also win. ",
+                share_link,
+            ]
         return [
-            h.b["You win!"],
-            f" We sent a ${contest_entry.amount_won} gift card to your school email. ",
-            "(Check your spam folder.) ",
+            h.b["You win: "],
+            f"{contest.prize_long}.",
             h.br,
             h.br,
             "Your friends can also win. ",
@@ -103,17 +113,48 @@ def _finish_check_description(
         ]
 
     if contest_entry:
-        return [
-            "Please register to vote if you haven't yet.",
-            h.br,
-            h.br,
-            "You didn't win a gift card. ",
-            f"The last winner was {most_recent_winner.student.anonymized_name} {naturaltime(most_recent_winner.created_at)}. "
-            if most_recent_winner
-            else None,
-            "Your friends can still win! ",
-            share_link,
-        ]
+        contest = contest_entry.contest
+        if contest.is_no_prize:
+            return [
+                "Thanks for checking your voter registration. ",
+                "Please register to vote if you haven't yet.",
+                h.br,
+                h.br,
+                "Tell your friends! ",
+                share_link,
+            ]
+        if contest.is_giveaway:
+            raise RuntimeError(
+                f"Giveaways should always have winners ({contest_entry.pk})"
+            )
+        if contest.is_dice_roll:
+            # Works for both monetary and non-monetary dice rolls
+            return [
+                "Please register to vote if you haven't yet.",
+                h.br,
+                h.br,
+                f"You didn't win a {contest.prize}. ",
+                f"The last winner was {most_recent_winner.student.anonymized_name} {naturaltime(most_recent_winner.created_at)}. "
+                if most_recent_winner
+                else None,
+                "Your friends can still win! ",
+                share_link,
+            ]
+        if contest.is_single_winner:
+            # We don't know if the user won or lost, so we don't say anything
+            # more than 'we'll let you know'
+            return [
+                "Thanks! Please register to vote if you haven't yet.",
+                h.br,
+                h.br,
+                "We'll send you an email soon ",
+                "to let you know if you won.",
+                h.br,
+                h.br,
+                "Your friends can also enter to win. ",
+                share_link,
+            ]
+        raise ValueError(f"Unknown contest kind: {contest.kind}")
 
     return [
         "Thanks for checking your voter registration.",

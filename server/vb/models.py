@@ -271,8 +271,20 @@ class Contest(models.Model):
 
     contest_entries: "ContestEntryManager"
 
+    @property
+    def has_immmediate_winners(self) -> bool:
+        """Return whether the contest has immediate winners."""
+        return self.is_giveaway or self.is_dice_roll
+
     def most_recent_winner(self) -> "ContestEntry | None":
-        """Return the most recent winner for this contest."""
+        """
+        Return the most recent winner for this contest.
+
+        Return None if there is not yet a winner, or if the contest has no
+        immediate winners.
+        """
+        if not self.has_immmediate_winners:
+            return None
         return self.contest_entries.winners().order_by("-created_at").first()
 
     @property

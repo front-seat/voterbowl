@@ -40,7 +40,7 @@ me .action {
   padding-right: 0.5rem;
   transition: opacity 0.2s;
   background-color: var(--logo-action-color);
-  color: var(--logo-action_text_color);
+  color: var(--logo-action-text-color);
 }
 
 me .action:hover {
