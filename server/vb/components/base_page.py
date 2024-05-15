@@ -49,7 +49,7 @@ def base_page(
             h.meta(name="keywords", content="voting, competition, online"),
             h.meta(charset="utf-8"),
             h.meta(http_equiv="X-UA-Compatible", content="IE=edge"),
-            h.meta(name="vierwport", content="width=device-width, initial-scale=1.0"),
+            h.meta(name="viewport", content="width=device-width, initial-scale=1.0"),
             h.meta(name="format-detection", content="telephone=no"),
             h.link(rel="stylesheet", href=static("css/modern-normalize.min.css")),
             h.link(rel="stylesheet", href=static("css/base.css")),
