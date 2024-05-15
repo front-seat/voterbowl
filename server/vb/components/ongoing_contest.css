@@ -62,7 +62,13 @@ me .box {
   font-weight: 600;
   line-height: 100%;
   letter-spacing: 4%;
-  min-width: 30%;
+  min-width: 70%;
   padding: 0.25rem;
   text-transform: uppercase;
+}
+
+@media screen and (min-width: 768px) {
+  me .box {
+    min-width: 35%;
+  }
 }
