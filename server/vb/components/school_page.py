@@ -10,21 +10,65 @@ from .logo import school_logo
 
 
 def _current_contest_info(school: School, contest: Contest) -> h.Node:
-    return h.p[
-        school.short_name,
-        " students: check your registration status",
-        f"for a 1 in {contest.in_n } chance",
-        f"to win a ${contest.amount} Amazon gift card.",
-    ]
+    if contest.is_no_prize:
+        return h.p[
+            school.short_name,
+            " ",
+            "students: it's a good idea to check your registration status early!",
+        ]
+    if contest.is_giveaway:
+        if contest.is_monetary:
+            return h.p[
+                school.short_name,
+                " ",
+                "students: check your registration status ",
+                f"to win a ${contest.amount} {contest.prize_long}.",
+            ]
+        return h.p[
+            school.short_name,
+            " ",
+            "students: check your registration status ",
+            f"for a {contest.prize_long}.",
+        ]
+    if contest.is_dice_roll:
+        if contest.is_monetary:
+            return h.p[
+                school.short_name,
+                " ",
+                "students: check your registration status ",
+                f"for a 1 in {contest.in_n} chance ",
+                f"to win a ${contest.amount} {contest.prize_long}.",
+            ]
+        return h.p[
+            school.short_name,
+            " ",
+            "students: check your registration status ",
+            f"for a 1 in {contest.in_n} chance",
+            f"at {contest.prize_long}.",
+        ]
+    if contest.is_single_winner:
+        if contest.is_monetary:
+            return h.p[
+                school.short_name,
+                " ",
+                "students: check your registration status ",
+                f"for a chance to win a ${contest.amount} {contest.prize_long}.",
+            ]
+        return h.p[
+            school.short_name,
+            " ",
+            "students: check your registration status ",
+            f"for a chance to win {contest.prize_long}.",
+        ]
+    raise ValueError(f"Unknown contest kind: {contest.kind}")
 
 
 def _past_contest_info(school: School, contest: Contest) -> h.Node:
     return [
         h.p[
             school.short_name,
-            f" students: the ${contest.amount} ",
-            "giveaway" if contest.is_giveaway else "contest",
-            " has ended.",
+            " ",
+            "students: the contest recently ended.",
         ],
         h.p["But: it's always a good time to make sure you're ready to vote."],
     ]

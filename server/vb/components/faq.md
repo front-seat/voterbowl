@@ -10,11 +10,11 @@ The Voter Bowl is a contest where college students win prizes by checking if the
 
 The Voter Bowl is a nonprofit, nonpartisan project of [VoteAmerica](https://www.voteamerica.com/), a national leader in voter registration and participation.
 
-### How do I claim my gift card?
+### How do I claim my prize?
 
-If you win, we'll send an Amazon gift card to your student email address.
-
-You can redeem your gift card by typing the claim code into [Amazon.com](https://www.amazon.com/gc/redeem).
+Prizes vary depending on the contest. If the contest includes a prize that
+can be delivered digitally and you win, we'll send you an email with further
+instructions.
 
 [Read the full contest rules here](/rules).
 

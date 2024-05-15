@@ -18,7 +18,7 @@ from .ops import (
     enter_contest,
     get_or_create_student,
     get_or_issue_prize,
-    send_validation_link_email,
+    process_contest_workflow,
 )
 
 logger = logging.getLogger(__name__)
@@ -143,8 +143,8 @@ def finish_check(request: HttpRequest, slug: str) -> HttpResponse:
 
     # Send the student an email validation link to claim their prize
     # if they won. In no other cases do we send validation links.
-    if contest_entry and contest_entry.is_winner:
-        send_validation_link_email(student, email, contest_entry)
+    if contest_entry is not None:
+        process_contest_workflow(student, email, contest_entry)
 
     most_recent_winner = None
     if current_contest is not None:

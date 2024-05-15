@@ -7,7 +7,14 @@ from server.utils.agcod import AGCODClient
 from server.utils.email import send_template_email
 from server.utils.tokens import make_token
 
-from .models import Contest, ContestEntry, EmailValidationLink, School, Student
+from .models import (
+    Contest,
+    ContestEntry,
+    ContestWorkflow,
+    EmailValidationLink,
+    School,
+    Student,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -165,6 +172,22 @@ def get_or_create_student(
         },
     )
     return student
+
+
+# -----------------------------------------------------------------------------
+# Workflows
+# -----------------------------------------------------------------------------
+
+
+def process_contest_workflow(
+    student: Student, email: str, contest_entry: ContestEntry
+) -> None:
+    """Process the workflow for a contest entry."""
+    if not contest_entry.is_winner:
+        return
+    if contest_entry.contest.workflow != ContestWorkflow.AMAZON:
+        return
+    send_validation_link_email(student, email, contest_entry)
 
 
 # -----------------------------------------------------------------------------
