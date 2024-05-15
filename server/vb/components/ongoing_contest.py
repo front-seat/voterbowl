@@ -10,7 +10,9 @@ from .logo import school_logo
 def _ongoing_description(contest: Contest) -> list[str]:
     """Render a description of the given contest."""
     if contest.is_no_prize:
-        return ["Check your voter registration status soon!"]
+        return [
+            "Check your voter registration status now to avoid last-minute issues before the election."
+        ]
     if contest.is_giveaway:
         if contest.is_monetary:
             return [
