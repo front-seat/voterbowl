@@ -11,34 +11,34 @@ def _ongoing_description(contest: Contest) -> list[str]:
     """Render a description of the given contest."""
     if contest.is_no_prize:
         return [
-            "Check your voter registration status now to avoid last-minute issues before the election."
+            "Check your voter registration now to avoid last-minute issues before the election."
         ]
     if contest.is_giveaway:
         if contest.is_monetary:
             return [
-                "Check your voter registration status ",
+                "Check your voter registration ",
                 f"to win a ${contest.amount:,} {contest.prize_long}.",
             ]
-        return ["Check your voter registration status ", f"for {contest.prize_long}."]
+        return ["Check your voter registration ", f"for {contest.prize_long}."]
     if contest.is_dice_roll:
         if contest.is_monetary:
             return [
-                "Check your voter registration status ",
+                "Check your voter registration ",
                 f"for a 1 in {contest.in_n} chance "
                 f"to win a ${contest.amount:,} {contest.prize_long}.",
             ]
         return [
-            "Check your voter registration status ",
+            "Check your voter registration ",
             f"for a 1 in {contest.in_n} chance to at {contest.prize_long}.",
         ]
     if contest.is_single_winner:
         if contest.is_monetary:
             return [
-                "Check your voter registration status ",
+                "Check your voter registration ",
                 f"for a chance to win a ${contest.amount:,} {contest.prize_long}.",
             ]
         return [
-            "Check your voter registration status ",
+            "Check your voter registration ",
             f"for a chance to win {contest.prize_long}.",
         ]
     raise ValueError(f"Unknown contest kind: {contest.kind}")

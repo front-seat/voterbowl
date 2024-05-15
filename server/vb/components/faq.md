@@ -1,6 +1,6 @@
 ## F.A.Q.
 
-### Why should I check my voter registration status now?
+### Why should I check my voter registration now?
 
 Check now to avoid any last-minute issues before the election.
 

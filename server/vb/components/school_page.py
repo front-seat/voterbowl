@@ -13,7 +13,7 @@ def _no_current_prize_contest(school: School) -> h.Node:
     return h.p[
         school.short_name,
         " ",
-        "students: check your registration status now to avoid ",
+        "students: check your voter registration now to avoid ",
         "last-minute issues before the election.",
     ]
 
@@ -26,13 +26,13 @@ def _current_contest_info(school: School, contest: Contest) -> h.Node:
             return h.p[
                 school.short_name,
                 " ",
-                "students: check your registration status ",
+                "students: check your voter registration ",
                 f"to win a ${contest.amount:,} {contest.prize_long}.",
             ]
         return h.p[
             school.short_name,
             " ",
-            "students: check your registration status ",
+            "students: check your voter registration ",
             f"for a {contest.prize_long}.",
         ]
     if contest.is_dice_roll:
@@ -40,14 +40,14 @@ def _current_contest_info(school: School, contest: Contest) -> h.Node:
             return h.p[
                 school.short_name,
                 " ",
-                "students: check your registration status ",
+                "students: check your voter registration ",
                 f"for a 1 in {contest.in_n} chance ",
                 f"to win a ${contest.amount:,} {contest.prize_long}.",
             ]
         return h.p[
             school.short_name,
             " ",
-            "students: check your registration status ",
+            "students: check your voter registration ",
             f"for a 1 in {contest.in_n} chance",
             f"at {contest.prize_long}.",
         ]
@@ -56,13 +56,13 @@ def _current_contest_info(school: School, contest: Contest) -> h.Node:
             return h.p[
                 school.short_name,
                 " ",
-                "students: check your registration status ",
+                "students: check your voter registration ",
                 f"for a chance to win a ${contest.amount:,} {contest.prize_long}.",
             ]
         return h.p[
             school.short_name,
             " ",
-            "students: check your registration status ",
+            "students: check your voter registration ",
             f"for a chance to win {contest.prize_long}.",
         ]
     raise ValueError(f"Unknown contest kind: {contest.kind}")

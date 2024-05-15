@@ -2,7 +2,7 @@
 
 {% block message %}Hi {{ student.first_name }},
 
-Thanks for checking your voter registration status.{% if not contest_entry.contest.is_giveaway %} You won!{% endif %}
+Thanks for checking your voter registration.{% if not contest_entry.contest.is_giveaway %} You won!{% endif %}
 
 Click this link to get your ${{ contest_entry.amount_won }} gift card:
 
