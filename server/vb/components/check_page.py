@@ -147,11 +147,12 @@ def _finish_check_description(
                 "Thanks! Please register to vote if you haven't yet.",
                 h.br,
                 h.br,
-                "We'll send you an email soon ",
-                "to let you know if you won.",
+                f"You're entered into the ${contest.amount:,} drawing and we'll email you if you win."
+                if contest.is_monetary
+                else "You're entered into the drawing and we'll email you if you win.",
                 h.br,
                 h.br,
-                "Your friends can also enter to win. ",
+                "Your friends can also win! ",
                 share_link,
             ]
         raise ValueError(f"Unknown contest kind: {contest.kind}")

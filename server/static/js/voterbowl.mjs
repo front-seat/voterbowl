@@ -98,7 +98,7 @@ class FailCheck extends HTMLElement {
     }
 
     /** @type {HTMLElement|null} */
-    const target = this.querySelector(".urgency");
+    const target = document.querySelector(".urgency");
     if (!target) {
       console.error("Missing target element");
       return;

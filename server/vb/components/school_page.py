@@ -22,7 +22,7 @@ def _current_contest_info(school: School, contest: Contest) -> h.Node:
                 school.short_name,
                 " ",
                 "students: check your registration status ",
-                f"to win a ${contest.amount} {contest.prize_long}.",
+                f"to win a ${contest.amount:,} {contest.prize_long}.",
             ]
         return h.p[
             school.short_name,
@@ -37,7 +37,7 @@ def _current_contest_info(school: School, contest: Contest) -> h.Node:
                 " ",
                 "students: check your registration status ",
                 f"for a 1 in {contest.in_n} chance ",
-                f"to win a ${contest.amount} {contest.prize_long}.",
+                f"to win a ${contest.amount:,} {contest.prize_long}.",
             ]
         return h.p[
             school.short_name,
@@ -52,7 +52,7 @@ def _current_contest_info(school: School, contest: Contest) -> h.Node:
                 school.short_name,
                 " ",
                 "students: check your registration status ",
-                f"for a chance to win a ${contest.amount} {contest.prize_long}.",
+                f"for a chance to win a ${contest.amount:,} {contest.prize_long}.",
             ]
         return h.p[
             school.short_name,

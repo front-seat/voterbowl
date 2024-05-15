@@ -350,16 +350,16 @@ class Contest(models.Model):
         elif self.is_giveaway:
             # 1 Tree Planted, $5 Amazon Gift Card
             if self.is_monetary:
-                return f"${self.amount} {self.prize_long.title()} Giveaway"
+                return f"${self.amount:,} {self.prize_long.title()} Giveaway"
             return f"{self.prize_long.title()}"
         elif self.is_dice_roll:
             if self.is_monetary:
-                return f"${self.amount} {self.prize_long.title()} Contest (1 in {self.in_n} wins)"  # noqa
+                return f"${self.amount:,} {self.prize_long.title()} Contest (1 in {self.in_n} wins)"  # noqa
             return f"{self.prize_long.title()} (1 in {self.in_n} wins)"
         elif self.is_single_winner:
             if self.is_monetary:
-                return f"${self.amount} {self.prize_long.title()} Sweepstakes"
-            return f"{self.prize_long.title()} Sweepstakes"
+                return f"${self.amount:,} {self.prize_long.title()} Drawing"
+            return f"{self.prize_long.title()} Drawing"
         raise ValueError("Unknown contest kind")
 
     def __str__(self):

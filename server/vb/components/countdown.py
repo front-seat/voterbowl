@@ -12,7 +12,7 @@ def _describe_contest(contest: Contest) -> h.Node:
     if contest.is_giveaway:
         if contest.is_monetary:
             return h.p[
-                f"${contest.amount} {contest.prize_long}",
+                f"${contest.amount:,} {contest.prize_long}",
                 h.br,
                 "giveaway ends in:",
             ]
@@ -24,7 +24,7 @@ def _describe_contest(contest: Contest) -> h.Node:
     if contest.is_dice_roll:
         if contest.is_monetary:
             return h.p[
-                f"${contest.amount} {contest.prize_long}",
+                f"${contest.amount:,} {contest.prize_long}",
                 h.br,
                 "contest ends in:",
             ]
@@ -36,9 +36,9 @@ def _describe_contest(contest: Contest) -> h.Node:
     if contest.is_single_winner:
         if contest.is_monetary:
             return h.p[
-                f"${contest.amount} {contest.prize_long}",
+                f"${contest.amount:,} {contest.prize_long}",
                 h.br,
-                "sweepstakes ends in:",
+                "drawing ends in:",
             ]
         return h.p[
             contest.prize_long,

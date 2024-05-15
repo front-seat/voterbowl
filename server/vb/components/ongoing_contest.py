@@ -15,7 +15,7 @@ def _ongoing_description(contest: Contest) -> list[str]:
         if contest.is_monetary:
             return [
                 "Check your voter registration status ",
-                f"to win a ${contest.amount} {contest.prize_long}.",
+                f"to win a ${contest.amount:,} {contest.prize_long}.",
             ]
         return ["Check your voter registration status ", f"for {contest.prize_long}."]
     if contest.is_dice_roll:
@@ -23,7 +23,7 @@ def _ongoing_description(contest: Contest) -> list[str]:
             return [
                 "Check your voter registration status ",
                 f"for a 1 in {contest.in_n} chance "
-                f"to win a ${contest.amount} {contest.prize_long}.",
+                f"to win a ${contest.amount:,} {contest.prize_long}.",
             ]
         return [
             "Check your voter registration status ",
@@ -33,7 +33,7 @@ def _ongoing_description(contest: Contest) -> list[str]:
         if contest.is_monetary:
             return [
                 "Check your voter registration status ",
-                f"for a chance to win a ${contest.amount} {contest.prize_long}.",
+                f"for a chance to win a ${contest.amount:,} {contest.prize_long}.",
             ]
         return [
             "Check your voter registration status ",
