@@ -7,7 +7,6 @@ import typing as t
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.template import Context, Template
 from django.urls import reverse
 from django.utils.timezone import now as django_now
 
@@ -170,6 +169,32 @@ class ContestManager(models.Manager):
         return self.ongoing(when).first()
 
 
+class ContestKind(models.TextChoices):
+    """The various kinds of contests."""
+
+    # Every student wins a prize (gift card; charitable donation; etc.)
+    GIVEAWAY = "giveaway", "Giveaway"
+
+    # Every student rolls a dice; some students win a prize.
+    DICE_ROLL = "dice_roll", "Dice roll"
+
+    # A single student wins a prize after the contest ends.
+    SINGLE_WINNER = "single_winner", "Single winner"
+
+    # No prizes are awarded.
+    NO_PRIZE = "no_prize", "No prize"
+
+
+class ContestWorkflow(models.TextChoices):
+    """The various workflows for contests."""
+
+    # Issue an amazon gift card and email automatically
+    AMAZON = "amazon", "Amazon"
+
+    # No automated workflow; manual intervention may be required
+    NONE = "none", "None"
+
+
 class Contest(models.Model):
     """A single contest in the competition."""
 
@@ -184,18 +209,64 @@ class Contest(models.Model):
     start_at = models.DateTimeField(blank=False)
     end_at = models.DateTimeField(blank=False)
 
-    # For now, we assume:
+    # The assumptions here have changed basically weekly as we gather more
+    # data and learn more. As of this writing, our current assumptions are:
     #
-    # 1. Anyone who checks their voter registration during the contest period
-    #    is a winner.
-    # 2. All winners receive the same Amazon gift card amount as a prize.
-    amount = models.IntegerField(
-        blank=False, help_text="The USD amount of the gift card.", default=5
+    # 1. We support four kinds of contest:
+    #
+    #   - Giveaway: every student immediately wins a prize.
+    #   - Dice roll: every student rolls a dice and may immediately win a prize.
+    #   - Single winner: a single student wins a prize after the contest ends.
+    #   - No prize: no prizes are awarded.
+
+    kind = models.CharField(
+        max_length=32,
+        choices=ContestKind.choices,
+        blank=False,
+        default=ContestKind.GIVEAWAY,
     )
+
     in_n = models.IntegerField(
         blank=False,
-        help_text="1 in_n students will win a gift card.",
+        help_text="1 in_n students will win a prize.",
         default=1,
+    )
+
+    # 2. Some contests require automated workflows to award prizes. Currently
+    #    we only have one such action: 'amazon', for issuing Amazon gift cards
+    #    and sending emails to the winners.
+
+    workflow = models.CharField(
+        max_length=32,
+        choices=ContestWorkflow.choices,
+        blank=False,
+        default=ContestWorkflow.AMAZON,
+    )
+
+    # 3. Prizes need short and long descriptions.
+    #
+    #    For instance, historically we used "gift card" and "Amazon gift card"
+    #    as our descriptions.
+    #
+    #    Newer examples include "gift card" and "prepaid Visa gift card", or
+    #    "donation" and "donation to charity".
+    #
+    #    Monetary prizes have a dollar amount associated with them.
+    amount = models.IntegerField(
+        blank=False, help_text="The amount of the prize.", default=0
+    )
+
+    prize = models.CharField(
+        max_length=255,
+        blank=True,
+        default="gift card",
+        help_text="A short description of the prize, if any.",
+    )
+    prize_long = models.CharField(
+        max_length=255,
+        blank=True,
+        default="Amazon gift card",
+        help_text="A long description of the prize, if any.",
     )
 
     contest_entries: "ContestEntryManager"
@@ -205,30 +276,29 @@ class Contest(models.Model):
         return self.contest_entries.winners().order_by("-created_at").first()
 
     @property
-    def name(self) -> str:
-        """Render the contest name template."""
-        if self.in_n > 1:
-            template_str = "${{ contest.amount }} Amazon Gift Card Giveaway (1 in {{ contest.in_n }} wins)"  # noqa
-        else:
-            template_str = "${{ contest.amount }} Amazon Gift Card Giveaway"
-        context = {"school": self.school, "contest": self}
-        return Template(template_str).render(Context(context))
+    def is_dice_roll(self) -> bool:
+        """Return whether the contest is a dice roll."""
+        return self.kind == ContestKind.DICE_ROLL
 
     @property
     def is_giveaway(self) -> bool:
         """Return whether the contest is a giveaway."""
-        return self.in_n == 1
+        return self.kind == ContestKind.GIVEAWAY
 
     @property
-    def description(self) -> str:
-        """Render the contest description template."""
-        template_str = "{{ school.short_name }} students: check your voter registration to win a ${{ contest.amount }} Amazon gift card."  # noqa
-        context = {"school": self.school, "contest": self}
-        return Template(template_str).render(Context(context))
+    def is_single_winner(self) -> bool:
+        """Return whether the contest is a single winner."""
+        return self.kind == ContestKind.SINGLE_WINNER
 
-    def _roll_die(self) -> int:
-        """Roll a fair die from [0, self.in_n)."""
-        return secrets.randbelow(self.in_n)
+    @property
+    def is_no_prize(self) -> bool:
+        """Return whether the contest is a no prize."""
+        return self.kind == ContestKind.NO_PRIZE
+
+    @property
+    def is_monetary(self) -> bool:
+        """Return whether the contest has a monetary prize."""
+        return self.amount > 0
 
     def roll_die_and_get_winnings(self) -> tuple[int, int]:
         """
@@ -236,7 +306,12 @@ class Contest(models.Model):
 
         Return a tuple of the roll and the amount won (or 0 if no win).
         """
-        roll = self._roll_die()
+        if self.is_no_prize or self.is_single_winner:
+            return (1, 0)
+        if self.is_giveaway:
+            return (0, self.amount)
+        # self.is_dice_roll
+        roll = secrets.randbelow(self.in_n)
         amount_won = self.amount if roll == 0 else 0
         return roll, amount_won
 
@@ -254,6 +329,26 @@ class Contest(models.Model):
         """Return whether the contest is past."""
         when = when or django_now()
         return self.end_at <= when
+
+    @property
+    def name(self) -> str:
+        """Render an administrative name for the template."""
+        if self.is_no_prize:
+            return "No prize"
+        elif self.is_giveaway:
+            # 1 Tree Planted, $5 Amazon Gift Card
+            if self.is_monetary:
+                return f"${self.amount} {self.prize_long.title()} Giveaway"
+            return f"{self.prize_long.title()}"
+        elif self.is_dice_roll:
+            if self.is_monetary:
+                return f"${self.amount} {self.prize_long.title()} Contest (1 in {self.in_n} wins)"  # noqa
+            return f"{self.prize_long.title()} (1 in {self.in_n} wins)"
+        elif self.is_single_winner:
+            if self.is_monetary:
+                return f"${self.amount} {self.prize_long.title()} Sweepstakes"
+            return f"{self.prize_long.title()} Sweepstakes"
+        raise ValueError("Unknown contest kind")
 
     def __str__(self):
         """Return the contest model's string representation."""
