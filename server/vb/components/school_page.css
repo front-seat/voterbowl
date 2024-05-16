@@ -13,9 +13,17 @@ me main {
   background-color: var(--bg-color);
 }
 
+me main>div {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  min-height: calc(100dvh - env(safe-area-inset-bottom) - 2rem);
+}
+
 @media screen and (min-width: 768px) {
-  me main {
+  me main>div {
     padding: 2rem 0;
+    min-height: unset;
   }
 }
 
@@ -46,7 +54,13 @@ me .faq {
 me .button-holder {
   display: flex;
   justify-content: center;
-  margin: 1.5rem 0;
+  margin: 0;
+}
+
+@media screen and (min-width: 768px) {
+  me .button-holder {
+    margin-top: 1.5rem;
+  }
 }
 
 me .faq {
