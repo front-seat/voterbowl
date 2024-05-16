@@ -3,6 +3,7 @@ import htpy as h
 from server.utils.components import style
 
 from ..models import Contest
+from .utils import remaining_time
 
 
 def _describe_contest(contest: Contest) -> h.Node:
@@ -51,6 +52,7 @@ def _describe_contest(contest: Contest) -> h.Node:
 def countdown(contest: Contest) -> h.Element:
     """Render a countdown timer for the given contest."""
     logo = contest.school.logo
+    remaining = remaining_time(contest.end_at)
     return h.div[
         style(
             __file__,
@@ -62,14 +64,14 @@ def countdown(contest: Contest) -> h.Element:
         _describe_contest(contest),
         h.big_countdown(data_end_at=contest.end_at.isoformat())[
             h.div(".countdown")[
-                h.span(".number", data_number="h0"),
-                h.span(".number", data_number="h1"),
+                h.span(".number", data_number="h0")[f"{remaining.h0}"],
+                h.span(".number", data_number="h1")[f"{remaining.h1}"],
                 h.span(".colon")[":"],
-                h.span(".number", data_number="m0"),
-                h.span(".number", data_number="m1"),
+                h.span(".number", data_number="m0")[f"{remaining.m0}"],
+                h.span(".number", data_number="m1")[f"{remaining.m1}"],
                 h.span(".colon")[":"],
-                h.span(".number", data_number="s0"),
-                h.span(".number", data_number="s1"),
+                h.span(".number", data_number="s0")[f"{remaining.s0}"],
+                h.span(".number", data_number="s1")[f"{remaining.s1}"],
             ]
         ],
     ]

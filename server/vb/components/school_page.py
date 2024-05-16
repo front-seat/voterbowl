@@ -10,6 +10,10 @@ from .logo import school_logo
 
 
 def _no_current_prize_contest(school: School) -> h.Node:
+    if school.mascot and school.percent_voted_2020:
+        return h.p[
+            f"Join the {school.percent_voted_2020}% of the {school.mascot} who voted in the 2020 presidential election."
+        ]
     return h.p[
         school.short_name,
         " ",

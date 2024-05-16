@@ -31,6 +31,11 @@ class School(models.Model):
 
     short_name = models.CharField(max_length=255, blank=True)
     mascot = models.CharField(max_length=255, blank=True)
+    percent_voted_2020 = models.IntegerField(
+        blank=True,
+        default=0,
+        help_text="If known, the percentage of students who voted in 2020 (like 70).",
+    )
 
     # Fields that define how the school handles email addresses.
     # This allows us both to validate that a school-matching email address is

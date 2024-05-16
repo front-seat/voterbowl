@@ -5,11 +5,17 @@ from server.utils.components import style
 from ..models import Contest
 from .button import button
 from .logo import school_logo
+from .utils import small_countdown_str
 
 
 def _ongoing_description(contest: Contest) -> list[str]:
     """Render a description of the given contest."""
     if contest.is_no_prize:
+        school = contest.school
+        if school.mascot and school.percent_voted_2020:
+            return [
+                f"Join the {school.percent_voted_2020}% of the {school.mascot} who voted in the 2020 presidential election."
+            ]
         return [
             "Check your voter registration now to avoid last-minute issues before the election."
         ]
@@ -61,6 +67,6 @@ def ongoing_contest(contest: Contest) -> h.Element:
             ],
         ],
         h.small_countdown(data_end_at=contest.end_at.isoformat())[
-            h.div(".box countdown")[""]
+            h.div(".box countdown")[small_countdown_str(contest.end_at)]
         ],
     ]
