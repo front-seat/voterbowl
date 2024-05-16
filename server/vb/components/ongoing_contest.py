@@ -5,6 +5,7 @@ from server.utils.components import style
 from ..models import Contest
 from .button import button
 from .logo import school_logo
+from .utils import small_countdown_str
 
 
 def _ongoing_description(contest: Contest) -> list[str]:
@@ -66,6 +67,6 @@ def ongoing_contest(contest: Contest) -> h.Element:
             ],
         ],
         h.small_countdown(data_end_at=contest.end_at.isoformat())[
-            h.div(".box countdown")[""]
+            h.div(".box countdown")[small_countdown_str(contest.end_at)]
         ],
     ]

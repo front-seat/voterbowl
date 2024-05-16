@@ -1,5 +1,7 @@
+import datetime
 import typing as t
 from dataclasses import dataclass, field, replace
+from math import floor
 
 import htpy as h
 from htpy import _iter_children as _h_iter_children
@@ -70,3 +72,62 @@ class Fragment:
 
 
 fragment = Fragment(None)
+
+
+@dataclass(frozen=True)
+class RemainingTime:
+    """Render the remaining time until the given end time."""
+
+    h0: int
+    """The tens digit of the hours."""
+
+    h1: int
+    """The ones digit of the hours."""
+
+    m0: int
+    """The tens digit of the minutes."""
+
+    m1: int
+    """The ones digit of the minutes."""
+
+    s0: int
+    """The tens digit of the seconds."""
+
+    s1: int
+    """The ones digit of the seconds."""
+
+    @property
+    def ended(self) -> bool:
+        """Return whether the remaining time has ended."""
+        return self.h0 == self.h1 == self.m0 == self.m1 == self.s0 == self.s1 == 0
+
+
+def remaining_time(
+    end_at: datetime.datetime, when: datetime.datetime | None = None
+) -> RemainingTime:
+    """Render the remaining time until the given end time."""
+    now = when or datetime.datetime.now(datetime.UTC)
+    delta = end_at - now
+    if delta.total_seconds() <= 0:
+        return RemainingTime(0, 0, 0, 0, 0, 0)
+    hours, remainder = divmod(delta.total_seconds(), 3600)
+    minutes, seconds = divmod(remainder, 60)
+    hours, minutes, seconds = map(floor, (hours, minutes, seconds))
+    return RemainingTime(
+        h0=hours // 10,
+        h1=hours % 10,
+        m0=minutes // 10,
+        m1=minutes % 10,
+        s0=seconds // 10,
+        s1=seconds % 10,
+    )
+
+
+def small_countdown_str(
+    end_at: datetime.datetime, when: datetime.datetime | None = None
+) -> str:
+    """Render the remaining time until the given end time."""
+    rt = remaining_time(end_at, when)
+    if rt.ended:
+        return "Just ended!"
+    return f"Ends in {rt.h0}{rt.h1}:{rt.m0}{rt.m1}:{rt.s0}{rt.s1}"
