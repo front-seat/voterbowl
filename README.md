@@ -1,7 +1,6 @@
 # voterbowl
 
-Prepare for the ultimate showcase showdown.
-https://voterbowl.org/
+The code behind https://voterbowl.org/
 
 We use:
 
@@ -15,9 +14,11 @@ We spend all our hipster tech tokens for this project to help us build a front-e
 - [css-scope-inline](https://github.com/gnat/css-scope-inline)
 - [htpy](https://htpy.dev/) for HTML building, rather than Django templates (with a small handful of exceptions).
 
-Having never used any of these toys before, we'll see how this pans out. (Update: I'm going to go back and remove `css-scope-inline` when I have a chance, in favor of, y'know, just being more careful with top-level CSS. `htpy` is better than Django templates for our purposes but not without its friction and pain.)
+Having never used any of these toys before, we'll see how this pans out.
 
-(Others under consideration include [surreal](https://github.com/gnat/surreal?tab=readme-ov-file), [django-slippers](https://github.com/mixxorz/slippers), [django-template-partials](https://github.com/carltongibson/django-template-partials), and [django-components](https://github.com/EmilStenstrom/django-components). And don't forget the [django-htmx-patterns](https://github.com/spookylukey/django-htmx-patterns/) documentation.)
+(Update: HTMX is a keeper. It seems to pair nicely with web components. I'm finding `htpy` preferable to Django templates for this particular project, but there's definitely some friction here; I'm reminded of the frictions of javascript templating land just before JSX got introduced. And `css-scope-inline` is not worth the trouble; I intend to rip it out when I get a chance.)
+
+(Other hipster tools under consideration included [surreal](https://github.com/gnat/surreal?tab=readme-ov-file), [django-slippers](https://github.com/mixxorz/slippers), [django-template-partials](https://github.com/carltongibson/django-template-partials), and [django-components](https://github.com/EmilStenstrom/django-components). All of these attempt to ameliorate pain points in Django's built-in templates but I'm not convinced they're terribly successful. And don't forget the [django-htmx-patterns](https://github.com/spookylukey/django-htmx-patterns/) documentation.)
 
 For code cleanliness, we also use:
 
@@ -31,6 +32,4 @@ For code cleanliness, we also use:
 1. Install the python dependencies with `pip install -r requirements.txt`
 1. Get postgres set up. If you've got docker installed, `./scripts/dockerpg.sh up`
 1. Configure your environment variables. (See `.env.sample` and `settings.py`)
-1. Run the app. `./manage.py runserver` and visit http://localhost:8000/
-
-New tests.
+1. Run the app. `./scripts/runserver.sh` and visit http://localhost:8000/
