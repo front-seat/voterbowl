@@ -31,26 +31,21 @@ class with_children(t.Generic[C, P, R]):
 
     def __str__(self) -> str:
         """Return the name of the function being wrapped."""
-        # CONSIDER: alternatively, require that all wrapped functions
-        # have a default value for the `children` argument, and invoke
-        # the function here?
+        # CONSIDER: alternatively, invoke the function here? If the function
+        # provides a default value for its arguments, it'll work; otherwise,
+        # it will blow up... which might be a good thing?
         return f"with_children[{self._f.__name__}]"
 
 
-@with_children
-def card(children: h.Node, data_foo: str | None = None) -> h.Element:
-    """Render a card with the given children."""
-    return h.div(".card", data_foo=data_foo)[children]
-
-
-@with_children
-def list_items(children: t.Iterable[str]) -> h.Node:
-    """Render all children in list items."""
-    return [h.li[child] for child in children]
-
-
 class Fragment:
-    """A fragment of HTML that can be rendered as a string."""
+    """
+    A fragment of HTML with no explicit parent element.
+
+    CONSIDER: this feels like it should perhaps be the base class from
+    which htpy.Element inherits? It's a container for children, without
+    an Element's tag/attributes. And htpy.Node should probably include
+    this as well.
+    """
 
     __slots__ = ("_children",)
 
@@ -68,6 +63,7 @@ class Fragment:
 
     def __iter__(self):
         """Iterate over the children of the fragment."""
+        # XXX I'm using a private method here, which is not ideal.
         yield from _h_iter_children(self._children)
 
 
