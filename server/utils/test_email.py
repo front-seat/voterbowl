@@ -77,3 +77,43 @@ class NormalizeEmailTestCase(unittest.TestCase):
         expected = "tst@xample.com"
         result = e.normalize_email(email)
         self.assertEqual(result, expected)
+
+    def test_allow_subdomains(self):
+        """Test an email address with a subdomain."""
+        email = "test@subdomain.example.com"
+        expected = "test@example.com"
+        domains = e.Domains("example.com", ())
+        result = e.normalize_email(email, domains=domains, allow_subdomains=True)
+        self.assertEqual(result, expected)
+
+    def test_allow_submdomains_invalid(self):
+        """Test an email address with a non-subdomain."""
+        email = "test@subdomainexample.com"
+        expected = "test@subdomainexample.com"
+        domains = e.Domains("example.com", ())
+        result = e.normalize_email(email, domains=domains, allow_subdomains=True)
+        self.assertEqual(result, expected)
+
+    def test_allow_subdomains_aliases(self):
+        """Test an email address with domain aliases and subdomains."""
+        email = "test@party.example.edu"
+        expected = "test@example.com"
+        domains = e.Domains("example.com", ("example.edu",))
+        result = e.normalize_email(email, domains=domains, allow_subdomains=True)
+        self.assertEqual(result, expected)
+
+    def test_disallow_subdomains(self):
+        """Test an email address with a subdomain."""
+        email = "test@subdomain.example.com"
+        expected = "test@subdomain.example.com"
+        domains = e.Domains("example.com", ())
+        result = e.normalize_email(email, domains=domains, allow_subdomains=False)
+        self.assertEqual(result, expected)
+
+    def test_disallow_subdomains_aliases(self):
+        """Test an email address with domain aliases and subdomains."""
+        email = "test@party.example.edu"
+        expected = "test@party.example.edu"
+        domains = e.Domains("example.com", ("example.edu",))
+        result = e.normalize_email(email, domains=domains, allow_subdomains=False)
+        self.assertEqual(result, expected)
