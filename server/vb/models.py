@@ -51,6 +51,10 @@ class School(models.Model):
         default=True,
         help_text="Whether to remove dots from the local part of school emails.",
     )  # noqa
+    allow_subdomains = models.BooleanField(
+        default=True,
+        help_text="Whether to allow arbitrary subdomains in school emails.",
+    )
 
     logo: "Logo"
     contests: "ContestManager"
@@ -64,6 +68,7 @@ class School(models.Model):
             tag=self.mail_tag if self.mail_tag else None,
             dots=self.mail_dots,
             domains=domains,
+            allow_subdomains=self.allow_subdomains,
         )
 
     def hash_email(self, address: str) -> str:

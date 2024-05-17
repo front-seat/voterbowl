@@ -18,11 +18,17 @@ class Domains:
     aliases: tuple[str, ...]
 
 
+def subdomain_of(domain: str, parent: str) -> bool:
+    """Check if the `domain` is a subdomain of `parent`."""
+    return domain == parent or domain.endswith(f".{parent}")
+
+
 def normalize_email(
     address: str,
     tag: str | None = "+",
     dots: bool = True,
     domains: Domains | None = None,
+    allow_subdomains: bool = True,
 ) -> str:
     """
     Normalize an email address.
@@ -32,6 +38,7 @@ def normalize_email(
     - If provided, remove the `tag` character (+) and everything after it
     - If requested, remove dots (.) from the address
     - If provided, replace the domain with the primary domain if it is an alias
+    - If requested, remove subdomains from the domain
 
     You must have previously validated the email address.
 
@@ -45,8 +52,13 @@ def normalize_email(
         local = local.split(tag, maxsplit=1)[0]
     if dots:
         local = local.replace(".", "")
-    if domains and domain in domains.aliases:
-        domain = domains.primary
+    if domains:
+        if allow_subdomains and any(
+            subdomain_of(domain, d) for d in [domains.primary, *domains.aliases]
+        ):
+            domain = domains.primary
+        elif not allow_subdomains and domain in domains.aliases:
+            domain = domains.primary
     # FORCE ascii for now (yes, this is absurd).
     local = local.encode("ascii", "ignore").decode("ascii")
     domain = domain.encode("ascii", "ignore").decode("ascii")
