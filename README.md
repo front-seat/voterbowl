@@ -15,8 +15,6 @@ We spend all our hipster tech tokens for this project to help us build a front-e
 
 So far, I'm liking both. For projects like this one, HTMX is a keeper. `htpy` has its advantages and its frictions; I'm reminded of javascript templating land just before JSX got introduced.
 
-(Update: HTMX is a keeper. It seems to pair nicely with web components. I'm finding `htpy` preferable to Django templates for this particular project, but there's definitely some friction here; I'm reminded of the frictions of javascript templating land just before JSX got introduced. And `css-scope-inline` is not worth the trouble; I intend to rip it out when I get a chance.)
-
 (Other hipster tools under consideration included [css-scope-inline](https://github.com/gnat/css-scope-inline) and [surreal](https://github.com/gnat/surreal?tab=readme-ov-file) for "locality of behavior", none of which turned out to be particularly desirable in practice; [django-slippers](https://github.com/mixxorz/slippers), [django-template-partials](https://github.com/carltongibson/django-template-partials), and [django-components](https://github.com/EmilStenstrom/django-components), all of which attempt to relieve pain points in Django's built-in templates but none of which seem terribly successful at it; and various bits of wisdom from [django-htmx-patterns](https://github.com/spookylukey/django-htmx-patterns/).)
 
 For code cleanliness, we also use:

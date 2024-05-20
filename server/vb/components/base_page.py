@@ -53,7 +53,6 @@ def base_page(
             h.meta(name="format-detection", content="telephone=no"),
             h.link(rel="stylesheet", href=static("css/modern-normalize.min.css")),
             h.link(rel="stylesheet", href=static("css/base.css")),
-            h.script(src=static("js/css-scope-inline.js")),
             h.script(src=static("js/voterbowl.mjs"), type="module"),
             style(__file__, "base_page.css", bg_color=bg_color),
             extra_head,
