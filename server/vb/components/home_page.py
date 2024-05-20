@@ -2,8 +2,6 @@ import typing as t
 
 import htpy as h
 
-from server.utils.components import style
-
 from ..models import Contest
 from .base_page import base_page
 from .logo import VOTER_BOWL_LOGO
@@ -36,8 +34,7 @@ def home_page(
     upcoming_contests = list(upcoming_contests)
 
     return base_page[
-        h.div[
-            style(__file__, "home_page.css"),
+        h.div("#home-page")[
             h.main[
                 h.div(".container")[
                     h.div(".center")[VOTER_BOWL_LOGO],

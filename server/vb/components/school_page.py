@@ -1,6 +1,6 @@
 import htpy as h
 
-from server.utils.components import style
+from server.utils.components import css_vars
 
 from ..models import Contest, School
 from .base_page import base_page
@@ -84,13 +84,13 @@ def school_page(school: School, current_contest: Contest | None) -> h.Element:
     return base_page(
         title=f"Voter Bowl x {school.name}", bg_color=school.logo.bg_color
     )[
-        h.div[
-            style(
-                __file__,
-                "school_page.css",
+        h.div(
+            "#school-page",
+            style=css_vars(
                 bg_color=school.logo.bg_color,
                 color=school.logo.bg_text_color,
             ),
+        )[
             h.main[
                 h.div(".container")[
                     countdown(current_contest)

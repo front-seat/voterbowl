@@ -2,11 +2,10 @@ import htpy as h
 from django.templatetags.static import static
 from markupsafe import Markup
 
-from server.utils.components import style
+from server.utils.components import css_vars, with_children
 
 from .faq import faq
 from .footer import footer
-from .utils import with_children
 
 
 def _gtag_scripts() -> h.Node:
@@ -41,7 +40,7 @@ def base_page(
     show_footer: bool = True,
 ) -> h.Element:
     """Render the generic structure for all pages on voterbowl.org."""
-    return h.html(lang="en")[
+    return h.html(lang="en", style=css_vars(bg_color=bg_color))[
         h.head[
             _gtag_scripts(),
             h.title[title],
@@ -51,16 +50,13 @@ def base_page(
             h.meta(http_equiv="X-UA-Compatible", content="IE=edge"),
             h.meta(name="viewport", content="width=device-width, initial-scale=1.0"),
             h.meta(name="format-detection", content="telephone=no"),
-            h.link(rel="stylesheet", href=static("css/modern-normalize.min.css")),
-            h.link(rel="stylesheet", href=static("css/base.css")),
-            h.script(src=static("js/css-scope-inline.js")),
+            h.link(rel="stylesheet", href=static("css/voterbowl.css")),
             h.script(src=static("js/voterbowl.mjs"), type="module"),
-            style(__file__, "base_page.css", bg_color=bg_color),
             extra_head,
         ],
         h.body[
             children,
-            h.div(".faq")[h.div(".container")[faq(school=None)]] if show_faq else None,
+            h.div("#faq")[h.div(".container")[faq(school=None)]] if show_faq else None,
             footer() if show_footer else None,
         ],
     ]

@@ -1,11 +1,23 @@
+import datetime
+
 import htpy as h
 
-from server.utils.components import style
+from server.utils.components import css_vars
 
 from ..models import Contest
 from .button import button
+from .countdown import remaining_time
 from .logo import school_logo
-from .utils import small_countdown_str
+
+
+def _format_countdown_str(
+    end_at: datetime.datetime, when: datetime.datetime | None = None
+) -> str:
+    """Format the remaining time until the given end time."""
+    rt = remaining_time(end_at, when)
+    if rt.ended:
+        return "Just ended!"
+    return f"Ends in {rt.h0}{rt.h1}:{rt.m0}{rt.m1}:{rt.s0}{rt.s1}"
 
 
 def _ongoing_description(contest: Contest) -> list[str]:
@@ -52,10 +64,9 @@ def _ongoing_description(contest: Contest) -> list[str]:
 
 def ongoing_contest(contest: Contest) -> h.Element:
     """Render an ongoing contest."""
-    return h.div[
-        style(
-            __file__, "ongoing_contest.css", logo_bg_color=contest.school.logo.bg_color
-        ),
+    return h.div(
+        ".ongoing-contest", style=css_vars(logo_bg_color=contest.school.logo.bg_color)
+    )[
         h.div(".content")[
             school_logo(contest.school),
             h.p(".school")[contest.school.name],
@@ -67,6 +78,6 @@ def ongoing_contest(contest: Contest) -> h.Element:
             ],
         ],
         h.small_countdown(data_end_at=contest.end_at.isoformat())[
-            h.div(".box countdown")[small_countdown_str(contest.end_at)]
+            h.div(".box countdown")[_format_countdown_str(contest.end_at)]
         ],
     ]

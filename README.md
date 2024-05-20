@@ -11,14 +11,11 @@ We use:
 We spend all our hipster tech tokens for this project to help us build a front-end directly in Django-land. In particular, we use:
 
 - [HTMX](https://htmx.org/) with [django-htmx](https://github.com/adamchainz/django-htmx)
-- [css-scope-inline](https://github.com/gnat/css-scope-inline)
 - [htpy](https://htpy.dev/) for HTML building, rather than Django templates (with a small handful of exceptions).
 
-Having never used any of these toys before, we'll see how this pans out.
+So far, I'm liking both. For projects like this one, HTMX is a keeper. `htpy` has its advantages and its frictions; I'm reminded of javascript templating land just before JSX got introduced.
 
-(Update: HTMX is a keeper. It seems to pair nicely with web components. I'm finding `htpy` preferable to Django templates for this particular project, but there's definitely some friction here; I'm reminded of the frictions of javascript templating land just before JSX got introduced. And `css-scope-inline` is not worth the trouble; I intend to rip it out when I get a chance.)
-
-(Other hipster tools under consideration included [surreal](https://github.com/gnat/surreal?tab=readme-ov-file), [django-slippers](https://github.com/mixxorz/slippers), [django-template-partials](https://github.com/carltongibson/django-template-partials), and [django-components](https://github.com/EmilStenstrom/django-components). All of these attempt to ameliorate pain points in Django's built-in templates but I'm not convinced they're terribly successful. And don't forget the [django-htmx-patterns](https://github.com/spookylukey/django-htmx-patterns/) documentation.)
+(Other hipster tools under consideration included [css-scope-inline](https://github.com/gnat/css-scope-inline) and [surreal](https://github.com/gnat/surreal?tab=readme-ov-file) for "locality of behavior", none of which turned out to be particularly desirable in practice; [django-slippers](https://github.com/mixxorz/slippers), [django-template-partials](https://github.com/carltongibson/django-template-partials), and [django-components](https://github.com/EmilStenstrom/django-components), all of which attempt to relieve pain points in Django's built-in templates but none of which seem terribly successful at it; and various bits of wisdom from [django-htmx-patterns](https://github.com/spookylukey/django-htmx-patterns/).)
 
 For code cleanliness, we also use:
 

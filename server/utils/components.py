@@ -1,84 +1,100 @@
 """Utilities for working with HTML-in-python components."""
 
-import json
 import pathlib
 import typing as t
+from dataclasses import dataclass, field, replace
 
 import htpy as h
 import markdown
+from htpy import _iter_children as _h_iter_children
 from markupsafe import Markup
-from pydantic.alias_generators import to_camel
 
 
-def load_file(file_name: str | pathlib.Path) -> str:
+def _load_file(file_name: str | pathlib.Path) -> str:
     """Load a text file and return its contents."""
     with open(file_name, "r") as f:
         return f.read()
 
 
-def load_sibling_file(base_file_name: str | pathlib.Path, file_name: str) -> str:
+def _load_sibling_file(base_file_name: str | pathlib.Path, file_name: str) -> str:
     """Load a file in the same directory as the base file."""
-    return load_file(pathlib.Path(base_file_name).resolve().parent / file_name)
-
-
-def _css_vars(selector: str, /, **vars: str) -> str:
-    """Generate CSS variables to inject into a stylesheet."""
-    as_css = "\n".join(f"  --{k.replace('_', '-')}: {v};" for k, v in vars.items())
-    return f"{selector} {{\n{as_css}\n}}\n"
-
-
-def style(base_file_name: str | pathlib.Path, file_name: str, **vars: str) -> h.Element:
-    """
-    Load a CSS file in the same directory as the base file.
-
-    In addition to the file, you can pass in CSS variables to inject into the
-    stylesheet.
-    """
-    text = load_sibling_file(base_file_name, file_name)
-    if vars:
-        text = _css_vars("me", **vars) + text
-    return h.style[Markup(text)]
-
-
-def js(
-    base_file_name: str | pathlib.Path,
-    file_name: str,
-    *,
-    surreal: bool = True,
-    **props: t.Any,
-) -> h.Element:
-    """
-    Load a JS file in the same directory as the base file.
-
-    Return a script element.
-
-    If `props` are provided, they are added to the script element
-    as data-props JSON.
-
-    The `surreal` flag, if True, causes us to wrap the provided javascript
-    in an invocation wrapper. The javascript is expected to take
-    two arguments: `self` and `props`.
-
-    CONSIDER: this still feels awkward to me, and I bet there's a cleaner
-    pattern -- our CSS pattern feels very clean to me, for instance.
-    """
-    text = load_sibling_file(base_file_name, file_name)
-    element = h.script
-    if props:
-        as_camel = {to_camel(k): v for k, v in props.items()}
-        as_json = json.dumps(as_camel)
-        element = element(data_props=as_json)
-    if surreal:
-        text = f"({text})(me(), me().querySelector('script').dataset.props && JSON.parse(me().querySelector('script').dataset.props))"  # noqa: E501
-    return element[Markup(text)]
+    return _load_file(pathlib.Path(base_file_name).resolve().parent / file_name)
 
 
 def svg(base_file_name: str | pathlib.Path, file_name: str) -> Markup:
     """Load an SVG file in the same directory as the base file."""
-    return Markup(load_sibling_file(base_file_name, file_name))
+    return Markup(_load_sibling_file(base_file_name, file_name))
 
 
 def markdown_html(base_file_name: str | pathlib.Path, file_name: str) -> Markup:
     """Load a markdown file in the same directory as the base file."""
-    text = load_sibling_file(base_file_name, file_name)
+    text = _load_sibling_file(base_file_name, file_name)
     return Markup(markdown.markdown(text))
+
+
+def css_vars(**vars: str) -> str:
+    """Generate CSS variables to inject into an inline style attribute."""
+    return " ".join(f"--{k.replace('_', '-')}: {v};" for k, v in vars.items())
+
+
+# FUTURE use PEP 695 syntax when mypy supports it
+P = t.ParamSpec("P")
+C = t.TypeVar("C")
+R = t.TypeVar("R", h.Element, h.Node)
+
+
+@dataclass(frozen=True)
+class with_children(t.Generic[C, P, R]):
+    """Wrap a function to make it look more like an htpy.Element."""
+
+    _f: t.Callable[t.Concatenate[C, P], R]
+    _args: tuple[t.Any, ...] = field(default_factory=tuple)
+    _kwargs: t.Mapping[str, t.Any] = field(default_factory=dict)
+
+    def __getitem__(self, children: C) -> R:
+        """Render the component with the given children."""
+        return self._f(children, *self._args, **self._kwargs)  # type: ignore
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> t.Self:
+        """Return a new instance of the class with the given arguments."""
+        return replace(self, _args=args, _kwargs=kwargs)
+
+    def __str__(self) -> str:
+        """Return the name of the function being wrapped."""
+        # CONSIDER: alternatively, invoke the function here? If the function
+        # provides a default value for its arguments, it'll work; otherwise,
+        # it will blow up... which might be a good thing?
+        return f"with_children[{self._f.__name__}]"
+
+
+class Fragment:
+    """
+    A fragment of HTML with no explicit parent element.
+
+    CONSIDER: this feels like it should perhaps be the base class from
+    which htpy.Element inherits? It's a container for children, without
+    an Element's tag/attributes. And htpy.Node should probably include
+    this as well.
+    """
+
+    __slots__ = ("_children",)
+
+    def __init__(self, children: h.Node) -> None:
+        """Initialize the fragment with the given children."""
+        self._children = children
+
+    def __getitem__(self, children: h.Node) -> t.Self:
+        """Return a new fragment with the given children."""
+        return self.__class__(children)
+
+    def __str__(self) -> Markup:
+        """Return the fragment as a string."""
+        return Markup("".join(str(x) for x in self))
+
+    def __iter__(self):
+        """Iterate over the children of the fragment."""
+        # XXX I'm using a private method here, which is not ideal.
+        yield from _h_iter_children(self._children)
+
+
+fragment = Fragment(None)

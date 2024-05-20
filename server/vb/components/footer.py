@@ -1,15 +1,12 @@
 import htpy as h
 from django.urls import reverse
 
-from server.utils.components import style
-
 from .logo import VOTER_BOWL_LOGO
 
 
 def footer() -> h.Element:
     """Render the site-wide footer."""
     return h.footer[
-        style(__file__, "footer.css"),
         h.div(".center")[VOTER_BOWL_LOGO],
         h.div(".outer")[
             h.p(".copyright")["© 2024 The Voter Bowl"],
