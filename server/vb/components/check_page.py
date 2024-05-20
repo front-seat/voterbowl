@@ -3,13 +3,12 @@ from django.conf import settings
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.urls import reverse
 
-from server.utils.components import style
+from server.utils.components import Fragment, css_vars, fragment
 
 from ..models import Contest, ContestEntry, School
 from .base_page import base_page
 from .countdown import countdown
 from .logo import school_logo
-from .utils import Fragment, fragment
 
 
 def check_page(school: School, current_contest: Contest | None) -> h.Element:
@@ -24,43 +23,40 @@ def check_page(school: School, current_contest: Contest | None) -> h.Element:
         show_faq=False,
         show_footer=False,
     )[
-        h.check_page[
-            h.div[
-                style(
-                    __file__,
-                    "check_page.css",
-                    main_color=school.logo.bg_text_color,
-                    main_bg_color=school.logo.bg_color,
-                ),
-                h.main[
-                    h.div(".container")[
-                        h.div(".urgency")[
-                            school_logo(school),
-                            countdown(current_contest)
-                            if current_contest and not current_contest.is_no_prize
-                            else h.div(".separate")[
-                                h.p[
-                                    "Check your voter registration.",
-                                    h.br,
-                                    h.br,
-                                    "It only takes 30 seconds.",
-                                ]
-                            ],
-                        ]
-                    ],
-                    h.div(".fireworks"),
-                ],
-                h.div(".form")[
-                    h.div(".container")[
-                        h.div(
-                            ".voteamerica-embed",
-                            data_subscriber="voterbowl",
-                            data_tool="verify",
-                            data_edition="college",
-                        )
+        h.check_page(
+            style=css_vars(
+                main_color=school.logo.bg_text_color,
+                main_bg_color=school.logo.bg_color,
+            )
+        )[
+            h.main[
+                h.div(".container")[
+                    h.div(".urgency")[
+                        school_logo(school),
+                        countdown(current_contest)
+                        if current_contest and not current_contest.is_no_prize
+                        else h.div(".separate")[
+                            h.p[
+                                "Check your voter registration.",
+                                h.br,
+                                h.br,
+                                "It only takes 30 seconds.",
+                            ]
+                        ],
                     ]
                 ],
-            ]
+                h.div(".fireworks"),
+            ],
+            h.div(".form")[
+                h.div(".container")[
+                    h.div(
+                        ".voteamerica-embed",
+                        data_subscriber="voterbowl",
+                        data_tool="verify",
+                        data_edition="college",
+                    )
+                ]
+            ],
         ]
     ]
 
@@ -184,10 +180,5 @@ def finish_check_partial(
             data_is_winner="true"
             if contest_entry and contest_entry.is_winner
             else "false"
-        )[
-            h.p[
-                style(__file__, "finish_check_partial.css"),
-                _finish_check_description(school, contest_entry, most_recent_winner),
-            ]
-        ],
+        )[h.p[_finish_check_description(school, contest_entry, most_recent_winner)]],
     ]

@@ -1,6 +1,6 @@
 import htpy as h
 
-from server.utils.components import style, svg
+from server.utils.components import css_vars, svg
 
 from ..models import Logo, School
 
@@ -18,16 +18,15 @@ def school_logo(school: School) -> h.Element:
 
 
 def logo_specimen(logo: Logo) -> h.Element:
-    """Render a school's logo as a specimen for our admin views."""
-    return h.div[
-        style(
-            __file__,
-            "logo_specimen.css",
+    """Render a school's logo as a specimen for Django admin views."""
+    return h.logo_specimen(
+        style=css_vars(
             logo_bg_color=logo.bg_color,
             logo_bg_text_color=logo.bg_text_color,
             logo_action_color=logo.action_color,
             logo_action_text_color=logo.action_text_color,
-        ),
+        )
+    )[
         h.div(".bubble")[h.img(src=logo.url, alt="logo")],
         h.div(".bg")["text"],
         h.div(".action")["action"],

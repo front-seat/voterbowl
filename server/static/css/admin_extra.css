@@ -2,3 +2,59 @@
 .tabular.inline-related td.original p {
   visibility: hidden
 }
+
+
+
+/**---------------------------------
+ * Logo Specimen (Django admin view)
+ *---------------------------------*/
+
+logo-specimen {
+  display: flex;
+  gap: 0.5rem;
+}
+
+logo-specimen .bubble {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  width: 48px;
+  height: 48px;
+  background-color: var(--logo-bg-color);
+}
+
+logo-specimen .bubble img {
+  display: block;
+  margin: 0 auto;
+  max-width: 80%;
+  max-height: 80%;
+}
+
+logo-specimen .bg {
+  display: flex;
+  font-weight: 600;
+  align-items: center;
+  justify-content: center;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  background-color: var(--logo-bg-color);
+  color: var(--logo-bg-text-color);
+}
+
+logo-specimen .action {
+  cursor: pointer;
+  display: flex;
+  font-weight: 600;
+  align-items: center;
+  justify-content: center;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  transition: opacity 0.2s;
+  background-color: var(--logo-action-color);
+  color: var(--logo-action-text-color);
+}
+
+logo-specimen .action:hover {
+  opacity: 0.7;
+  transition: opacity 0.2s ease-in-out;
+}
