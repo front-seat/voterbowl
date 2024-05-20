@@ -2,7 +2,7 @@ import htpy as h
 from django.conf import settings
 from django.urls import reverse
 
-from server.utils.components import style, svg
+from server.utils.components import css_vars, svg
 
 from ..models import ContestEntry, School
 from .base_page import base_page
@@ -58,13 +58,12 @@ def validate_email_page(
     return base_page(
         title=f"Voter Bowl x {school.short_name}", bg_color=school.logo.bg_color
     )[
-        h.div[
-            style(
-                __file__,
-                "validate_email_page.css",
-                main_color=school.logo.bg_text_color,
-                main_bg_color=school.logo.bg_color,
+        h.div(
+            "#validate-email",
+            style=css_vars(
+                main_color=school.logo.bg_text_color, main_bg_color=school.logo.bg_color
             ),
+        )[
             h.main[
                 h.gift_code[
                     h.div(".container")[
