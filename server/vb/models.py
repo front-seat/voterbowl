@@ -205,6 +205,13 @@ class ContestWorkflow(models.TextChoices):
     NONE = "none", "None"
 
 
+class ContestTool(models.TextChoices):
+    """The registration tool for the contest."""
+
+    VOTE_AMERICA = "vote_america", "Vote America"
+    ROCK_THE_VOTE = "rock_the_vote", "Rock the Vote"
+
+
 class Contest(models.Model):
     """A single contest in the competition."""
 
@@ -218,6 +225,14 @@ class Contest(models.Model):
     # Contests have strictly defined start and end times.
     start_at = models.DateTimeField(blank=False)
     end_at = models.DateTimeField(blank=False)
+
+    # We support running contests with different registration tools.
+    tool = models.CharField(
+        max_length=32,
+        choices=ContestTool.choices,
+        blank=False,
+        default=ContestTool.VOTE_AMERICA,
+    )
 
     # The assumptions here have changed basically weekly as we gather more
     # data and learn more. As of this writing, our current assumptions are:
