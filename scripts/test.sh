@@ -13,9 +13,9 @@ ruff format --check server
 printf "${BLUE}Running ruff...${NC}\n"
 ruff check server
 
-# Run the Python type checker (mypy).
-printf "${BLUE}Running mypy...${NC}\n"
-mypy server
+# Run the Python type checker (pyright).
+printf "${BLUE}Running pyright...${NC}\n"
+npx pyright
 
 # Run Python tests
 printf "${BLUE}Running tests...${NC}\n"

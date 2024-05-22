@@ -183,26 +183,26 @@ class ContestKind(models.TextChoices):
     """The various kinds of contests."""
 
     # Every student wins a prize (gift card; charitable donation; etc.)
-    GIVEAWAY = "giveaway", "Giveaway"
+    GIVEAWAY = "giveaway", "Giveaway"  # type: ignore
 
     # Every student rolls a dice; some students win a prize.
-    DICE_ROLL = "dice_roll", "Dice roll"
+    DICE_ROLL = "dice_roll", "Dice roll"  # type: ignore
 
     # A single student wins a prize after the contest ends.
-    SINGLE_WINNER = "single_winner", "Single winner"
+    SINGLE_WINNER = "single_winner", "Single winner"  # type: ignore
 
     # No prizes are awarded.
-    NO_PRIZE = "no_prize", "No prize"
+    NO_PRIZE = "no_prize", "No prize"  # type: ignore
 
 
 class ContestWorkflow(models.TextChoices):
     """The various workflows for contests."""
 
     # Issue an amazon gift card and email automatically
-    AMAZON = "amazon", "Amazon"
+    AMAZON = "amazon", "Amazon"  # type: ignore
 
     # No automated workflow; manual intervention may be required
-    NONE = "none", "None"
+    NONE = "none", "None"  # type: ignore
 
 
 class Contest(models.Model):

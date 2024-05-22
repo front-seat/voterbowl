@@ -1,6 +1,8 @@
+import typing as t
+
 from django.core.management.base import BaseCommand
 
-from server.vb.models import Contest, School
+from server.vb.models import Contest, School, Student
 from server.vb.ops import enter_contest, send_validation_link_email
 
 
@@ -27,9 +29,11 @@ class Command(BaseCommand):
     def _process_students(self, contest: Contest, school: School, email: str):
         """Enter one or more students into a contest, if not already entered."""
         if email[0] == "@":
-            students = school.students.filter(email__endswith=email[1:])
+            students = t.cast(
+                t.Iterable[Student], school.students.filter(email__endswith=email[1:])
+            )
         else:
-            students = school.students.filter(email=email)
+            students = t.cast(t.Iterable[Student], school.students.filter(email=email))
 
         when = contest.start_at
 

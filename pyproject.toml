@@ -12,6 +12,12 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 
+[tool.pyright]
+include = ["server/**/*.py"]
+exclude = ["**/migrations/**"]
+typeCheckingMode = "basic"
+useLibraryCodeForTypes = true
+
 [tool.mypy]
 exclude = [".venv", "migrations"]
 ignore_missing_imports = true
