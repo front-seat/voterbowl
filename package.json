@@ -1,0 +1,10 @@
+{
+  "name": "voterbowl",
+  "version": "0.1.0",
+  "description": "Encouraging voters to check early and check often",
+  "author": "Dave Peck <dave@frontseat.org>",
+  "license": "MIT",
+  "devDependencies": {
+    "pyright": "^1.1.363"
+  }
+}

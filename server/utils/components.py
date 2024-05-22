@@ -37,14 +37,8 @@ def css_vars(**vars: str) -> str:
     return " ".join(f"--{k.replace('_', '-')}: {v};" for k, v in vars.items())
 
 
-# FUTURE use PEP 695 syntax when mypy supports it
-P = t.ParamSpec("P")
-C = t.TypeVar("C")
-R = t.TypeVar("R", h.Element, h.Node)
-
-
 @dataclass(frozen=True)
-class with_children(t.Generic[C, P, R]):
+class with_children[C, R: (h.Element, h.Node), **P]:
     """Wrap a function to make it look more like an htpy.Element."""
 
     _f: t.Callable[t.Concatenate[C, P], R]

@@ -20,7 +20,7 @@ So far, I'm liking both. For projects like this one, HTMX is a keeper. `htpy` ha
 For code cleanliness, we also use:
 
 - [Ruff](https://github.com/astral-sh/ruff) for linting
-- [mypy](https://mypy-lang.org/) for type checking
+- [pyright](https://github.com/microsoft/pyright) for type checking
 
 ### Getting a local dev instance running
 

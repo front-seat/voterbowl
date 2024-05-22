@@ -189,10 +189,8 @@ class AmazonJSONRPCClient(AmazonClient):
         return self.post_json(url, data, headers=headers)
 
 
-# I would use `type StatusCode = ...` except mypy still has an open issue
-# for supporting PEP 695. Ugh; all the other type checkers support it!
-StatusCode: t.TypeAlias = t.Literal["SUCCESS", "FAILURE", "RESEND"]
-CardStatus: t.TypeAlias = t.Literal["Fulfilled", "RefundedToPurchaser", "Expired"]
+type StatusCode = t.Literal["SUCCESS", "FAILURE", "RESEND"]
+type CardStatus = t.Literal["Fulfilled", "RefundedToPurchaser", "Expired"]
 
 
 class BaseCamelModel(p.BaseModel):

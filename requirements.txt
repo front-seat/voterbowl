@@ -9,7 +9,6 @@ gunicorn>=21,<22
 htpy>=24.4.0
 httpx>=0.20.0
 markdown>=3.6.0
-mypy>=1.9.0
 pillow>=10.2.0
 psycopg[binary]>=3,<4
 pydantic>=2.7.0
